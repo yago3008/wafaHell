@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WafaHell | Security Operations Center</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        /* Custom Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.5); }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #475569; }
+        
+        /* Table Hover Effect */
+        .attack-row:hover { background-color: rgba(255, 255, 255, 0.03); }
+        
+        /* Dropdown Animation */
+        .dropdown-menu { 
+            display: none; 
+            animation: slideDown 0.2s ease-out forwards;
+        }
+        .dropdown-menu.show { display: block; }
+        
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Modal Animation */
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .modal-content { animation: modalFadeIn 0.3s ease-out forwards; }
+
+        /* Cyber Grid Background */
+        .cyber-grid {
+            background-size: 40px 40px;
+            background-image: 
+                linear-gradient(to right, rgba(30, 41, 59, 0.3) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(30, 41, 59, 0.3) 1px, transparent 1px);
+            mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+            -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+        }
+    </style>
+</head>
+<body class="relative bg-slate-950 text-slate-300 font-sans text-[13px] min-h-screen overflow-x-hidden selection:bg-red-500/30">
+
+    <div class="fixed inset-0 z-0 cyber-grid pointer-events-none"></div>
+    <div class="fixed inset-0 z-0 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-slate-900/20 via-slate-950/80 to-slate-950 pointer-events-none"></div>
+
+    <div id="modalOverlay" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity">
+        <div class="modal-content bg-slate-900/90 border border-slate-700/50 p-8 rounded-2xl w-full max-w-md shadow-2xl ring-1 ring-white/10 relative">
+            
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white transition">
+                <i class="fas fa-times text-lg"></i>
+            </button>
+
+            <div class="text-center mb-6">
+                <div class="inline-block p-3 rounded-full bg-red-900/20 border border-red-500/30 mb-3">
+                    <i class="fas fa-ban text-2xl text-red-500"></i>
+                </div>
+                <h3 class="text-xl font-black text-white uppercase tracking-wide">Manual Block</h3>
+                <p class="text-xs text-slate-500">Add an IP address to the blacklist immediately</p>
+            </div>
+
+            <div class="space-y-5">
+                <div class="group">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1.5 ml-1">Target IP Address</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-globe text-slate-500"></i>
+                        </div>
+                        <input type="text" id="manual-ip" placeholder="Ex: 192.168.1.1" 
+                               class="w-full bg-slate-950/50 border border-slate-700 rounded-lg pl-10 pr-4 py-3 text-white focus:border-red-500 focus:ring-1 focus:ring-red-500/50 outline-none transition font-mono shadow-inner">
+                    </div>
+                </div>
+
+                <div class="group">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1.5 ml-1">Duration (Minutes)</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-clock text-slate-500"></i>
+                        </div>
+                        <input type="number" id="manual-time" value="5" 
+                               class="w-full bg-slate-950/50 border border-slate-700 rounded-lg pl-10 pr-4 py-3 text-white focus:border-red-500 focus:ring-1 focus:ring-red-500/50 outline-none transition font-mono shadow-inner">
+                    </div>
+                </div>
+
+                <div class="flex gap-3 mt-8 pt-4 border-t border-slate-800">
+                    <button onclick="closeModal()" class="flex-1 px-4 py-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 hover:text-white transition uppercase text-xs">Cancel</button>
+                    <button onclick="submitManualBlock()" class="flex-1 bg-gradient-to-r from-red-700 to-red-600 hover:from-red-600 hover:to-red-500 text-white font-bold px-4 py-3 rounded-lg shadow-lg shadow-red-900/30 transition uppercase text-xs flex items-center justify-center gap-2">
+                        <i class="fas fa-lock"></i> Block IP
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="relative z-10 container mx-auto p-4 lg:p-8 max-w-[1600px]">
+        
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-6 border-b border-slate-800/60 pb-6">
+            <div>
+                <div class="flex items-center gap-3 mb-1">
+                    <i class="fas fa-shield-halved text-red-600 text-2xl"></i>
+                    <h1 class="text-3xl font-black text-white tracking-tighter italic uppercase">WAFA<span class="text-red-600">HELL</span></h1>
+                </div>
+                <div class="flex items-center gap-3 text-xs font-mono">
+                    <span id="filter-status" class="bg-slate-900 border border-slate-800 px-2 py-0.5 rounded text-slate-400">
+                        {% if filters.ip or filters.type %}
+                            <span class="text-yellow-500 font-bold">● FILTER ACTIVE</span>
+                        {% else %}
+                            <span class="text-emerald-500 font-bold">● MONITORING</span>
+                        {% endif %}
+                    </span>
+                    <span id="sync-indicator" class="text-slate-500 flex items-center gap-1"><i class="fas fa-wifi text-[8px]"></i> LIVE</span>
+                </div>
+            </div>
+            
+            <div class="flex flex-wrap gap-3">
+                <button onclick="window.location.pathname = window.location.pathname.replace(/\/$/, '') + '/graphs'" 
+                        class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 px-5 rounded-lg transition text-xs border border-indigo-500/50 flex items-center gap-2 shadow-lg shadow-indigo-900/20 group">
+                    <i class="fas fa-chart-pie group-hover:rotate-12 transition-transform"></i>
+                    STRATEGIC VIEW
+                </button>
+
+                <button onclick="updateDashboard()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2.5 px-5 rounded-lg transition text-xs border border-slate-700 flex items-center gap-2">
+                    <i class="fas fa-sync-alt"></i> REFRESH
+                </button>
+
+                <div class="relative">
+                    <button onclick="toggleDropdown()" class="bg-red-900/20 hover:bg-red-900/40 text-red-500 font-bold py-2.5 px-5 rounded-lg transition text-xs border border-red-500/30 flex items-center gap-2">
+                        <i class="fas fa-bolt"></i> ACTIONS
+                        <i class="fas fa-chevron-down text-[10px] ml-1"></i>
+                    </button>
+                    <div id="actionDropdown" class="dropdown-menu absolute right-0 mt-2 w-56 rounded-xl bg-slate-900 border border-slate-700 shadow-2xl z-50 overflow-hidden ring-1 ring-black/50">
+                        <div class="p-1">
+                            <button onclick="exportCSV()" class="flex items-center w-full px-3 py-2.5 text-left text-[11px] font-bold text-slate-300 hover:bg-slate-800 rounded-lg transition gap-3 group">
+                                <span class="w-6 h-6 rounded bg-emerald-500/10 flex items-center justify-center text-emerald-500 group-hover:bg-emerald-500 group-hover:text-white transition"><i class="fas fa-file-csv"></i></span> 
+                                EXPORT LOGS
+                            </button>
+                            <div class="h-px bg-slate-800 my-1"></div>
+                            <button onclick="openModal()" class="flex items-center w-full px-3 py-2.5 text-left text-[11px] font-bold text-slate-300 hover:bg-slate-800 rounded-lg transition gap-3 group">
+                                <span class="w-6 h-6 rounded bg-red-500/10 flex items-center justify-center text-red-500 group-hover:bg-red-500 group-hover:text-white transition"><i class="fas fa-ban"></i></span> 
+                                BLOCK IP
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <div class="bg-slate-900/60 backdrop-blur-md border border-slate-700/50 p-5 rounded-xl relative overflow-hidden group hover:border-slate-600 transition">
+                <div class="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition"><i class="fas fa-layer-group text-4xl"></i></div>
+                <p class="text-slate-500 text-[10px] font-bold uppercase tracking-widest mb-1">Total Events</p>
+                <p id="stat-total" class="text-3xl font-mono text-white tracking-tight">{{ stats.total }}</p>
+            </div>
+            <div class="bg-slate-900/60 backdrop-blur-md border border-slate-700/50 p-5 rounded-xl relative overflow-hidden group hover:border-red-500/50 transition border-b-2 border-b-red-600">
+                <div class="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition"><i class="fas fa-bug text-red-500 text-4xl"></i></div>
+                <p class="text-red-400 text-[10px] font-bold uppercase tracking-widest mb-1">Threats</p>
+                <p id="stat-attacks" class="text-3xl font-mono text-white tracking-tight">{{ stats.attacks }}</p>
+            </div>
+            <div class="bg-slate-900/60 backdrop-blur-md border border-slate-700/50 p-5 rounded-xl relative overflow-hidden group hover:border-orange-500/50 transition border-b-2 border-b-orange-500">
+                <div class="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition"><i class="fas fa-hand-paper text-orange-500 text-4xl"></i></div>
+                <p class="text-orange-400 text-[10px] font-bold uppercase tracking-widest mb-1">Blocks</p>
+                <p id="stat-blocks" class="text-3xl font-mono text-white tracking-tight">{{ stats.blocks }}</p>
+            </div>
+            <div class="bg-slate-900/60 backdrop-blur-md border border-slate-700/50 p-5 rounded-xl relative overflow-hidden group hover:border-purple-500/50 transition border-b-2 border-b-purple-500">
+                <div class="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition"><i class="fas fa-tachometer-alt text-purple-500 text-4xl"></i></div>
+                <p class="text-purple-400 text-[10px] font-bold uppercase tracking-widest mb-1">Rate Limit</p>
+                <p id="stat-rate-limit" class="text-3xl font-mono text-white tracking-tight">{{ stats.rate_limit }}</p>
+            </div>
+        </div>
+
+        <div class="bg-slate-900/60 backdrop-blur-md border border-slate-700/50 p-1 rounded-xl mb-8 flex items-center">
+            <form id="filter-form" method="GET" class="flex flex-wrap md:flex-nowrap w-full items-center gap-2 p-2">
+                <div class="flex items-center bg-slate-950/50 border border-slate-800 rounded-lg px-3 py-2 flex-grow focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500/30 transition">
+                    <i class="fas fa-search text-slate-500 mr-3 text-xs"></i>
+                    <input type="text" name="ip" id="filter-ip" value="{{ filters.ip or '' }}" placeholder="Filter by IP..." class="bg-transparent border-none text-xs text-white placeholder-slate-600 focus:outline-none w-full font-mono">
+                </div>
+                
+                <div class="relative min-w-[150px]">
+                    <select name="type" id="filter-type" class="w-full appearance-none bg-slate-950/50 border border-slate-800 text-white text-xs rounded-lg px-4 py-2.5 focus:border-indigo-500 outline-none cursor-pointer font-bold uppercase">
+                        <option value="">All Categories</option>
+                        <option value="SQLI" {{ 'selected' if filters.type == 'SQLI' }}>SQLI</option>
+                        <option value="XSS" {{ 'selected' if filters.type == 'XSS' }}>XSS</option>
+                        <option value="RATE LIMIT" {{ 'selected' if filters.type == 'RATE LIMIT' }}>RATE LIMIT</option>
+                        <option value="IP BLOCK" {{ 'selected' if filters.type == 'IP BLOCK' }}>IP BLOCK</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-500"><i class="fas fa-chevron-down text-[10px]"></i></div>
+                </div>
+
+                <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2.5 rounded-lg font-bold uppercase text-[10px] tracking-wider transition shadow-lg shadow-indigo-900/20">
+                    APPLY
+                </button>
+            </form>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            
+            <div class="lg:col-span-3 bg-slate-900/60 backdrop-blur-md border border-slate-700/50 rounded-2xl overflow-hidden shadow-2xl flex flex-col h-[650px]">
+                <div class="p-4 border-b border-slate-800/50 flex justify-between items-center bg-slate-900/40">
+                    <h3 class="text-xs font-bold uppercase text-slate-400 tracking-wider flex items-center gap-2">
+                        <i class="fas fa-list-ul"></i> Live Security Events
+                    </h3>
+                    <span class="text-[10px] text-slate-600 font-mono">REAL-TIME FEED</span>
+                </div>
+                
+                <div class="overflow-x-auto custom-scrollbar flex-1">
+                    <table class="w-full text-left table-auto">
+                        <thead class="bg-slate-950/50 text-slate-500 text-[10px] uppercase font-bold sticky top-0 z-10 backdrop-blur-sm">
+                            <tr>
+                                <th class="p-4 whitespace-nowrap">Timestamp</th>
+                                <th class="p-4">Attack Type</th>
+                                <th class="p-4">Source IP</th>
+                                <th class="p-4">Location/Path</th>
+                                <th class="p-4">Payload</th>
+                            </tr>
+                        </thead>
+                        <tbody id="log-table-body" class="divide-y divide-slate-800/50 font-mono text-[11px]"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-6 h-[650px]">
+                <div class="bg-slate-900/60 backdrop-blur-md border border-slate-700/50 p-6 rounded-2xl shadow-xl flex flex-col flex-1">
+                    <h2 class="font-bold text-slate-300 uppercase text-[10px] mb-6 tracking-widest border-b border-slate-700/50 pb-2 flex items-center gap-2">
+                        <i class="fas fa-chart-pie text-slate-500"></i> Attack Vectors
+                    </h2>
+                    
+                    <div class="relative flex-1 min-h-[200px] flex items-center justify-center">
+                        <canvas id="wafChart"></canvas>
+                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <i class="fas fa-shield-alt text-slate-700 text-6xl opacity-20"></i>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3 text-[11px] font-bold mt-6 bg-slate-950/30 p-4 rounded-xl border border-slate-800/50">
+                        <div class="flex justify-between items-center group cursor-default">
+                            <span class="text-slate-400 group-hover:text-red-400 transition"><i class="fas fa-circle text-[8px] text-red-600 mr-2"></i>SQL Injection</span>
+                            <span id="legend-sqli" class="font-mono text-white bg-slate-800 px-2 rounded">0</span>
+                        </div>
+                        <div class="flex justify-between items-center group cursor-default">
+                            <span class="text-slate-400 group-hover:text-yellow-400 transition"><i class="fas fa-circle text-[8px] text-yellow-500 mr-2"></i>XSS</span>
+                            <span id="legend-xss" class="font-mono text-white bg-slate-800 px-2 rounded">0</span>
+                        </div>
+                        <div class="flex justify-between items-center group cursor-default">
+                            <span class="text-slate-400 group-hover:text-purple-400 transition"><i class="fas fa-circle text-[8px] text-purple-600 mr-2"></i>Rate Limit</span>
+                            <span id="legend-rate" class="font-mono text-white bg-slate-800 px-2 rounded">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- CHART INIT ---
+        const ctx = document.getElementById('wafChart').getContext('2d');
+        let wafChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['SQLI', 'XSS', 'Rate Limit'],
+                datasets: [{
+                    data: [0, 0, 0],
+                    backgroundColor: ['#dc2626', '#eab308', '#9333ea'],
+                    borderWidth: 0, hoverOffset: 10, cutout: '75%'
+                }]
+            },
+            options: { 
+                responsive: true, maintainAspectRatio: false, 
+                plugins: { legend: { display: false } },
+                animation: { animateScale: true, animateRotate: true }
+            }
+        });
+
+        // --- UI UTILS ---
+        function toggleDropdown() { document.getElementById("actionDropdown").classList.toggle("show"); }
+        function openModal() { document.getElementById("modalOverlay").classList.remove("hidden"); document.getElementById("modalOverlay").classList.add("flex"); toggleDropdown(); }
+        function closeModal() { document.getElementById("modalOverlay").classList.add("hidden"); document.getElementById("modalOverlay").classList.remove("flex"); }
+
+        // Close dropdown when clicking outside
+        window.onclick = function(event) {
+            if (!event.target.matches('button') && !event.target.closest('button')) {
+                var dropdowns = document.getElementsByClassName("dropdown-menu");
+                for (var i = 0; i < dropdowns.length; i++) {
+                    if (dropdowns[i].classList.contains('show')) dropdowns[i].classList.remove('show');
+                }
+            }
+        }
+
+        // --- ACTIONS ---
+        function exportCSV() {
+            const ip = document.getElementById('filter-ip').value;
+            const type = document.getElementById('filter-type').value;
+            const params = new URLSearchParams({ ip, type });
+            window.location.href = `${window.location.pathname}/export/csv?${params.toString()}`;
+        }
+
+        function submitManualBlock() {
+            const ip = document.getElementById('manual-ip').value.trim();
+            const time = document.getElementById('manual-time').value;
+            // Simple IPv4 regex validation
+            const ipRegex = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/;
+            
+            if(!ipRegex.test(ip)) { 
+                alert("Invalid IP Address format!"); 
+                return; 
+            }
+
+            fetch(`${window.location.pathname}/block_ip`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ip: ip, block_time_minutes: time })
+            })
+            .then(res => res.json())
+            .then(data => {
+                alert(data.message);
+                closeModal();
+                updateDashboard();
+            })
+            .catch(err => alert("Connection Error."));
+        }
+
+        // --- CORE UPDATE LOGIC ---
+        function updateDashboard() {
+            fetch(window.location.pathname + '/data' + window.location.search)
+                .then(res => {
+                    if (!res.ok) throw new Error('Session expired');
+                    return res.json();
+                })
+                .then(data => {
+                    // 1. Update Stats
+                    document.getElementById('stat-total').innerText = data.stats.total;
+                    document.getElementById('stat-attacks').innerText = data.stats.attacks;
+                    document.getElementById('stat-blocks').innerText = data.stats.blocks;
+                    document.getElementById('stat-rate-limit').innerText = data.stats.rate_limit;
+                    
+                    document.getElementById('legend-sqli').innerText = data.stats.sqli;
+                    document.getElementById('legend-xss').innerText = data.stats.xss;
+                    document.getElementById('legend-rate').innerText = data.stats.rate_limit;
+
+                    wafChart.data.datasets[0].data = [data.stats.sqli, data.stats.xss, data.stats.rate_limit];
+                    wafChart.update();
+
+                    // 2. Generate Log Table (SECURELY via DOM API to prevent XSS)
+                    const tbody = document.getElementById('log-table-body');
+                    tbody.innerHTML = ''; // Clear table
+
+                    data.logs.forEach(log => {
+                        const tr = document.createElement('tr');
+                        tr.className = "attack-row transition-colors border-b border-slate-800/50 text-slate-300 hover:bg-slate-800/30";
+
+                        // Column 1: Timestamp
+                        const tdTime = document.createElement('td');
+                        tdTime.className = "p-4 text-slate-500 text-xs whitespace-nowrap";
+                        tdTime.textContent = log.timestamp;
+                        tr.appendChild(tdTime);
+
+                        // Column 2: Attack Type (Prioritizing details.attack_type)
+                        const rawType = (log.details.attack_type || log.type).toUpperCase();
+                        
+                        const tdType = document.createElement('td');
+                        tdType.className = "p-4";
+                        
+                        const badge = document.createElement('span');
+                        badge.className = "px-2 py-0.5 rounded text-[10px] font-bold border";
+                        badge.textContent = rawType;
+
+                        // Color Logic
+                        if (rawType === 'INFO') {
+                            badge.className += " bg-slate-800 text-slate-400 border-slate-700";
+                        } else if (rawType === 'SQLI') {
+                            badge.className += " bg-red-900/30 text-red-400 border-red-500/30";
+                        } else if (rawType === 'XSS') {
+                            badge.className += " bg-yellow-900/30 text-yellow-400 border-yellow-500/30";
+                        } else if (rawType === 'RATE LIMIT') {
+                            badge.className += " bg-purple-900/30 text-purple-400 border-purple-500/30";
+                        } else if (rawType === 'IP BLOCK') {
+                            badge.className += " bg-orange-900/30 text-orange-400 border-orange-500/30";
+                        } else {
+                            badge.className += " bg-red-900/30 text-red-400 border-red-500/30";
+                        }
+                        
+                        tdType.appendChild(badge);
+                        tr.appendChild(tdType);
+
+                        // Column 3: Source IP
+                        const tdIP = document.createElement('td');
+                        tdIP.className = "p-4 font-mono text-xs text-indigo-300";
+                        tdIP.textContent = log.details.ip;
+                        tr.appendChild(tdIP);
+
+                        // Column 4: Path / Location
+                        const tdPath = document.createElement('td');
+                        tdPath.className = "p-4 text-xs text-slate-400";
+                        
+                        // Check if specific location info exists (e.g. HEADER User-Agent)
+                        if (log.details.attack_local && log.details.attack_local !== '---' && log.details.attack_local !== 'None') {
+                            const locDiv = document.createElement('div');
+                            locDiv.className = "text-[9px] uppercase font-bold tracking-wider mb-0.5 text-slate-500";
+                            locDiv.textContent = log.details.attack_local;
+                            tdPath.appendChild(locDiv);
+                        }
+                        
+                        const pathSpan = document.createElement('span');
+                        pathSpan.textContent = log.details.path;
+                        tdPath.appendChild(pathSpan);
+                        tr.appendChild(tdPath);
+
+                        // Column 5: Payload (Code Snippet Style)
+                        const tdPayload = document.createElement('td');
+                        tdPayload.className = "p-4 font-mono text-xs";
+                        
+                        const payloadText = log.details.payload;
+                        
+                        if (payloadText && payloadText !== '---') {
+                            const codeBlock = document.createElement('code');
+                            // Clean visual style: dark background, red text, truncated
+                            codeBlock.className = "block bg-slate-950/50 text-red-300 px-2 py-1.5 rounded w-fit max-w-[200px] truncate hover:whitespace-normal hover:max-w-none hover:bg-slate-950 transition-all cursor-help border border-red-500/10";
+                            codeBlock.textContent = payloadText; // XSS Prevention
+                            codeBlock.title = payloadText;
+                            tdPayload.appendChild(codeBlock);
+                        } else {
+                             const dash = document.createElement('span');
+                             dash.className = "text-slate-600";
+                             dash.textContent = "---";
+                             tdPayload.appendChild(dash);
+                        }
+                        
+                        tr.appendChild(tdPayload);
+                        tbody.appendChild(tr);
+                    });
+                })
+                .catch(err => console.error("Monitor paused:", err));
+        }
+
+        updateDashboard();
+        // Refresh every 3 seconds
+        setInterval(updateDashboard, 3000);
+    </script>
+</body>
+</html>

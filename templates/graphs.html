@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WafaHell | Strategic View</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        slate: { 850: '#151e32' }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #0f172a; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #475569; }
+        
+        .animate-pulse-slow { animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-300 font-sans text-[13px] antialiased selection:bg-red-500/30">
+
+    <div class="container mx-auto p-4 lg:p-8 max-w-[1600px]">
+        
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4 border-b border-slate-800 pb-4">
+            <div>
+                <div class="flex items-center gap-3">
+                    <div class="relative">
+                        <i class="fas fa-shield-halved text-red-600 text-3xl animate-pulse-slow"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-3xl font-black text-white tracking-tighter italic uppercase leading-none">
+                            WAFA<span class="text-red-600">HELL</span> <span class="text-slate-600 not-italic text-lg font-normal">| Strategic Dashboard</span>
+                        </h1>
+                        <p class="text-slate-500 font-mono text-[11px] mt-1">
+                            <span class="text-emerald-500">● MONITORAMENTO ATIVO</span> | LATÊNCIA: <span class="text-white">12ms</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <div class="hidden lg:flex items-center gap-2 px-3 py-1 bg-slate-900 rounded border border-slate-800">
+                    <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                    <span class="text-xs font-mono text-slate-400">Node-BR-01</span>
+                </div>
+                <div class="px-3 py-1 bg-slate-900 rounded border border-slate-800 text-xs font-mono text-slate-400">
+                    v.2.5.0
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div class="bg-slate-900 border border-slate-800 p-5 rounded-xl relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-4 opacity-10">
+                    <i class="fas fa-globe text-4xl text-blue-500"></i>
+                </div>
+                <p class="text-slate-500 text-[10px] font-bold uppercase tracking-widest mb-1">Requisições (24h)</p>
+                <div class="flex items-end gap-2">
+                    <span class="text-3xl font-mono text-white font-bold">4.2M</span>
+                    <span class="text-[10px] text-emerald-500 font-bold mb-1">▲ 12%</span>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 p-5 rounded-xl relative overflow-hidden border-l-2 border-l-red-600">
+                <div class="absolute top-0 right-0 p-4 opacity-10">
+                    <i class="fas fa-ban text-4xl text-red-500"></i>
+                </div>
+                <p class="text-red-400 text-[10px] font-bold uppercase tracking-widest mb-1">Ataques Mitigados</p>
+                <div class="flex items-end gap-2">
+                    <span class="text-3xl font-mono text-white font-bold">15,402</span>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 p-5 rounded-xl relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-4 opacity-10">
+                    <i class="fas fa-bolt text-4xl text-purple-500"></i>
+                </div>
+                <p class="text-purple-400 text-[10px] font-bold uppercase tracking-widest mb-1">Throughput Atual</p>
+                <div class="flex items-end gap-2">
+                    <span class="text-3xl font-mono text-white font-bold">2.1k</span>
+                    <span class="text-[10px] text-slate-500 font-bold mb-1">Req/s</span>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 p-5 rounded-xl relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-4 opacity-10">
+                    <i class="fas fa-skull text-4xl text-orange-500"></i>
+                </div>
+                <p class="text-orange-400 text-[10px] font-bold uppercase tracking-widest mb-1">IPs na Blacklist</p>
+                <div class="flex items-end gap-2">
+                    <span class="text-3xl font-mono text-white font-bold">8,921</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 p-6 rounded-xl shadow-lg mb-6">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xs font-bold uppercase text-slate-300 flex items-center gap-2 tracking-wider">
+                    <i class="fas fa-chart-area text-slate-500"></i> Volume de Tráfego vs. Ameaças
+                </h3>
+                <div class="flex gap-4">
+                    <span class="flex items-center gap-2 text-[10px] text-slate-400 font-bold"><span class="w-2 h-2 rounded-full bg-slate-600"></span> TRÁFEGO LEGÍTIMO</span>
+                    <span class="flex items-center gap-2 text-[10px] text-red-500 font-bold"><span class="w-2 h-2 rounded-full bg-red-600"></span> ATAQUES BLOQUEADOS</span>
+                </div>
+            </div>
+            <div class="h-80 w-full">
+                <canvas id="trafficChart"></canvas>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <div class="bg-slate-900 border border-slate-800 p-6 rounded-xl shadow-lg flex flex-col h-[350px]">
+                <h3 class="text-xs font-bold uppercase text-slate-400 mb-6 border-b border-slate-800 pb-2">Distribuição de Vetores</h3>
+                <div class="flex-1 flex items-center justify-center">
+                    <div class="h-48 w-48 relative">
+                        <canvas id="vectorChart"></canvas>
+                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <div class="text-center">
+                                <span class="block text-2xl font-black text-white">4</span>
+                                <span class="text-[10px] text-slate-500 uppercase">Tipos</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2 mt-4 text-[10px] font-mono">
+                    <div class="flex items-center gap-2"><span class="w-2 h-2 bg-red-600 rounded"></span> SQLI (45%)</div>
+                    <div class="flex items-center gap-2"><span class="w-2 h-2 bg-yellow-500 rounded"></span> XSS (30%)</div>
+                    <div class="flex items-center gap-2"><span class="w-2 h-2 bg-purple-600 rounded"></span> BOTS (20%)</div>
+                    <div class="flex items-center gap-2"><span class="w-2 h-2 bg-orange-500 rounded"></span> RFI (5%)</div>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 p-6 rounded-xl shadow-lg flex flex-col h-[350px]">
+                <h3 class="text-xs font-bold uppercase text-slate-400 mb-6 border-b border-slate-800 pb-2">Origem dos Ataques (Top 5)</h3>
+                <div class="flex-1 space-y-5 overflow-y-auto custom-scrollbar pr-2">
+                    
+                    <div class="group">
+                        <div class="flex justify-between items-center mb-1">
+                            <div class="flex items-center gap-3">
+                                <span class="text-xl">🇷🇺</span>
+                                <span class="text-xs font-bold text-slate-300">Russia</span>
+                            </div>
+                            <span class="text-xs font-mono text-red-400">1,240</span>
+                        </div>
+                        <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                            <div class="bg-red-900 h-full rounded-full group-hover:bg-red-600 transition-colors" style="width: 85%"></div>
+                        </div>
+                    </div>
+
+                    <div class="group">
+                        <div class="flex justify-between items-center mb-1">
+                            <div class="flex items-center gap-3">
+                                <span class="text-xl">🇨🇳</span>
+                                <span class="text-xs font-bold text-slate-300">China</span>
+                            </div>
+                            <span class="text-xs font-mono text-red-400">850</span>
+                        </div>
+                        <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                            <div class="bg-red-900 h-full rounded-full group-hover:bg-red-600 transition-colors" style="width: 65%"></div>
+                        </div>
+                    </div>
+
+                    <div class="group">
+                        <div class="flex justify-between items-center mb-1">
+                            <div class="flex items-center gap-3">
+                                <span class="text-xl">🇺🇸</span>
+                                <span class="text-xs font-bold text-slate-300">USA</span>
+                            </div>
+                            <span class="text-xs font-mono text-red-400">420</span>
+                        </div>
+                        <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                            <div class="bg-red-900 h-full rounded-full group-hover:bg-red-600 transition-colors" style="width: 35%"></div>
+                        </div>
+                    </div>
+
+                    <div class="group">
+                        <div class="flex justify-between items-center mb-1">
+                            <div class="flex items-center gap-3">
+                                <span class="text-xl">🇮🇳</span>
+                                <span class="text-xs font-bold text-slate-300">India</span>
+                            </div>
+                            <span class="text-xs font-mono text-red-400">310</span>
+                        </div>
+                        <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                            <div class="bg-red-900 h-full rounded-full group-hover:bg-red-600 transition-colors" style="width: 25%"></div>
+                        </div>
+                    </div>
+
+                    <div class="group">
+                        <div class="flex justify-between items-center mb-1">
+                            <div class="flex items-center gap-3">
+                                <span class="text-xl">🇧🇷</span>
+                                <span class="text-xs font-bold text-slate-300">Brazil</span>
+                            </div>
+                            <span class="text-xs font-mono text-red-400">120</span>
+                        </div>
+                        <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                            <div class="bg-red-900 h-full rounded-full group-hover:bg-red-600 transition-colors" style="width: 10%"></div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 p-0 rounded-xl shadow-lg flex flex-col h-[350px] overflow-hidden">
+                <div class="p-6 pb-2 border-b border-slate-800">
+                    <h3 class="text-xs font-bold uppercase text-red-400 flex items-center gap-2">
+                        <i class="fas fa-crosshairs"></i> Top IPs Ofensores (Live)
+                    </h3>
+                </div>
+                <div class="overflow-y-auto custom-scrollbar flex-1 p-2 space-y-1" id="topOffendersList">
+                    </div>
+            </div>
+
+        </div>
+
+    </div>
+
+  <script>
+        // === CONFIGURAÇÃO GERAL CHART.JS ===
+        Chart.defaults.color = '#64748b';
+        Chart.defaults.font.family = 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace';
+        Chart.defaults.borderColor = '#1e293b'; 
+
+        let trafficChart, vectorChart;
+
+        const vectorColors = [
+            '#dc2626', '#eab308', '#9333ea', '#f97316', 
+            '#3b82f6', '#10b981', '#ec4899', '#6366f1'
+        ];
+
+        // 1. CHART DE TRÁFEGO
+        const initTrafficChart = () => {
+            const trafficCtx = document.getElementById('trafficChart').getContext('2d');
+            
+            const gradientRed = trafficCtx.createLinearGradient(0, 0, 0, 400);
+            gradientRed.addColorStop(0, 'rgba(220, 38, 38, 0.5)');
+            gradientRed.addColorStop(1, 'rgba(220, 38, 38, 0.0)');
+
+            const gradientBlue = trafficCtx.createLinearGradient(0, 0, 0, 400);
+            gradientBlue.addColorStop(0, 'rgba(71, 85, 105, 0.5)');
+            gradientBlue.addColorStop(1, 'rgba(15, 23, 42, 0.0)');
+
+            trafficChart = new Chart(trafficCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Ataques Bloqueados',
+                            data: [],
+                            borderColor: '#dc2626',
+                            backgroundColor: gradientRed,
+                            borderWidth: 2,
+                            tension: 0.4,
+                            fill: true,
+                            pointRadius: 0,
+                            pointHoverRadius: 6,
+                            pointBackgroundColor: '#dc2626'
+                        },
+                        {
+                            label: 'Tráfego Legítimo',
+                            data: [],
+                            borderColor: '#475569',
+                            backgroundColor: gradientBlue,
+                            borderWidth: 2,
+                            tension: 0.4,
+                            fill: true,
+                            pointRadius: 0,
+                            pointHoverRadius: 6,
+                            pointBackgroundColor: '#475569'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            titleColor: '#e2e8f0',
+                            bodyColor: '#cbd5e1',
+                            borderColor: '#334155',
+                            borderWidth: 1,
+                            padding: 10,
+                            displayColors: true,
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) label += ': ';
+                                    if (context.parsed.y !== null) label += context.parsed.y.toLocaleString();
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: { grid: { color: '#1e293b', drawBorder: false }, beginAtZero: true, ticks: { callback: (val) => val.toLocaleString() } },
+                        x: { grid: { display: false, drawBorder: false } }
+                    }
+                }
+            });
+        };
+
+        // 2. CHART DE VETORES
+        const initVectorChart = () => {
+            const vectorCtx = document.getElementById('vectorChart').getContext('2d');
+            vectorChart = new Chart(vectorCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        data: [],
+                        backgroundColor: vectorColors,
+                        borderWidth: 0,
+                        hoverOffset: 15
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '80%',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            bodyFont: { size: 13 },
+                            callbacks: {
+                                label: function(context) {
+                                    const val = context.parsed;
+                                    const total = context.chart._metasets[context.datasetIndex].total;
+                                    const percent = ((val / total) * 100).toFixed(1) + '%';
+                                    return ` ${context.label}: ${val} (${percent})`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        };
+
+        // 3. FUNÇÃO DE UPDATE
+        async function updateDashboard() {
+            try {
+                const response = await fetch('./stats');
+                const data = await response.json();
+
+                // META
+                document.querySelector('.text-emerald-500').parentElement.querySelector('.text-white').innerText = `${data.meta.average_latency_ms}ms`;
+                const nodeSpan = document.querySelector('.bg-green-500 + span');
+                if(nodeSpan) nodeSpan.innerText = data.meta.node_id;
+
+                // KPIS
+                const kpiCards = document.querySelectorAll('.text-3xl.font-mono');
+                kpiCards[0].innerText = data.kpis.total_requests_24h.value.toLocaleString(); 
+                kpiCards[1].innerText = data.kpis.attacks_mitigated_24h.value.toLocaleString(); 
+                kpiCards[2].innerText = data.kpis.throughput.current_req_per_sec; 
+                kpiCards[3].innerText = data.kpis.blacklist_count.total_ips; 
+
+                // ATUALIZA CHART TRÁFEGO
+                trafficChart.data.labels = data.traffic_chart.labels;
+                trafficChart.data.datasets[0].data = data.traffic_chart.series_attacks;
+                trafficChart.data.datasets[1].data = data.traffic_chart.series_legit;
+                trafficChart.update();
+
+                // ATUALIZA CHART VETORES
+                const vectorLabels = data.distribution_vectors.map(v => v.label);
+                const vectorCounts = data.distribution_vectors.map(v => v.count);
+                
+                vectorChart.data.labels = vectorLabels;
+                vectorChart.data.datasets[0].data = vectorCounts;
+                
+                if (vectorLabels.length > vectorColors.length) {
+                     while (vectorChart.data.datasets[0].backgroundColor.length < vectorLabels.length) {
+                        vectorChart.data.datasets[0].backgroundColor.push('#' + Math.floor(Math.random()*16777215).toString(16));
+                     }
+                }
+
+                document.querySelector('.text-2xl.font-black.text-white').innerText = vectorLabels.length;
+                vectorChart.update();
+
+                // Legenda HTML Personalizada
+                const legendContainer = document.querySelector('.grid.grid-cols-2.gap-2.mt-4');
+                if(legendContainer) {
+                    legendContainer.innerHTML = data.distribution_vectors.map((v, i) => `
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full" style="background-color: ${vectorChart.data.datasets[0].backgroundColor[i] || '#ccc'}"></span>
+                            <span class="truncate">${v.label} (${v.percentage}%)</span>
+                        </div>
+                    `).join('');
+                }
+
+                // --- TOP GEO (AQUI ESTÁ A MÁGICA DAS BANDEIRAS) ---
+                const geoContainer = document.querySelector('.bg-slate-900:nth-child(2) .flex-1.space-y-5');
+                if(geoContainer && data.top_geo) {
+                    geoContainer.innerHTML = data.top_geo.map(geo => `
+                        <div class="group">
+                            <div class="flex justify-between items-center mb-1">
+                                <div class="flex items-center gap-3">
+                                    ${getFlagImage(geo.country_code)}
+                                    <span class="text-xs font-bold text-slate-300">${geo.country_name}</span>
+                                </div>
+                                <span class="text-xs font-mono text-red-400">${geo.count.toLocaleString()}</span>
+                            </div>
+                            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                                <div class="bg-red-900 h-full rounded-full group-hover:bg-red-600 transition-all duration-500" style="width: ${geo.percentage}%"></div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+
+                // TOP OFFENDERS
+                const offendersList = document.getElementById('topOffendersList');
+                if(offendersList && data.top_offenders) {
+                    offendersList.innerHTML = data.top_offenders.map(offender => `
+                        <div class="flex items-center justify-between p-3 rounded hover:bg-slate-800 transition border-b border-slate-800/50 last:border-0">
+                            <div class="flex flex-col">
+                                <span class="text-xs font-mono font-bold text-slate-300">${offender.ip || 'INTERNAL'}</span>
+                                <span class="text-[9px] text-slate-500 uppercase font-bold tracking-wider">Risk Score: <span class="${getRiskColor(offender.risk_score)}">${offender.risk_score}</span></span>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-[10px] font-bold text-slate-400 mb-1">${offender.hits_count.toLocaleString()} hits</div>
+                                <div class="w-16 bg-slate-800 h-1 rounded ml-auto">
+                                    <div class="${getRiskBg(offender.risk_score)} h-1 rounded" style="width: ${offender.risk_score}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+
+            } catch (error) {
+                console.error("Dashboard Sync Error:", error);
+            }
+        }
+
+        // --- NOVA FUNÇÃO DE BANDEIRAS COM IMAGENS ---
+        function getFlagImage(countryCode) {
+            if (!countryCode || countryCode === "XX") {
+                // Retorna um ícone de globo se não souber o país
+                return '<i class="fas fa-globe text-slate-500 text-lg w-6 text-center"></i>';
+            }
+            // Usa a API FlagCDN para retornar uma imagem bonita
+            const code = countryCode.toLowerCase();
+            return `<img src="https://flagcdn.com/w40/${code}.png" class="w-6 h-auto rounded-sm shadow-sm object-cover" alt="${countryCode}">`;
+        }
+
+        function getRiskColor(score) {
+            if(score >= 80) return 'text-red-500';
+            if(score >= 50) return 'text-orange-500';
+            return 'text-yellow-500';
+        }
+
+        function getRiskBg(score) {
+            if(score >= 80) return 'bg-red-600';
+            if(score >= 50) return 'bg-orange-500';
+            return 'bg-yellow-500';
+        }
+
+        // Inicialização
+        initTrafficChart();
+        initVectorChart();
+        updateDashboard();
+        
+        setInterval(updateDashboard, 5000);
+    </script>
+</body>
+</html>

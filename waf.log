@@ -1,0 +1,13 @@
+[17:08:36 - 02/02/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[17:08:36 - 02/02/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[17:08:36 - 02/02/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[17:08:36 - 02/02/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[17:08:36 - 02/02/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[17:08:36 - 02/02/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[17:08:36 - 02/02/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[17:08:36 - 02/02/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[17:08:36 - 02/02/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[17:08:36 - 02/02/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[17:08:36 - 02/02/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[17:09:27 - 02/02/2026] [WAF] [WARNING] [BLOCKED] IP: 127.0.0.1, UA: curl/8.17.0
+[17:10:27 - 02/02/2026] [WAF] [INFO] [UNBLOCKED] IP 127.0.0.1 bloqueio expirou.
