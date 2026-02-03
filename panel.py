@@ -178,6 +178,49 @@ def setup_dashboard(app, custom_path=None):
         finally:
             session.close()
 
+    @app.route(target_path + '/blocked_list', methods=['GET'])
+    @admin
+    def get_blocked_list():
+        session = get_session()
+        try:
+            # Pega todos os IPs bloqueados que ainda não expiraram
+            now = datetime.now(timezone.utc)
+            blocks = session.query(Blocked).filter(Blocked.blocked_until > now).all()
+            
+            data = []
+            for b in blocks:
+                # Calcula tempo restante
+                remaining = b.blocked_until.replace(tzinfo=timezone.utc) - now
+                mins, secs = divmod(remaining.total_seconds(), 60)
+                
+                data.append({
+                    "ip": b.ip,
+                    "user_agent": b.user_agent[:30] + '...' if len(b.user_agent) > 30 else b.user_agent,
+                    "expires_in": f"{int(mins)}m {int(secs)}s"
+                })
+            return jsonify(data)
+        finally:
+            session.close()
+
+    @app.route(target_path + '/unblock_ip', methods=['POST'])
+    @admin
+    def manual_unblock():
+        data = request.get_json()
+        ip = data.get('ip')
+        session = get_session()
+        try:
+            # Remove da tabela
+            session.query(Blocked).filter(Blocked.ip == ip).delete()
+            session.commit()
+            
+            # [IMPORTANTE] Tenta limpar o cache de memória do WAF também se possível
+            # Mas como o WAF roda em outro contexto, o banco é a fonte da verdade principal
+            return jsonify({"status": "success"})
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+        finally:
+            session.close()
+
     @app.route(target_path + '/graphs', methods=['GET'])
     @admin
     def graphs():

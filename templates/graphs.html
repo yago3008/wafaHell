@@ -31,6 +31,37 @@
 </head>
 <body class="bg-slate-950 text-slate-300 font-sans text-[13px] antialiased selection:bg-red-500/30">
 
+    <div id="blocklistModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm transition-all duration-300">
+        <div class="bg-slate-900 border border-slate-700 w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden transform scale-95 transition-all" id="modalContent">
+            <div class="bg-slate-950 p-4 border-b border-slate-800 flex justify-between items-center">
+                <h3 class="text-white font-bold uppercase tracking-wider flex items-center gap-2">
+                    <i class="fas fa-ban text-red-500"></i> Blacklist Ativa
+                </h3>
+                <button onclick="closeBlocklistModal()" class="text-slate-500 hover:text-white transition"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <div class="p-0 max-h-[500px] overflow-y-auto custom-scrollbar">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-slate-900 text-xs font-bold text-slate-500 uppercase sticky top-0 z-10">
+                        <tr>
+                            <th class="p-4 border-b border-slate-800">IP Address</th>
+                            <th class="p-4 border-b border-slate-800">User Agent / Motivo</th>
+                            <th class="p-4 border-b border-slate-800">Expira em</th>
+                            <th class="p-4 border-b border-slate-800 text-right">Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody id="blocklistTableBody" class="text-xs font-mono text-slate-300 divide-y divide-slate-800">
+                        <tr><td colspan="4" class="p-4 text-center text-slate-500">Carregando lista...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="bg-slate-950 p-3 border-t border-slate-800 text-right">
+                <button onclick="closeBlocklistModal()" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded text-xs font-bold transition uppercase">Fechar</button>
+            </div>
+        </div>
+    </div>
+
     <div class="container mx-auto p-4 lg:p-8 max-w-[1600px]">
         
         <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4 border-b border-slate-800 pb-4">
@@ -94,13 +125,21 @@
                 </div>
             </div>
 
-            <div class="bg-slate-900 border border-slate-800 p-5 rounded-xl relative overflow-hidden">
+            <div class="bg-slate-900 border border-slate-800 p-5 rounded-xl relative overflow-hidden group">
                 <div class="absolute top-0 right-0 p-4 opacity-10">
                     <i class="fas fa-skull text-4xl text-orange-500"></i>
                 </div>
-                <p class="text-orange-400 text-[10px] font-bold uppercase tracking-widest mb-1">IPs na Blacklist</p>
+                
+                <div class="flex justify-between items-start z-10 relative">
+                    <p class="text-orange-400 text-[10px] font-bold uppercase tracking-widest mb-1">IPs na Blacklist</p>
+                    
+                    <button onclick="openBlocklistModal()" class="bg-orange-500/10 hover:bg-orange-500 hover:text-white text-orange-500 p-1.5 rounded transition shadow-sm cursor-pointer" title="Gerenciar Blacklist">
+                        <i class="fas fa-list-ul text-xs"></i>
+                    </button>
+                </div>
+
                 <div class="flex items-end gap-2">
-                    <span class="text-3xl font-mono text-white font-bold">8,921</span>
+                    <span class="text-3xl font-mono text-white font-bold kpi-blacklist">8,921</span>
                 </div>
             </div>
         </div>
@@ -172,47 +211,7 @@
                             <div class="bg-red-900 h-full rounded-full group-hover:bg-red-600 transition-colors" style="width: 65%"></div>
                         </div>
                     </div>
-
-                    <div class="group">
-                        <div class="flex justify-between items-center mb-1">
-                            <div class="flex items-center gap-3">
-                                <span class="text-xl">🇺🇸</span>
-                                <span class="text-xs font-bold text-slate-300">USA</span>
-                            </div>
-                            <span class="text-xs font-mono text-red-400">420</span>
-                        </div>
-                        <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
-                            <div class="bg-red-900 h-full rounded-full group-hover:bg-red-600 transition-colors" style="width: 35%"></div>
-                        </div>
                     </div>
-
-                    <div class="group">
-                        <div class="flex justify-between items-center mb-1">
-                            <div class="flex items-center gap-3">
-                                <span class="text-xl">🇮🇳</span>
-                                <span class="text-xs font-bold text-slate-300">India</span>
-                            </div>
-                            <span class="text-xs font-mono text-red-400">310</span>
-                        </div>
-                        <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
-                            <div class="bg-red-900 h-full rounded-full group-hover:bg-red-600 transition-colors" style="width: 25%"></div>
-                        </div>
-                    </div>
-
-                    <div class="group">
-                        <div class="flex justify-between items-center mb-1">
-                            <div class="flex items-center gap-3">
-                                <span class="text-xl">🇧🇷</span>
-                                <span class="text-xs font-bold text-slate-300">Brazil</span>
-                            </div>
-                            <span class="text-xs font-mono text-red-400">120</span>
-                        </div>
-                        <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
-                            <div class="bg-red-900 h-full rounded-full group-hover:bg-red-600 transition-colors" style="width: 10%"></div>
-                        </div>
-                    </div>
-
-                </div>
             </div>
 
             <div class="bg-slate-900 border border-slate-800 p-0 rounded-xl shadow-lg flex flex-col h-[350px] overflow-hidden">
@@ -222,7 +221,7 @@
                     </h3>
                 </div>
                 <div class="overflow-y-auto custom-scrollbar flex-1 p-2 space-y-1" id="topOffendersList">
-                    </div>
+                </div>
             </div>
 
         </div>
@@ -230,171 +229,115 @@
     </div>
 
   <script>
-        // === CONFIGURAÇÃO GERAL CHART.JS ===
+        // === CHART CONFIG ===
         Chart.defaults.color = '#64748b';
         Chart.defaults.font.family = 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace';
         Chart.defaults.borderColor = '#1e293b'; 
 
         let trafficChart, vectorChart;
+        const vectorColors = ['#dc2626', '#eab308', '#9333ea', '#f97316', '#3b82f6', '#10b981', '#ec4899', '#6366f1'];
 
-        const vectorColors = [
-            '#dc2626', '#eab308', '#9333ea', '#f97316', 
-            '#3b82f6', '#10b981', '#ec4899', '#6366f1'
-        ];
-
-        // 1. CHART DE TRÁFEGO
+        // 1. Traffic Chart (Mantido)
         const initTrafficChart = () => {
             const trafficCtx = document.getElementById('trafficChart').getContext('2d');
-            
             const gradientRed = trafficCtx.createLinearGradient(0, 0, 0, 400);
-            gradientRed.addColorStop(0, 'rgba(220, 38, 38, 0.5)');
-            gradientRed.addColorStop(1, 'rgba(220, 38, 38, 0.0)');
-
+            gradientRed.addColorStop(0, 'rgba(220, 38, 38, 0.5)'); gradientRed.addColorStop(1, 'rgba(220, 38, 38, 0.0)');
             const gradientBlue = trafficCtx.createLinearGradient(0, 0, 0, 400);
-            gradientBlue.addColorStop(0, 'rgba(71, 85, 105, 0.5)');
-            gradientBlue.addColorStop(1, 'rgba(15, 23, 42, 0.0)');
+            gradientBlue.addColorStop(0, 'rgba(71, 85, 105, 0.5)'); gradientBlue.addColorStop(1, 'rgba(15, 23, 42, 0.0)');
 
             trafficChart = new Chart(trafficCtx, {
                 type: 'line',
-                data: {
-                    labels: [],
-                    datasets: [
-                        {
-                            label: 'Ataques Bloqueados',
-                            data: [],
-                            borderColor: '#dc2626',
-                            backgroundColor: gradientRed,
-                            borderWidth: 2,
-                            tension: 0.4,
-                            fill: true,
-                            pointRadius: 0,
-                            pointHoverRadius: 6,
-                            pointBackgroundColor: '#dc2626'
-                        },
-                        {
-                            label: 'Tráfego Legítimo',
-                            data: [],
-                            borderColor: '#475569',
-                            backgroundColor: gradientBlue,
-                            borderWidth: 2,
-                            tension: 0.4,
-                            fill: true,
-                            pointRadius: 0,
-                            pointHoverRadius: 6,
-                            pointBackgroundColor: '#475569'
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: { mode: 'index', intersect: false },
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
-                            titleColor: '#e2e8f0',
-                            bodyColor: '#cbd5e1',
-                            borderColor: '#334155',
-                            borderWidth: 1,
-                            padding: 10,
-                            displayColors: true,
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) label += ': ';
-                                    if (context.parsed.y !== null) label += context.parsed.y.toLocaleString();
-                                    return label;
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        y: { grid: { color: '#1e293b', drawBorder: false }, beginAtZero: true, ticks: { callback: (val) => val.toLocaleString() } },
-                        x: { grid: { display: false, drawBorder: false } }
-                    }
-                }
+                data: { labels: [], datasets: [{ label: 'Ataques', data: [], borderColor: '#dc2626', backgroundColor: gradientRed, fill: true, tension: 0.4, pointRadius: 0 }, { label: 'Legítimo', data: [], borderColor: '#475569', backgroundColor: gradientBlue, fill: true, tension: 0.4, pointRadius: 0 }] },
+                options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { grid: { color: '#1e293b' }, beginAtZero: true } } }
             });
         };
 
-        // 2. CHART DE VETORES
+        // 2. Vector Chart (Mantido)
         const initVectorChart = () => {
             const vectorCtx = document.getElementById('vectorChart').getContext('2d');
             vectorChart = new Chart(vectorCtx, {
                 type: 'doughnut',
-                data: {
-                    labels: [],
-                    datasets: [{
-                        data: [],
-                        backgroundColor: vectorColors,
-                        borderWidth: 0,
-                        hoverOffset: 15
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    cutout: '80%',
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
-                            bodyFont: { size: 13 },
-                            callbacks: {
-                                label: function(context) {
-                                    const val = context.parsed;
-                                    const total = context.chart._metasets[context.datasetIndex].total;
-                                    const percent = ((val / total) * 100).toFixed(1) + '%';
-                                    return ` ${context.label}: ${val} (${percent})`;
-                                }
-                            }
-                        }
-                    }
-                }
+                data: { labels: [], datasets: [{ data: [], backgroundColor: vectorColors, borderWidth: 0, hoverOffset: 15 }] },
+                options: { responsive: true, maintainAspectRatio: false, cutout: '80%', plugins: { legend: { display: false } } }
             });
         };
 
-        // 3. FUNÇÃO DE UPDATE
+        // === NOVA LÓGICA DO MODAL ===
+        function openBlocklistModal() {
+            const modal = document.getElementById('blocklistModal');
+            const content = document.getElementById('modalContent');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => { content.classList.remove('scale-95'); content.classList.add('scale-100'); }, 10);
+            fetchBlockedIPs();
+        }
+
+        function closeBlocklistModal() {
+            const modal = document.getElementById('blocklistModal');
+            const content = document.getElementById('modalContent');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 200);
+        }
+
+        async function fetchBlockedIPs() {
+            const tbody = document.getElementById('blocklistTableBody');
+            tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-500 animate-pulse">Carregando dados...</td></tr>';
+            try {
+                const res = await fetch('./blocked_list'); 
+                const data = await res.json();
+                if(data.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-500">Nenhum IP bloqueado no momento.</td></tr>'; return; }
+                tbody.innerHTML = data.map(ip => `
+                    <tr class="hover:bg-slate-800 transition border-b border-slate-800/50 last:border-0">
+                        <td class="p-4 font-mono text-red-400 font-bold">${ip.ip}</td>
+                        <td class="p-4 text-slate-400 truncate max-w-[200px]" title="${ip.user_agent}">${ip.user_agent}</td>
+                        <td class="p-4 text-slate-500">${ip.expires_in}</td>
+                        <td class="p-4 text-right"><button onclick="unblockIP('${ip.ip}')" class="text-xs bg-slate-800 hover:bg-emerald-600 hover:text-white px-2 py-1 rounded transition uppercase font-bold text-slate-400">Liberar</button></td>
+                    </tr>
+                `).join('');
+            } catch (err) { tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-red-500">Erro ao buscar lista.</td></tr>'; }
+        }
+
+        async function unblockIP(ip) {
+            if(!confirm(`Desbloquear o IP ${ip} agora?`)) return;
+            try {
+                await fetch('./unblock_ip', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ ip: ip }) });
+                fetchBlockedIPs(); updateDashboard();
+            } catch(e) { alert("Erro ao desbloquear."); }
+        }
+
+        // === UPDATE FUNCTION (Mantida + KPI Blacklist Fix) ===
         async function updateDashboard() {
             try {
                 const response = await fetch('./stats');
                 const data = await response.json();
 
-                // META
+                // Atualiza KPIs (Mantido)
                 document.querySelector('.text-emerald-500').parentElement.querySelector('.text-white').innerText = `${data.meta.average_latency_ms}ms`;
-                const nodeSpan = document.querySelector('.bg-green-500 + span');
-                if(nodeSpan) nodeSpan.innerText = data.meta.node_id;
+                const nodeSpan = document.querySelector('.bg-green-500 + span'); if(nodeSpan) nodeSpan.innerText = data.meta.node_id;
 
-                // KPIS
                 const kpiCards = document.querySelectorAll('.text-3xl.font-mono');
                 kpiCards[0].innerText = data.kpis.total_requests_24h.value.toLocaleString(); 
                 kpiCards[1].innerText = data.kpis.attacks_mitigated_24h.value.toLocaleString(); 
                 kpiCards[2].innerText = data.kpis.throughput.current_req_per_sec; 
-                kpiCards[3].innerText = data.kpis.blacklist_count.total_ips; 
+                
+                // AQUI ESTÁ A CORREÇÃO: Pega o valor real de IPs na blacklist
+                document.querySelector('.kpi-blacklist').innerText = data.kpis.blacklist_count.total_ips;
 
-                // ATUALIZA CHART TRÁFEGO
+                // Charts Updates (Mantido)
                 trafficChart.data.labels = data.traffic_chart.labels;
                 trafficChart.data.datasets[0].data = data.traffic_chart.series_attacks;
                 trafficChart.data.datasets[1].data = data.traffic_chart.series_legit;
                 trafficChart.update();
 
-                // ATUALIZA CHART VETORES
                 const vectorLabels = data.distribution_vectors.map(v => v.label);
                 const vectorCounts = data.distribution_vectors.map(v => v.count);
-                
                 vectorChart.data.labels = vectorLabels;
                 vectorChart.data.datasets[0].data = vectorCounts;
-                
-                if (vectorLabels.length > vectorColors.length) {
-                     while (vectorChart.data.datasets[0].backgroundColor.length < vectorLabels.length) {
-                        vectorChart.data.datasets[0].backgroundColor.push('#' + Math.floor(Math.random()*16777215).toString(16));
-                     }
-                }
-
                 document.querySelector('.text-2xl.font-black.text-white').innerText = vectorLabels.length;
                 vectorChart.update();
-
-                // Legenda HTML Personalizada
+                
+                // Legenda (Mantido)
                 const legendContainer = document.querySelector('.grid.grid-cols-2.gap-2.mt-4');
                 if(legendContainer) {
                     legendContainer.innerHTML = data.distribution_vectors.map((v, i) => `
@@ -405,7 +348,7 @@
                     `).join('');
                 }
 
-                // --- TOP GEO (AQUI ESTÁ A MÁGICA DAS BANDEIRAS) ---
+                // Top Geo (Mantido)
                 const geoContainer = document.querySelector('.bg-slate-900:nth-child(2) .flex-1.space-y-5');
                 if(geoContainer && data.top_geo) {
                     geoContainer.innerHTML = data.top_geo.map(geo => `
@@ -424,7 +367,7 @@
                     `).join('');
                 }
 
-                // TOP OFFENDERS
+                // Top Offenders (Mantido)
                 const offendersList = document.getElementById('topOffendersList');
                 if(offendersList && data.top_offenders) {
                     offendersList.innerHTML = data.top_offenders.map(offender => `
@@ -443,39 +386,20 @@
                     `).join('');
                 }
 
-            } catch (error) {
-                console.error("Dashboard Sync Error:", error);
-            }
+            } catch (error) { console.error("Sync Error:", error); }
         }
 
-        // --- NOVA FUNÇÃO DE BANDEIRAS COM IMAGENS ---
+        // Helpers (Mantido)
         function getFlagImage(countryCode) {
-            if (!countryCode || countryCode === "XX") {
-                // Retorna um ícone de globo se não souber o país
-                return '<i class="fas fa-globe text-slate-500 text-lg w-6 text-center"></i>';
-            }
-            // Usa a API FlagCDN para retornar uma imagem bonita
+            if (!countryCode || countryCode === "XX") return '<i class="fas fa-globe text-slate-500 text-lg w-6 text-center"></i>';
             const code = countryCode.toLowerCase();
             return `<img src="https://flagcdn.com/w40/${code}.png" class="w-6 h-auto rounded-sm shadow-sm object-cover" alt="${countryCode}">`;
         }
+        function getRiskColor(score) { return score >= 80 ? 'text-red-500' : score >= 50 ? 'text-orange-500' : 'text-yellow-500'; }
+        function getRiskBg(score) { return score >= 80 ? 'bg-red-600' : score >= 50 ? 'bg-orange-500' : 'bg-yellow-500'; }
 
-        function getRiskColor(score) {
-            if(score >= 80) return 'text-red-500';
-            if(score >= 50) return 'text-orange-500';
-            return 'text-yellow-500';
-        }
-
-        function getRiskBg(score) {
-            if(score >= 80) return 'bg-red-600';
-            if(score >= 50) return 'bg-orange-500';
-            return 'bg-yellow-500';
-        }
-
-        // Inicialização
-        initTrafficChart();
-        initVectorChart();
-        updateDashboard();
-        
+        // Start
+        initTrafficChart(); initVectorChart(); updateDashboard();
         setInterval(updateDashboard, 5000);
     </script>
 </body>

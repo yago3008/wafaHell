@@ -315,6 +315,8 @@ class WafaHell:
                     )
                     session.add(new_block)
                     session.commit()
+                    self.log.warning(f"[RATE LIMIT] IP: {ip} exceeded limit.")
+                    self.log.warning(f"[BLOCKED] IP: {ip}, UA: {user_agent}")
                     
                     
                     
@@ -331,13 +333,12 @@ class WafaHell:
                 
                 if limiter.is_rate_limited(ip, ua):
                     if self.monitor_mode:
+                        self.log.warning(f"[RATE LIMIT] IP: {ip} exceeded limit.")
                         return
                     
                     
                     if self.block_ip:
                         self.block_ip_address(ip, ua)
-                        self.log.warning(f"[RATE LIMIT] IP: {ip} exceeded limit.")
-                        self.log.warning(f"[BLOCKED] IP: {ip}, UA: {ua}")
                         abort(self.block_code)
 
                     self.log.warning(f"[RATE LIMIT] IP: {ip} exceeded limit.")

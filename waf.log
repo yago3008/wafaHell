@@ -1,13 +1,15 @@
-[17:08:36 - 02/02/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
-[17:08:36 - 02/02/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
-[17:08:36 - 02/02/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
-[17:08:36 - 02/02/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
-[17:08:36 - 02/02/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
-[17:08:36 - 02/02/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
-[17:08:36 - 02/02/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
-[17:08:36 - 02/02/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
-[17:08:36 - 02/02/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
-[17:08:36 - 02/02/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
-[17:08:36 - 02/02/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
-[17:09:27 - 02/02/2026] [WAF] [WARNING] [BLOCKED] IP: 127.0.0.1, UA: curl/8.17.0
-[17:10:27 - 02/02/2026] [WAF] [INFO] [UNBLOCKED] IP 127.0.0.1 bloqueio expirou.
+[07:36:37 - 03/02/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[07:36:37 - 03/02/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[07:36:37 - 03/02/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[07:36:37 - 03/02/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[07:36:37 - 03/02/2026] [WAF] [WARNING] [BLOCKED] IP: 127.0.0.1, UA: Fuzz Faster U Fool v2.1.0-dev
+[07:36:39 - 03/02/2026] [WAF] [WARNING] [BLOCKED] IP: 127.0.0.1, UA: Fuzz Faster U Fool v2.1.0-dev
+[07:36:41 - 03/02/2026] [WAF] [WARNING] [BLOCKED] IP: 127.0.0.1, UA: Fuzz Faster U Fool v2.1.0-dev
+[07:36:41 - 03/02/2026] [WAF] [WARNING] [BLOCKED] IP: 127.0.0.1, UA: Fuzz Faster U Fool v2.1.0-dev
+[07:37:52 - 03/02/2026] [WAF] [INFO] [UNBLOCKED] IP 127.0.0.1 bloqueio expirou.
+[07:56:57 - 03/02/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[07:56:57 - 03/02/2026] [WAF] [WARNING] [BLOCKED] IP: 127.0.0.1, UA: Fuzz Faster U Fool v2.1.0-dev
+[07:58:00 - 03/02/2026] [WAF] [INFO] [UNBLOCKED] IP 127.0.0.1 bloqueio expirou.
+[08:07:41 - 03/02/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[08:07:42 - 03/02/2026] [WAF] [WARNING] [BLOCKED] IP: 127.0.0.1, UA: Fuzz Faster U Fool v2.1.0-dev
+[08:08:41 - 03/02/2026] [WAF] [INFO] [UNBLOCKED] IP 127.0.0.1 bloqueio expirou.
