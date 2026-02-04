@@ -94,6 +94,7 @@ class Logger:
     def __init__(self, name="WAF", log_file="waf.log", level=logging.INFO):
         self.logger = logging.getLogger(name)
         self.logger.setLevel(level)
+        self.logger.propagate = False
 
         if not self.logger.handlers:
             formatter = logging.Formatter(
@@ -111,10 +112,10 @@ class Logger:
             file_handler.setFormatter(formatter)
             self.logger.addHandler(file_handler)
 
-            # Handler 3: Banco de Dados (A Mágica acontece aqui)
-            db_handler = SQLAlchemyHandler()
-            db_handler.setLevel(logging.INFO) # Salva INFO, WARNING e acima no DB
-            self.logger.addHandler(db_handler)
+            # # Handler 3: Banco de Dados (A Mágica acontece aqui)
+            # db_handler = SQLAlchemyHandler()
+            # db_handler.setLevel(logging.INFO) # Salva INFO, WARNING e acima no DB
+            # self.logger.addHandler(db_handler)
 
     def info(self, msg):
         self.logger.info(msg)

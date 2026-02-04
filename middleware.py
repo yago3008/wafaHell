@@ -323,51 +323,58 @@ class Wafahell:
         if not self.block_ip:
             return
 
-        # 1. Trava de Memória (ajuda, mas não resolve 100% em multi-processo)
-        now_ts = datetime.now().timestamp()
-        if ip in self.recent_blocks_cache:
-            if now_ts - self.recent_blocks_cache[ip] < 5:
-                return 
-        self.recent_blocks_cache[ip] = now_ts
+        # 1. TRAVA DE CACHE (A Salvação do Fuzzing)
+        # Verifica se já existe um processo de bloqueio rodando para este IP.
+        # Isso impede que 50 threads do ffuf tentem fazer INSERT ao mesmo tempo.
+        cache_key = f"blocking_lock_{ip}"
+        
+        if waf_cache.get(cache_key):
+            return # Já está sendo bloqueado por outra thread, aborta.
 
-        session = get_session()
+        # Cria a trava por 5 segundos (tempo mais que suficiente para o insert ocorrer)
+        waf_cache.set(cache_key, True, expire=5)
+
+        # 2. REUTILIZAÇÃO DE SESSÃO
+        # Usamos a sessão que já está aberta na requisição atual.
+        session = req.session 
+        
         try:
-            # 2. TRAVA DE BANCO: Verifica se já houve um log desse IP nos últimos 2 segundos
-            # Isso evita que as 6 threads do ffuf que passaram pela trava de memória gravem no banco
-            
-            time_threshold = datetime.now(timezone.utc) - timedelta(seconds=2)
-            
-            # Buscamos na tabela de LOGS (WafLog) se já existe um registro recente
-           
-            exists_recent_log = session.query(WafLog).filter(
-                WafLog.ip == ip,
-                WafLog.attack_type.in_(['RATE LIMIT', 'IP BLOCK']),
-                WafLog.timestamp >= time_threshold
-            ).first()
+            # Verifica se já existe na tabela (Query leve)
+            exists_block = session.query(Blocked).filter_by(ip=ip).first()
 
-            if not exists_recent_log:
-                # Só prossegue se não houver log recente
-                exists_block = session.query(Blocked).filter_by(ip=ip).first()
-                if not exists_block:
-                    now = datetime.now(timezone.utc)
-                    until = now + timedelta(minutes=self.block_durantion)
-                    
-                    new_block = Blocked(
-                        ip=ip, user_agent=user_agent,
-                        blocked_at=now, blocked_until=until
-                    )
-                    session.add(new_block)
-                    session.commit()
-                    self.log.warning(f"[RATE LIMIT] IP: {ip} exceeded limit.")
-                    self.log.warning(f"[BLOCKED] IP: {ip}, UA: {user_agent}")
-                    
-                    
-                    
+            if not exists_block:
+                now = datetime.now(timezone.utc)
+                until = now + timedelta(minutes=self.block_durantion)
+                
+                # Atenção ao formato do blocked_at se o seu Model esperar String
+                # Se no model for DateTime, use 'now'. Se for String, use 'now.strftime...'
+                new_block = Blocked(
+                    ip=ip, 
+                    user_agent=user_agent or "unknown",
+                    blocked_at=now.strftime("%H:%M:%S"), 
+                    blocked_until=until
+                )
+                
+                session.add(new_block)
+                session.commit()
+                
+                # Log no arquivo/console
+                self.log.warning(f"[BLOCKED] IP: {ip} bloqueado por {self.block_durantion} min.")
+                
+                # 3. PRÉ-AQUECIMENTO DE CACHE
+                # Já avisa o cache que este IP está bloqueado.
+                # A próxima requisição vai bater no verify_client_blocked, ler o cache e ser barrada sem tocar no banco.
+                waf_cache.set(f"blocked_{ip}", True, expire=60)
+
         except Exception as e:
             session.rollback()
             self.log.error(f"Erro ao persistir bloqueio: {e}")
-        finally:
-            session.close()
+            # Se deu erro, removemos a trava para tentar novamente na próxima
+            waf_cache.delete(cache_key)
+        
+        # IMPORTANTE:
+        # Não usamos 'finally: session.close()' aqui!
+        # Quem fecha é o @app.teardown_request no final do ciclo.
 
     def verify_rate_limit(self, req) -> None:
         if self.rate_limit:
