@@ -3,6 +3,7 @@ import secrets
 import socket
 import string
 import time
+import tomllib
 from werkzeug.security import generate_password_hash
 from sqlalchemy.orm import Session
 from sqlalchemy import text, func, case
@@ -44,9 +45,7 @@ class Admin:
 def admin(fn):
     @wraps(fn)
     def wrapper(*args, **kwargs):
-        print(f"DEBUG: Session logged_in status: {session.get('logged_in')}") # Adicione isso
         if not session.get("logged_in"):
-            print("DEBUG: Redirecting to login...")
             return redirect(url_for("login", next=request.path))
         return fn(*args, **kwargs)
     return wrapper
@@ -57,6 +56,18 @@ class Dashboard:
         
     def dashboard_setup(self):
         json = {}
+
+        def get_waf_version():
+            base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            toml_path = os.path.join(base_path, "pyproject.toml")
+            
+            try:
+                with open(toml_path, "rb") as f:
+                    data = tomllib.load(f)
+                    return data["project"]["version"]
+            except FileNotFoundError:
+                return "v.0.0.0"
+        
         def get_server_info():
             server_time = datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
             node_id = socket.gethostname()
@@ -66,7 +77,8 @@ class Dashboard:
                 "server_time": server_time,
                 "node_id": node_id,
                 "average_latency_ms": round(float(avg_latency), 2),
-                "system_status": system_status
+                "system_status": system_status,
+                "version": get_waf_version()
             }
         
         def get_kpis():
@@ -151,6 +163,7 @@ class Dashboard:
                 print(f"Erro no Dashboard: {e}")
             finally:
                 session.close()
+                
         def get_traffic_chart():
             now = datetime.now(timezone.utc)
             start_time = now - timedelta(minutes=40)

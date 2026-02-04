@@ -92,9 +92,9 @@
                     <span class="w-2 h-2 rounded-full bg-green-500"></span>
                     <span class="text-xs font-mono text-slate-400">Node-BR-01</span>
                 </div>
-                <div class="px-3 py-1 bg-slate-900 rounded border border-slate-800 text-xs font-mono text-slate-400">
-                    v.2.5.0
-                </div>
+                    <div id="waf-version" class="px-3 py-1 bg-slate-900 rounded border border-slate-800 text-xs font-mono text-slate-400">
+                        v.0.0.0
+                    </div>
             </div>
         </div>
 
@@ -331,7 +331,11 @@
             try {
                 const response = await fetch('./stats');
                 const data = await response.json();
-
+                
+                const versionElement = document.getElementById('waf-version');
+                if (versionElement && data.meta.version) {
+                    versionElement.innerText = data.meta.version;
+                }
                 // KPIs
                 document.querySelector('.text-emerald-500').parentElement.querySelector('.text-white').innerText = `${data.meta.average_latency_ms}ms`;
                 const nodeSpan = document.querySelector('.bg-green-500 + span'); if(nodeSpan) nodeSpan.innerText = data.meta.node_id;

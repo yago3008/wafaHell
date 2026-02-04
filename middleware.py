@@ -94,6 +94,8 @@ class Wafahell:
             if not is_malicious:
                 return
             
+            self.log_attack(req, attack_type, payload, attack_local)
+            
             if not self.monitor_mode:
                 self.log.warning(self.parse_req(req, payload, attack_local, attack_type))
                 self.block_ip_address(req.remote_addr, req.headers.get("User-Agent", "unknown"))
@@ -116,8 +118,8 @@ class Wafahell:
             # 2. LOG DE TRÁFEGO LEGÍTIMO
             # Se o status_code for menor que 400, significa que o WAF não deu abort()
             # e a requisição seguiu o fluxo normal.
-            # if response.status_code != self.block_code:
-            #     self.log_legit_access(req)
+            if response.status_code != self.block_code:
+                self.log_legit_access(req)
 
             # 3. RPS Logic (Bucketing by second)
             current_timestamp = int(time.time())
@@ -138,46 +140,72 @@ class Wafahell:
             return response
         
     def log_legit_access(self, req):
-        # 1. Captura os dados da requisição atual
-        log_entry = {
+            entry = {
+                "timestamp": datetime.now(timezone.utc),
+                "attack_type": 'INFO',
+                "ip": req.remote_addr,
+                "path": req.path,
+                "method": req.method,
+                "level": 'INFO',
+                "payload": None,       # INFO não tem payload
+                "attack_local": None   # INFO não tem local de ataque
+            }
+            # Manda para o gerenciador de lote
+            self._push_to_batch(entry)
+
+    def log_attack(self, req, attack_type, payload, attack_local):
+        # Decodifica o payload para ficar legível no banco
+        safe_payload = unquote(payload) if payload else "---"
+        
+        entry = {
             "timestamp": datetime.now(timezone.utc),
-            "attack_type": 'INFO',
+            "attack_type": attack_type,  # Ex: SQLI, XSS
             "ip": req.remote_addr,
             "path": req.path,
             "method": req.method,
-            "level": 'INFO'
+            "level": 'WARNING',
+            "payload": safe_payload,
+            "attack_local": attack_local # Ex: URL, BODY, HEADER
         }
+        # Manda para o mesmo gerenciador de lote (mesma tabela)
+        self._push_to_batch(entry)
 
-        # 2. Função aninhada para descarregar no banco (Flush)
-        def flush_to_db(logs_to_save):
-            session = get_session()
-            try:
-                # bulk_insert_mappings é muito mais rápido que session.add() em loop
-                session.bulk_insert_mappings(WafLog, logs_to_save)
-                session.commit()
-            except Exception as e:
-                session.rollback()
-                self.log.error(f"Error in WAF batch insert: {e}")
-            finally:
-                session.close()
-
-        # 3. Gerenciamento do Cache (Memória)
-        # Recupera os logs pendentes do cache global
+    def _push_to_batch(self, log_entry):
+        """
+        Função central que gerencia o Buffer de Logs (Memória -> Banco).
+        Usada tanto por logs legítimos quanto por ataques.
+        """
+        # 1. Recupera os logs pendentes do cache global
         pending_logs = waf_cache.get('pending_logs_batch', default=[])
         pending_logs.append(log_entry)
 
-        # 4. Gatilhos para o Flush:
-        # Se chegamos a 50 logs OU se o último flush foi há mais de 10 segundos
+        # 2. Verifica Gatilhos: 50 logs OU 3 segundos (reduzi de 10 pra 3 pra ficar mais "real time")
         current_time = time.time()
         last_flush = waf_cache.get('last_log_flush_time', default=0)
         
-        if len(pending_logs) >= 50 or (current_time - last_flush) > 10:
-            flush_to_db(pending_logs)
-            # Reseta o cache e o timer
-            waf_cache.set('pending_logs_batch', [], expire=60)
-            waf_cache.set('last_log_flush_time', current_time, expire=60)
+        if len(pending_logs) >= 50 or (current_time - last_flush) > 3:
+            
+            # Função interna de flush (Abre sessão dedicada para o lote)
+            session = get_session()
+            try:
+                # bulk_insert_mappings é OTIMIZADO para grandes volumes
+                session.bulk_insert_mappings(WafLog, pending_logs)
+                session.commit()
+                
+                # Sucesso: Limpa o cache
+                waf_cache.set('pending_logs_batch', [], expire=60)
+                waf_cache.set('last_log_flush_time', current_time, expire=60)
+            except Exception as e:
+                session.rollback()
+                # Não usamos self.log.error aqui para não criar loop infinito se o erro for no logger
+                print(f" [ERRO CRÍTICO] Falha no Batch Insert do WAF: {e}")
+                
+                # Mantém os dados no cache para tentar na próxima requisição
+                waf_cache.set('pending_logs_batch', pending_logs, expire=60)
+            finally:
+                session.close()
         else:
-            # Apenas atualiza a lista no cache
+            # Apenas atualiza a lista no cache esperando o gatilho
             waf_cache.set('pending_logs_batch', pending_logs, expire=60)
 
     def detect_attack(self, data: str) -> bool:
@@ -233,89 +261,57 @@ class Wafahell:
         return False, None, None, None
 
     def verify_client_blocked(self, req) -> None:
-        session = req.session
+        ip = req.remote_addr
+        
+        # ---------------------------------------------------------
+        # 1. FAST PATH: Cache Check (Memória/Disco)
+        # ---------------------------------------------------------
+        # Se o cache diz que está bloqueado, abortamos imediatamente.
+        # Isso economiza 99% das queries de SELECT durante um ataque (fuzzing).
+        if waf_cache.get(f"blocked_{ip}"):
+            abort(self.block_code)
+
+        # ---------------------------------------------------------
+        # 2. SLOW PATH: Database Check
+        # ---------------------------------------------------------
+        # Só chegamos aqui se o IP não estiver no cache.
+        # Pode ser um IP limpo OU um IP bloqueado cujo cache expirou (TTL).
+        
+        session = req.session # Reutiliza a sessão da request (Fundamental!)
+
         try:
-            client_blocked = session.query(Blocked).filter_by(
-                ip=req.remote_addr,
-            ).first()
+            client_blocked = session.query(Blocked).filter_by(ip=ip).first()
 
             if client_blocked:
-
+                # Normalização de fuso horário
                 now = datetime.now(timezone.utc) if client_blocked.blocked_until.tzinfo else datetime.utcnow()
                 
-                if client_blocked.blocked_until <= now:
-                    # --- TRAVA DE DESBLOQUEIO (Anti-Race Condition) ---
-                    # Usamos um marcador no cache para saber se alguém já está desbloqueando este IP
-                    cache_key = f"unblocking_{req.remote_addr}"
-                    if cache_key in self.recent_blocks_cache:
-                        return # Outra thread já está limpando este IP, apenas saia
-                    
-                    self.recent_blocks_cache[cache_key] = True
-                    # --------------------------------------------------
-
+                # Caso 1: Ainda está bloqueado
+                if client_blocked.blocked_until > now:
+                    # RE-AQUECIMENTO DO CACHE:
+                    # O bloqueio ainda é válido no banco, então renovamos o cache por mais 60s.
+                    # Assim, as próximas requisições desse IP vão cair no Fast Path acima.
+                    waf_cache.set(f"blocked_{ip}", True, expire=60)
+                    abort(self.block_code)
+                
+                # Caso 2: O bloqueio expirou (Desbloqueio)
+                else:
                     try:
                         session.delete(client_blocked)
                         session.commit()
+                        self.log.info(f"[UNBLOCKED] Bloqueio do IP {ip} expirou.")
                         
-                        # Limpa os caches de controle deste IP
-                        self.recent_blocks_cache.pop(req.remote_addr, None)
-                        self.recent_blocks_cache.pop(cache_key, None)
+                        # Garante que não sobrou lixo no cache
+                        waf_cache.delete(f"blocked_{ip}")
+                        # Remove travas de bloqueio antigas se existirem
+                        waf_cache.delete(f"blocking_lock_{ip}")
                         
-                        self.log.info(f"[UNBLOCKED] IP {req.remote_addr} bloqueio expirou.")
                     except Exception as e:
+                        # Se der erro de concorrência (outro thread já deletou), apenas ignora
                         session.rollback()
-                        self.recent_blocks_cache.pop(cache_key, None)
-                        raise e
-                    return
-
-                # Se chegou aqui, ainda está bloqueado
-                abort(self.block_code)
 
         except OperationalError:
-            session.rollback()
-            abort(self.block_code)
-
-        try:
-                        
-            client_blocked = session.query(Blocked).filter_by(
-                ip=req.remote_addr,
-                user_agent=req.headers.get("User-Agent")
-            ).first()
-
-            if not client_blocked:
-                return
-
-            # Normaliza o tempo para comparação
-            now = datetime.now(timezone.utc) if client_blocked.blocked_until.tzinfo else datetime.utcnow()
-            
-            if client_blocked.blocked_until <= now:
-                # --- TRAVA DE DESBLOQUEIO (Anti-Race Condition) ---
-                # Usamos um marcador no cache para saber se alguém já está desbloqueando este IP
-                cache_key = f"unblocking_{req.remote_addr}"
-                if cache_key in self.recent_blocks_cache:
-                    return # Outra thread já está limpando este IP, apenas saia
-                
-                self.recent_blocks_cache[cache_key] = True
-                # --------------------------------------------------
-
-                try:
-                    session.delete(client_blocked)
-                    session.commit()
-                    
-                    # Limpa os caches de controle deste IP
-                    self.recent_blocks_cache.pop(req.remote_addr, None)
-                    self.recent_blocks_cache.pop(cache_key, None)
-                    
-                    self.log.info(f"[UNBLOCKED] IP {req.remote_addr} bloqueio expirou.")
-                except Exception as e:
-                    session.rollback()
-                    self.recent_blocks_cache.pop(cache_key, None)
-                    raise e
-                return
-                
-            abort(self.block_code)
-
-        except OperationalError:
+            # Se o banco estiver travado/ocupado, abortamos por segurança (Fail Closed)
             session.rollback()
             abort(self.block_code)
 
@@ -382,16 +378,24 @@ class Wafahell:
                 ua = req.headers.get("User-Agent", "unknown")
                 
                 if limiter.is_rate_limited(ip, ua):
-                    if self.monitor_mode:
-                        self.log.warning(f"[RATE LIMIT] IP: {ip} exceeded limit.")
-                        return
+                    self.log_attack(
+                        req=req, 
+                        attack_type="RATE LIMIT", 
+                        payload="Too Many Requests", 
+                        attack_local="Rate Limiter"
+                    )
                     
+                    self.log.warning(f"[RATE LIMIT] IP: {ip} exceeded limit.")
+
+                    if self.monitor_mode:
+                        return
                     
                     if self.block_ip:
                         self.block_ip_address(ip, ua)
                         abort(self.block_code)
 
-                    self.log.warning(f"[RATE LIMIT] IP: {ip} exceeded limit.")
+
+                    
 
     def parse_req(self, req, payload, attack_local=None, attack_type=None) -> str:
         ip = req.remote_addr
