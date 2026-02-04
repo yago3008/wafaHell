@@ -27,9 +27,18 @@
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #475569; }
         
         .animate-pulse-slow { animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+
+        /* Toast Animation */
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .toast-enter { animation: slideInRight 0.3s ease-out forwards; }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-300 font-sans text-[13px] antialiased selection:bg-red-500/30">
+
+    <div id="toast-container" class="fixed bottom-5 right-5 z-[100] flex flex-col gap-3 pointer-events-none"></div>
 
     <div id="blocklistModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm transition-all duration-300">
         <div class="bg-slate-900 border border-slate-700 w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden transform scale-95 transition-all" id="modalContent">
@@ -58,6 +67,22 @@
             
             <div class="bg-slate-950 p-3 border-t border-slate-800 text-right">
                 <button onclick="closeBlocklistModal()" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded text-xs font-bold transition uppercase">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="confirmationModal" class="fixed inset-0 z-[60] hidden items-center justify-center bg-black/80 backdrop-blur-sm transition-opacity">
+        <div class="bg-slate-900 border border-slate-700 p-6 rounded-xl shadow-2xl max-w-sm w-full transform scale-100 transition-all">
+            <div class="text-center mb-4">
+                <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-yellow-900/30 text-yellow-500 mb-3 border border-yellow-500/20">
+                    <i class="fas fa-exclamation-triangle text-xl"></i>
+                </div>
+                <h3 class="text-lg font-bold text-white mb-1">Confirm Action</h3>
+                <p id="confirm-message" class="text-slate-400 text-xs">Are you sure?</p>
+            </div>
+            <div class="flex gap-3 mt-6">
+                <button onclick="closeConfirmationModal()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 py-2.5 rounded-lg font-bold text-xs uppercase transition">Cancel</button>
+                <button id="btn-confirm-action" class="flex-1 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white py-2.5 rounded-lg font-bold text-xs uppercase transition shadow-lg shadow-emerald-900/20">Confirm</button>
             </div>
         </div>
     </div>
@@ -105,8 +130,8 @@
                 </div>
                 <p class="text-slate-500 text-[10px] font-bold uppercase tracking-widest mb-1">Requisições (24h)</p>
                 <div class="flex items-end gap-2">
-                    <span class="text-3xl font-mono text-white font-bold">4.2M</span>
-                    <span class="text-[10px] text-emerald-500 font-bold mb-1">▲ 12%</span>
+                    <span id="kpi-req-value" class="text-3xl font-mono text-white font-bold">0</span>
+                    <span id="kpi-req-trend" class="text-[10px] font-bold mb-1">--</span>
                 </div>
             </div>
 
@@ -116,7 +141,8 @@
                 </div>
                 <p class="text-red-400 text-[10px] font-bold uppercase tracking-widest mb-1">Ataques Mitigados</p>
                 <div class="flex items-end gap-2">
-                    <span class="text-3xl font-mono text-white font-bold">15,402</span>
+                    <span id="kpi-attack-value" class="text-3xl font-mono text-white font-bold">0</span>
+                    <span id="kpi-attack-trend" class="text-[10px] font-bold mb-1">--</span>
                 </div>
             </div>
 
@@ -232,6 +258,66 @@
     </div>
 
   <script>
+        // === TOAST SYSTEM ===
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            
+            const isError = type === 'error';
+            const borderColor = isError ? 'border-red-500/50' : 'border-emerald-500/50';
+            const textColor = isError ? 'text-red-400' : 'text-emerald-400';
+            const iconClass = isError ? 'fa-exclamation-circle' : 'fa-check-circle';
+            
+            const toast = document.createElement('div');
+            toast.className = `toast-enter pointer-events-auto bg-slate-900/95 border ${borderColor} text-slate-200 px-5 py-4 rounded-lg shadow-2xl backdrop-blur-md flex items-center gap-4 min-w-[300px] max-w-md`;
+            
+            toast.innerHTML = `
+                <i class="fas ${iconClass} ${textColor} text-xl"></i>
+                <div class="flex-1">
+                    <p class="text-xs font-bold ${textColor} uppercase tracking-wider mb-0.5">${isError ? 'Error' : 'Success'}</p>
+                    <p class="text-[11px] text-slate-400 font-medium">${message}</p>
+                </div>
+                <button onclick="this.parentElement.remove()" class="text-slate-600 hover:text-white transition"><i class="fas fa-times"></i></button>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateX(100%)';
+                    toast.style.transition = 'all 0.3s ease-in';
+                    setTimeout(() => toast.remove(), 300);
+                }
+            }, 4000);
+        }
+
+        // === CONFIRMATION MODAL LOGIC ===
+        let pendingAction = null;
+
+        function openConfirmationModal(message, actionCallback) {
+            const modal = document.getElementById('confirmationModal');
+            document.getElementById('confirm-message').innerText = message;
+            
+            // Remove listener anterior para não acumular
+            const btn = document.getElementById('btn-confirm-action');
+            const newBtn = btn.cloneNode(true);
+            btn.parentNode.replaceChild(newBtn, btn);
+            
+            newBtn.addEventListener('click', () => {
+                actionCallback();
+                closeConfirmationModal();
+            });
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeConfirmationModal() {
+            const modal = document.getElementById('confirmationModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
         // === FUNÇÃO DE VOLTAR ===
         function goBack() {
             const path = window.location.pathname;
@@ -265,7 +351,7 @@
             });
         };
 
-        // 2. Vector Chart (CORRIGIDO: Padding adicionado para evitar corte)
+        // 2. Vector Chart
         const initVectorChart = () => {
             const vectorCtx = document.getElementById('vectorChart').getContext('2d');
             vectorChart = new Chart(vectorCtx, {
@@ -275,14 +361,34 @@
                     responsive: true, 
                     maintainAspectRatio: false, 
                     cutout: '80%',
-                    // AQUI ESTÁ A CORREÇÃO REAL:
-                    layout: { padding: 24 }, // Dá espaço interno para o gráfico crescer sem bater na borda
+                    layout: { padding: 24 }, 
                     plugins: { legend: { display: false } } 
                 }
             });
         };
+        // Função auxiliar para pintar a tendência
+        function updateTrendElement(elementId, value) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
 
-        // === MODAL LOGIC ===
+            // Formata para 1 casa decimal (ex: 12.5)
+            const formattedValue = Math.abs(value).toFixed(1);
+
+            if (value < 0) {
+                // NEGATIVO: Vermelho + Seta Baixo
+                el.className = "text-[10px] text-red-500 font-bold mb-1";
+                el.innerHTML = `▼ ${formattedValue}%`;
+            } else if (value > 0) {
+                // POSITIVO: Verde + Seta Cima
+                el.className = "text-[10px] text-emerald-500 font-bold mb-1";
+                el.innerHTML = `▲ ${formattedValue}%`;
+            } else {
+                // NEUTRO (0): Cinza + Traço
+                el.className = "text-[10px] text-slate-500 font-bold mb-1";
+                el.innerHTML = `- ${formattedValue}%`;
+            }
+        }
+        // === MODAL BLACKLIST LOGIC ===
         function openBlocklistModal() {
             const modal = document.getElementById('blocklistModal');
             const content = document.getElementById('modalContent');
@@ -312,18 +418,29 @@
                         <td class="p-4 font-mono text-red-400 font-bold">${ip.ip}</td>
                         <td class="p-4 text-slate-400 truncate max-w-[200px]" title="${ip.user_agent}">${ip.user_agent}</td>
                         <td class="p-4 text-slate-500">${ip.expires_in}</td>
-                        <td class="p-4 text-right"><button onclick="unblockIP('${ip.ip}')" class="text-xs bg-slate-800 hover:bg-emerald-600 hover:text-white px-2 py-1 rounded transition uppercase font-bold text-slate-400">Liberar</button></td>
+                        <td class="p-4 text-right"><button onclick="tryUnblockIP('${ip.ip}')" class="text-xs bg-slate-800 hover:bg-emerald-600 hover:text-white px-2 py-1 rounded transition uppercase font-bold text-slate-400">Liberar</button></td>
                     </tr>
                 `).join('');
-            } catch (err) { tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-red-500">Erro ao buscar lista.</td></tr>'; }
+            } catch (err) { 
+                tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-red-500">Erro ao buscar lista.</td></tr>';
+                showToast("Erro ao carregar blacklist", 'error'); 
+            }
         }
 
-        async function unblockIP(ip) {
-            if(!confirm(`Desbloquear o IP ${ip} agora?`)) return;
+        // Função wrapper que abre o modal
+        function tryUnblockIP(ip) {
+            openConfirmationModal(`Desbloquear o IP ${ip} agora?`, () => executeUnblock(ip));
+        }
+
+        async function executeUnblock(ip) {
             try {
                 await fetch('./unblock_ip', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ ip: ip }) });
-                fetchBlockedIPs(); updateDashboard();
-            } catch(e) { alert("Erro ao desbloquear."); }
+                showToast(`IP ${ip} liberado com sucesso!`, 'success');
+                fetchBlockedIPs(); 
+                updateDashboard();
+            } catch(e) { 
+                showToast("Erro ao desbloquear IP.", 'error'); 
+            }
         }
 
         // === UPDATE FUNCTION ===
@@ -336,6 +453,15 @@
                 if (versionElement && data.meta.version) {
                     versionElement.innerText = data.meta.version;
                 }
+
+                const reqValue = document.getElementById('kpi-req-value');
+                if (reqValue) {
+                    reqValue.innerText = data.kpis.total_requests_24h.value.toLocaleString();
+                }
+
+                // 2. A Porcentagem Dinâmica (▲/▼)
+                // Usamos a chave que você indicou: trend_percent
+                updateTrendElement('kpi-req-trend', data.kpis.total_requests_24h.trend_percent);
                 // KPIs
                 document.querySelector('.text-emerald-500').parentElement.querySelector('.text-white').innerText = `${data.meta.average_latency_ms}ms`;
                 const nodeSpan = document.querySelector('.bg-green-500 + span'); if(nodeSpan) nodeSpan.innerText = data.meta.node_id;

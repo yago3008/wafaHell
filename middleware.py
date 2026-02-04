@@ -5,17 +5,18 @@ import subprocess
 import time
 from flask import request as req, abort, g
 from urllib.parse import unquote
-from model import Base, Blocked, WafLog, get_session, engine
+from model import Base, Blocked, WafLog, Whitelist, get_session, engine
 from logger import Logger
 from rateLimiter import RateLimiter
 from sqlalchemy.exc import OperationalError
 from panel import setup_dashboard
-from utils import Admin
+from utils import Admin, seed_default_whitelist
 from sqlalchemy import text
 from globals import waf_cache
 import hashlib
 import uuid
 import socket
+import ipaddress
 
 # Inicializa o RateLimiter
 limiter = RateLimiter(limit=100, window=60)
@@ -57,6 +58,7 @@ class Wafahell:
     def init_app(self, app):
         Base.metadata.create_all(engine)
         setup_dashboard(app, self.dashboard_path)
+        seed_default_whitelist()
         Admin.create_admin_user(get_session())
 
         if not app.secret_key:
@@ -87,6 +89,8 @@ class Wafahell:
 
         @app.before_request
         def waf_check():
+            if self.check_whitelist(req):
+                return
             self.verify_client_blocked(req)
             self.verify_rate_limit(req)
             is_malicious, attack_local, payload, attack_type = self.is_malicious(req)
@@ -167,7 +171,25 @@ class Wafahell:
             "payload": safe_payload,
             "attack_local": attack_local # Ex: URL, BODY, HEADER
         }
-        # Manda para o mesmo gerenciador de lote (mesma tabela)
+        self.log_block(req)
+        self._push_to_batch(entry)
+
+    def log_block(self, req):
+        """
+        Registra especificamente bloqueios de conexão (Blacklist/Manual Block).
+        """
+        entry = {
+            "timestamp": datetime.now(timezone.utc),
+            "attack_type": "IP BLOCK", 
+            "ip": req.remote_addr,
+            "path": req.path,
+            "method": req.method,
+            "level": 'INFO',
+            "payload": "---",
+            "attack_local": "WAF"
+        }
+        
+        # Envia para o mesmo lote que os ataques normais
         self._push_to_batch(entry)
 
     def _push_to_batch(self, log_entry):
@@ -395,7 +417,49 @@ class Wafahell:
                         abort(self.block_code)
 
 
-                    
+    def check_whitelist(self, req) -> bool:
+        ip_str = req.remote_addr
+        
+        # 1. CACHE (Velocidade Extrema)
+        # Se esse IP já foi validado antes (seja por faixa ou exato), libera.
+        if waf_cache.get(f"whitelist_{ip_str}"):
+            return True
+
+        session = req.session
+        try:
+            # 2. Busca Exata (Para IPs unitários como 8.8.8.8)
+            # É muito rápido.
+            if session.query(Whitelist).filter_by(ip=ip_str).first():
+                waf_cache.set(f"whitelist_{ip_str}", True, expire=3600)
+                return True
+
+            # 3. Busca por Faixas (CIDR)
+            # Só executamos isso se não achou match exato.
+            # Trazemos apenas as faixas que contêm "/" para não trazer IPs soltos
+            cidr_ranges = session.query(Whitelist.ip).filter(Whitelist.ip.like('%/%')).all()
+            
+            if not cidr_ranges:
+                return False
+
+            user_ip = ipaddress.ip_address(ip_str)
+
+            for row in cidr_ranges:
+                try:
+                    # Verifica matematicamente se o IP está na rede
+                    network = ipaddress.ip_network(row.ip, strict=False)
+                    if user_ip in network:
+                        # ACHOU!
+                        # Salva o IP DO USUÁRIO no cache. 
+                        # Na próxima requisição, ele cai no passo 1 e nem passa por aqui.
+                        waf_cache.set(f"whitelist_{ip_str}", True, expire=3600)
+                        return True
+                except ValueError:
+                    continue
+
+        except Exception as e:
+            return False
+            
+        return False
 
     def parse_req(self, req, payload, attack_local=None, attack_type=None) -> str:
         ip = req.remote_addr

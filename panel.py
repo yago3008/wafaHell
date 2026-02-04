@@ -1,9 +1,11 @@
 from datetime import datetime, timedelta, timezone
+import re
 from flask import render_template_string, request, jsonify, make_response, flash, session, redirect, render_template
-from model import AdminUser, WafLog, get_session, Blocked
+from model import AdminUser, WafLog, Whitelist, get_session, Blocked
 from sqlalchemy import func
 import csv
 import io
+from globals import waf_cache
 from utils import Dashboard, admin
 from werkzeug.security import check_password_hash
 
@@ -270,6 +272,135 @@ def setup_dashboard(app, custom_path=None):
             return {"status": "success", "message": f"{key} updated", "newValue": value}
         
         return {"status": "error", "message": "Invalid variable"}, 400
+    
+    @app.route(target_path + '/import_blacklist', methods=['POST'])
+    @admin
+    def import_blacklist():
+        data = request.get_json()
+        raw_ips = data.get('ips', [])
+        
+        if not raw_ips:
+            return jsonify({"status": "error", "message": "Nenhum IP fornecido."}), 400
+
+        # 1. Validação e Limpeza (Regex IPv4)
+        # Usamos set() para remover duplicatas enviadas no mesmo arquivo
+        ip_regex = re.compile(r"^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$")
+        valid_ips = set(ip for ip in raw_ips if ip_regex.match(ip))
+        
+        if not valid_ips:
+            return jsonify({"status": "error", "message": "Nenhum IP válido encontrado."}), 400
+
+        session = get_session()
+        try:
+            # 2. Filtragem de Duplicatas no Banco
+            # Descobre quais desses IPs já estão bloqueados para não dar erro de Unique Key
+            existing_query = session.query(Blocked.ip).filter(Blocked.ip.in_(valid_ips)).all()
+            existing_ips = {row.ip for row in existing_query}
+            
+            # Apenas os novos IPs
+            ips_to_insert = valid_ips - existing_ips
+            
+            if not ips_to_insert:
+                return jsonify({"status": "success", "message": "Todos os IPs já estavam na blacklist."})
+
+            # 3. Preparação dos Dados (Bulk)
+            # Definimos um tempo padrão de 30 dias para importações manuais de lista
+            now = datetime.now(timezone.utc)
+            until = now + timedelta(days=3600) 
+            
+            bulk_data = []
+            for ip in ips_to_insert:
+                bulk_data.append({
+                    "ip": ip,
+                    "user_agent": "MANUAL_IMPORT_LIST",
+                    # Mantendo o formato string que você usa no Model
+                    "blocked_at": now.strftime("%H:%M:%S"), 
+                    "blocked_until": until
+                })
+                
+                # 4. Atualização IMEDIATA do Cache (Fast Path)
+                # Isso garante que o bloqueio funcione no milissegundo seguinte,
+                # sem precisar esperar a próxima query no banco.
+                waf_cache.set(f"blocked_{ip}", True, expire=60)
+
+            # 5. Inserção em Massa (Muito Rápido)
+            session.bulk_insert_mappings(Blocked, bulk_data)
+            session.commit()
+            
+            count = len(ips_to_insert)
+            print(f" * [WafaHell] Blacklist importada: {count} novos IPs.")
+            
+            return jsonify({
+                "status": "success", 
+                "message": f"Sucesso! {count} novos IPs adicionados à Blacklist."
+            })
+
+        except Exception as e:
+            session.rollback()
+            print(f"Erro na importação: {e}")
+            return jsonify({"status": "error", "message": str(e)}), 500
+        finally:
+            session.close()
+
+    @app.route(target_path + '/import_whitelist', methods=['POST'])
+    @admin
+    def import_whitelist():
+        data = request.get_json()
+        raw_ips = data.get('ips', [])
+        
+        if not raw_ips:
+            return jsonify({"status": "error", "message": "Nenhum IP fornecido."}), 400
+
+        # 1. Validação (Regex)
+        ip_regex = re.compile(r"^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$")
+        valid_ips = set(ip for ip in raw_ips if ip_regex.match(ip))
+        
+        if not valid_ips:
+            return jsonify({"status": "error", "message": "Nenhum IP válido encontrado."}), 400
+
+        session = get_session()
+        try:
+            # 2. Verifica Duplicatas no Banco
+            # Como sua coluna 'ip' é unique=True, precisamos filtrar o que já existe
+            existing_query = session.query(Whitelist.ip).filter(Whitelist.ip.in_(valid_ips)).all()
+            existing_ips = {row.ip for row in existing_query}
+            
+            ips_to_insert = valid_ips - existing_ips
+            
+            if not ips_to_insert:
+                return jsonify({"status": "success", "message": "Todos os IPs já estavam na whitelist."})
+
+            # 3. Prepara Bulk Insert e Cache
+            now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            bulk_data = []
+            
+            for ip in ips_to_insert:
+                bulk_data.append({
+                    "ip": ip,
+                    "added_at": now_str
+                })
+                # Cache Warm-up: Marca o IP como "VIP" no cache por 1 hora
+                # Isso evita consulta ao banco quando este IP acessar
+                waf_cache.set(f"whitelist_{ip}", True, expire=3600)
+
+            # 4. Grava no Banco
+            session.bulk_insert_mappings(Whitelist, bulk_data)
+            session.commit()
+            
+            count = len(ips_to_insert)
+            print(f" * [WafaHell] Whitelist importada: {count} novos IPs.")
+            
+            return jsonify({
+                "status": "success", 
+                "message": f"Sucesso! {count} IPs adicionados à Whitelist."
+            })
+
+        except Exception as e:
+            session.rollback()
+            print(f"Erro whitelist: {e}")
+            return jsonify({"status": "error", "message": str(e)}), 500
+        finally:
+            session.close()
 
     print(f" * [WafaHell] Dashboard e API de dados prontos em: {target_path}")
 

@@ -52,6 +52,17 @@ class Blocked(Base):
             f"blocked_until='{self.blocked_until}')>"
         )
 
+class Whitelist(Base):
+    __tablename__ = "whitelist"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    ip = Column(String, nullable=False, unique=True)
+    added_at = Column(
+        String,
+        nullable=False,
+        default=lambda: datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    )
+    def __repr__(self):
+        return f"<Whitelist(ip='{self.ip}', added_at='{self.added_at}')>"
 
 class WafLog(Base):
     __tablename__ = "waf_logs"

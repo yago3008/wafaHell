@@ -7,7 +7,7 @@ import tomllib
 from werkzeug.security import generate_password_hash
 from sqlalchemy.orm import Session
 from sqlalchemy import text, func, case
-from model import WafLog, Blocked
+from model import WafLog, Blocked, Whitelist
 from model import AdminUser
 from functools import wraps
 from flask import session, redirect, url_for, request
@@ -159,6 +159,7 @@ class Dashboard:
                         "added_today": added_today
                     }
                 }
+            
             except Exception as e:
                 print(f"Erro no Dashboard: {e}")
             finally:
@@ -346,3 +347,72 @@ class Dashboard:
             print(f"Erro no Dashboard: {e}")
             return {"error": str(e)}
         
+def seed_default_whitelist():
+    """
+    Popula a Whitelist com IPs essenciais (Localhost, DNS públicos, etc)
+    Executar na inicialização do app.
+    """
+    # Lista de IPs Padrão (Adicione aqui IPs unitários que confia)
+    DEFAULT_IPS = [
+        # --- Localhost / Loopback (Essencial) ---
+        "127.0.0.1",
+        "::1",
+
+        # Redes Privadas (As gigantes)
+        "10.0.0.0/8",      # 16 milhões de IPs
+        "172.16.0.0/12",   # 1 milhão de IPs
+        "192.168.0.0/16",  # 65 mil IPs
+        
+        # --- DNS Públicos (Google) ---
+        "8.8.8.8",
+        "8.8.4.4",
+        
+        # --- DNS Públicos (Cloudflare) ---
+        "1.1.1.1",
+        "1.0.0.1",
+        
+        # --- DNS Públicos (OpenDNS) ---
+        "208.67.222.222",
+        "208.67.220.220",
+        
+        # --- DNS Públicos (Quad9) ---
+        "9.9.9.9",
+        "149.112.112.112"
+    ]
+
+    session = get_session()
+    try:
+        # 1. Descobre o que já existe no banco para não duplicar
+        existing_query = session.query(Whitelist.ip).filter(Whitelist.ip.in_(DEFAULT_IPS)).all()
+        existing_ips = {row.ip for row in existing_query}
+        
+        # 2. Filtra apenas os novos
+        ips_to_insert = set(DEFAULT_IPS) - existing_ips
+        
+        if not ips_to_insert:
+            print(" * [WafaHell] Whitelist padrão já está atualizada.")
+            return
+
+        # 3. Prepara Bulk Insert e Cache
+        now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        bulk_data = []
+        
+        for ip in ips_to_insert:
+            bulk_data.append({
+                "ip": ip,
+                "added_at": now_str
+            })
+            # Já coloca no cache para funcionar imediatamente
+            waf_cache.set(f"whitelist_{ip}", True, expire=3600)
+
+        # 4. Grava no Banco
+        session.bulk_insert_mappings(Whitelist, bulk_data)
+        session.commit()
+        
+        print(f" * [WafaHell] Seed Whitelist: {len(ips_to_insert)} IPs padrão adicionados.")
+
+    except Exception as e:
+        session.rollback()
+        print(f"Erro ao semear whitelist: {e}")
+    finally:
+        session.close()
