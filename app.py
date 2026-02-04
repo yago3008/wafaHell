@@ -1,4 +1,4 @@
-from middleware import WafaHell
+from middleware import Wafahell
 from flask import Flask, render_template, request
 from werkzeug.middleware.proxy_fix import ProxyFix
 
@@ -27,5 +27,5 @@ def dashboard():
     return "<h1>Dashboard Personalizado</h1><p>Este é o painel de controle personalizado.</p>"
 
 if __name__ == '__main__':
-    WafaHell(app, dashboard_path='/hell/dashboard', block_durantion=1, rate_limit=True, block_ip=True)
+    Wafahell(app=app, dashboard_path='/hell/dashboard', block_durantion=15, rate_limit=True, block_ip=False)
     app.run(debug=True, host='0.0.0.0', port=5001)

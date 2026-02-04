@@ -66,17 +66,23 @@
         
         <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4 border-b border-slate-800 pb-4">
             <div>
-                <div class="flex items-center gap-3">
-                    <div class="relative">
-                        <i class="fas fa-shield-halved text-red-600 text-3xl animate-pulse-slow"></i>
-                    </div>
-                    <div>
-                        <h1 class="text-3xl font-black text-white tracking-tighter italic uppercase leading-none">
-                            WAFA<span class="text-red-600">HELL</span> <span class="text-slate-600 not-italic text-lg font-normal">| Strategic Dashboard</span>
-                        </h1>
-                        <p class="text-slate-500 font-mono text-[11px] mt-1">
-                            <span class="text-emerald-500">● MONITORAMENTO ATIVO</span> | LATÊNCIA: <span class="text-white">12ms</span>
-                        </p>
+                <div class="flex items-center gap-4">
+                    <button onclick="goBack()" class="group flex items-center justify-center w-10 h-10 rounded-full bg-slate-900 border border-slate-800 hover:border-red-500/50 hover:bg-slate-800 transition-all duration-300 shadow-lg">
+                        <i class="fas fa-arrow-left text-slate-500 group-hover:text-white transition-colors"></i>
+                    </button>
+
+                    <div class="flex items-center gap-3">
+                        <div class="relative">
+                            <i class="fas fa-shield-halved text-red-600 text-3xl animate-pulse-slow"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-3xl font-black text-white tracking-tighter italic uppercase leading-none">
+                                WAFA<span class="text-red-600">HELL</span> <span class="text-slate-600 not-italic text-lg font-normal">| Strategic Dashboard</span>
+                            </h1>
+                            <p class="text-slate-500 font-mono text-[11px] mt-1">
+                                <span class="text-emerald-500">● MONITORAMENTO ATIVO</span> | LATÊNCIA: <span class="text-white">12ms</span>
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -132,7 +138,6 @@
                 
                 <div class="flex justify-between items-start z-10 relative">
                     <p class="text-orange-400 text-[10px] font-bold uppercase tracking-widest mb-1">IPs na Blacklist</p>
-                    
                     <button onclick="openBlocklistModal()" class="bg-orange-500/10 hover:bg-orange-500 hover:text-white text-orange-500 p-1.5 rounded transition shadow-sm cursor-pointer" title="Gerenciar Blacklist">
                         <i class="fas fa-list-ul text-xs"></i>
                     </button>
@@ -163,8 +168,8 @@
             
             <div class="bg-slate-900 border border-slate-800 p-6 rounded-xl shadow-lg flex flex-col h-[350px]">
                 <h3 class="text-xs font-bold uppercase text-slate-400 mb-6 border-b border-slate-800 pb-2">Distribuição de Vetores</h3>
-                <div class="flex-1 flex items-center justify-center">
-                    <div class="h-48 w-48 relative">
+                <div class="flex-1 flex items-center justify-center relative">
+                    <div class="h-56 w-56 relative z-10">
                         <canvas id="vectorChart"></canvas>
                         <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
                             <div class="text-center">
@@ -185,7 +190,6 @@
             <div class="bg-slate-900 border border-slate-800 p-6 rounded-xl shadow-lg flex flex-col h-[350px]">
                 <h3 class="text-xs font-bold uppercase text-slate-400 mb-6 border-b border-slate-800 pb-2">Origem dos Ataques (Top 5)</h3>
                 <div class="flex-1 space-y-5 overflow-y-auto custom-scrollbar pr-2">
-                    
                     <div class="group">
                         <div class="flex justify-between items-center mb-1">
                             <div class="flex items-center gap-3">
@@ -198,7 +202,6 @@
                             <div class="bg-red-900 h-full rounded-full group-hover:bg-red-600 transition-colors" style="width: 85%"></div>
                         </div>
                     </div>
-
                     <div class="group">
                         <div class="flex justify-between items-center mb-1">
                             <div class="flex items-center gap-3">
@@ -211,7 +214,7 @@
                             <div class="bg-red-900 h-full rounded-full group-hover:bg-red-600 transition-colors" style="width: 65%"></div>
                         </div>
                     </div>
-                    </div>
+                </div>
             </div>
 
             <div class="bg-slate-900 border border-slate-800 p-0 rounded-xl shadow-lg flex flex-col h-[350px] overflow-hidden">
@@ -229,6 +232,16 @@
     </div>
 
   <script>
+        // === FUNÇÃO DE VOLTAR ===
+        function goBack() {
+            const path = window.location.pathname;
+            const cleanPath = path.endsWith('/') ? path.slice(0, -1) : path;
+            const parts = cleanPath.split('/');
+            parts.pop();
+            const newPath = parts.join('/');
+            window.location.href = newPath || '/';
+        }
+
         // === CHART CONFIG ===
         Chart.defaults.color = '#64748b';
         Chart.defaults.font.family = 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace';
@@ -237,7 +250,7 @@
         let trafficChart, vectorChart;
         const vectorColors = ['#dc2626', '#eab308', '#9333ea', '#f97316', '#3b82f6', '#10b981', '#ec4899', '#6366f1'];
 
-        // 1. Traffic Chart (Mantido)
+        // 1. Traffic Chart
         const initTrafficChart = () => {
             const trafficCtx = document.getElementById('trafficChart').getContext('2d');
             const gradientRed = trafficCtx.createLinearGradient(0, 0, 0, 400);
@@ -252,17 +265,24 @@
             });
         };
 
-        // 2. Vector Chart (Mantido)
+        // 2. Vector Chart (CORRIGIDO: Padding adicionado para evitar corte)
         const initVectorChart = () => {
             const vectorCtx = document.getElementById('vectorChart').getContext('2d');
             vectorChart = new Chart(vectorCtx, {
                 type: 'doughnut',
                 data: { labels: [], datasets: [{ data: [], backgroundColor: vectorColors, borderWidth: 0, hoverOffset: 15 }] },
-                options: { responsive: true, maintainAspectRatio: false, cutout: '80%', plugins: { legend: { display: false } } }
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    cutout: '80%',
+                    // AQUI ESTÁ A CORREÇÃO REAL:
+                    layout: { padding: 24 }, // Dá espaço interno para o gráfico crescer sem bater na borda
+                    plugins: { legend: { display: false } } 
+                }
             });
         };
 
-        // === NOVA LÓGICA DO MODAL ===
+        // === MODAL LOGIC ===
         function openBlocklistModal() {
             const modal = document.getElementById('blocklistModal');
             const content = document.getElementById('modalContent');
@@ -306,13 +326,13 @@
             } catch(e) { alert("Erro ao desbloquear."); }
         }
 
-        // === UPDATE FUNCTION (Mantida + KPI Blacklist Fix) ===
+        // === UPDATE FUNCTION ===
         async function updateDashboard() {
             try {
                 const response = await fetch('./stats');
                 const data = await response.json();
 
-                // Atualiza KPIs (Mantido)
+                // KPIs
                 document.querySelector('.text-emerald-500').parentElement.querySelector('.text-white').innerText = `${data.meta.average_latency_ms}ms`;
                 const nodeSpan = document.querySelector('.bg-green-500 + span'); if(nodeSpan) nodeSpan.innerText = data.meta.node_id;
 
@@ -320,11 +340,9 @@
                 kpiCards[0].innerText = data.kpis.total_requests_24h.value.toLocaleString(); 
                 kpiCards[1].innerText = data.kpis.attacks_mitigated_24h.value.toLocaleString(); 
                 kpiCards[2].innerText = data.kpis.throughput.current_req_per_sec; 
-                
-                // AQUI ESTÁ A CORREÇÃO: Pega o valor real de IPs na blacklist
                 document.querySelector('.kpi-blacklist').innerText = data.kpis.blacklist_count.total_ips;
 
-                // Charts Updates (Mantido)
+                // Charts
                 trafficChart.data.labels = data.traffic_chart.labels;
                 trafficChart.data.datasets[0].data = data.traffic_chart.series_attacks;
                 trafficChart.data.datasets[1].data = data.traffic_chart.series_legit;
@@ -337,7 +355,6 @@
                 document.querySelector('.text-2xl.font-black.text-white').innerText = vectorLabels.length;
                 vectorChart.update();
                 
-                // Legenda (Mantido)
                 const legendContainer = document.querySelector('.grid.grid-cols-2.gap-2.mt-4');
                 if(legendContainer) {
                     legendContainer.innerHTML = data.distribution_vectors.map((v, i) => `
@@ -348,7 +365,6 @@
                     `).join('');
                 }
 
-                // Top Geo (Mantido)
                 const geoContainer = document.querySelector('.bg-slate-900:nth-child(2) .flex-1.space-y-5');
                 if(geoContainer && data.top_geo) {
                     geoContainer.innerHTML = data.top_geo.map(geo => `
@@ -367,7 +383,6 @@
                     `).join('');
                 }
 
-                // Top Offenders (Mantido)
                 const offendersList = document.getElementById('topOffendersList');
                 if(offendersList && data.top_offenders) {
                     offendersList.innerHTML = data.top_offenders.map(offender => `
@@ -389,7 +404,7 @@
             } catch (error) { console.error("Sync Error:", error); }
         }
 
-        // Helpers (Mantido)
+        // Helpers
         function getFlagImage(countryCode) {
             if (!countryCode || countryCode === "XX") return '<i class="fas fa-globe text-slate-500 text-lg w-6 text-center"></i>';
             const code = countryCode.toLowerCase();

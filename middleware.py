@@ -13,33 +13,46 @@ from panel import setup_dashboard
 from utils import Admin
 from sqlalchemy import text
 from globals import waf_cache
+import hashlib
+import uuid
+import socket
 
 # Inicializa o RateLimiter
 limiter = RateLimiter(limit=100, window=60)
 
-class WafaHell:
+class Wafahell:
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super(Wafahell, cls).__new__(cls)
+        return cls._instance
+    
     def __init__(self, app=None, block_code=403, block_durantion=5, block_ip=False, log_func=None, monitor_mode=False,  rate_limit=False, dashboard_path=None):
-        self.app = app
-        self.block_code = block_code
-        self.log = log_func or Logger()
-        self.monitor_mode = monitor_mode
-        self.block_ip = block_ip
-        self.rate_limit = rate_limit
-        self.dashboard_path = dashboard_path
-        self.block_durantion = block_durantion
-        self.recent_blocks_cache = {}
+        if not hasattr(self, 'initialized'):
+            self.initialized = True
+            
+            self.app = app
+            self.block_code = block_code
+            self.log = log_func or Logger()
+            self.monitor_mode = monitor_mode
+            self.block_ip = block_ip
+            self.rate_limit = rate_limit
+            self.dashboard_path = dashboard_path
+            self.block_durantion = block_durantion
+            self.recent_blocks_cache = {}
 
-        self.rules_sqli = [
-            r"(\bUNION\b|\bSELECT\b|\bINSERT\b|\bDROP\b)",  
-            r"' OR '1'='1"                                                                                                                                                                                                                                
-        ]
-        self.rules_xss = [
-            r"<script.*?>.*?</script>",                    
-            r"javascript:"
-        ]
+            self.rules_sqli = [
+                r"(\bUNION\b|\bSELECT\b|\bINSERT\b|\bDROP\b)",  
+                r"' OR '1'='1"                                                                                                                                                                                                                                
+            ]
+            self.rules_xss = [
+                r"<script.*?>.*?</script>",                    
+                r"javascript:"
+            ]
 
-        if app is not None:
-            self.init_app(app)
+            if app is not None:
+                self.init_app(app)
 
     def init_app(self, app):
         Base.metadata.create_all(engine)
@@ -47,7 +60,13 @@ class WafaHell:
         Admin.create_admin_user(get_session())
 
         if not app.secret_key:
-            app.secret_key = os.urandom(24)
+            def create_secret_key():
+                mac_address = str(uuid.getnode())
+                hostname = socket.gethostname()
+                project_salt = "wafahell-security-core-v1"
+                fingerprint = f"{mac_address}-{hostname}-{project_salt}"
+                return hashlib.sha256(fingerprint.encode()).hexdigest()
+            app.secret_key = create_secret_key()
 
         @app.before_request
         def create_session():
@@ -97,8 +116,8 @@ class WafaHell:
             # 2. LOG DE TRÁFEGO LEGÍTIMO
             # Se o status_code for menor que 400, significa que o WAF não deu abort()
             # e a requisição seguiu o fluxo normal.
-            if response.status_code != self.block_code:
-                self.log_legit_access(req)
+            # if response.status_code != self.block_code:
+            #     self.log_legit_access(req)
 
             # 3. RPS Logic (Bucketing by second)
             current_timestamp = int(time.time())
@@ -119,23 +138,47 @@ class WafaHell:
             return response
         
     def log_legit_access(self, req):
-        session = get_session()
-        try:
-            new_log = WafLog(
-                timestamp=datetime.now(timezone.utc),
-                attack_type='INFO', # Identificador de tráfego limpo
-                ip=req.remote_addr,
-                path=req.path,
-                method=req.method,
-                level='INFO'
-            )
-            session.add(new_log)
-            session.commit()
-        except Exception as e:
-            session.rollback()
-            self.log.error(f"Error logging legit access: {e}")
-        finally:
-            session.close()
+        # 1. Captura os dados da requisição atual
+        log_entry = {
+            "timestamp": datetime.now(timezone.utc),
+            "attack_type": 'INFO',
+            "ip": req.remote_addr,
+            "path": req.path,
+            "method": req.method,
+            "level": 'INFO'
+        }
+
+        # 2. Função aninhada para descarregar no banco (Flush)
+        def flush_to_db(logs_to_save):
+            session = get_session()
+            try:
+                # bulk_insert_mappings é muito mais rápido que session.add() em loop
+                session.bulk_insert_mappings(WafLog, logs_to_save)
+                session.commit()
+            except Exception as e:
+                session.rollback()
+                self.log.error(f"Error in WAF batch insert: {e}")
+            finally:
+                session.close()
+
+        # 3. Gerenciamento do Cache (Memória)
+        # Recupera os logs pendentes do cache global
+        pending_logs = waf_cache.get('pending_logs_batch', default=[])
+        pending_logs.append(log_entry)
+
+        # 4. Gatilhos para o Flush:
+        # Se chegamos a 50 logs OU se o último flush foi há mais de 10 segundos
+        current_time = time.time()
+        last_flush = waf_cache.get('last_log_flush_time', default=0)
+        
+        if len(pending_logs) >= 50 or (current_time - last_flush) > 10:
+            flush_to_db(pending_logs)
+            # Reseta o cache e o timer
+            waf_cache.set('pending_logs_batch', [], expire=60)
+            waf_cache.set('last_log_flush_time', current_time, expire=60)
+        else:
+            # Apenas atualiza a lista no cache
+            waf_cache.set('pending_logs_batch', pending_logs, expire=60)
 
     def detect_attack(self, data: str) -> bool:
         for pattern in self.rules_xss:

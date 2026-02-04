@@ -4,8 +4,9 @@ from model import AdminUser, WafLog, get_session, Blocked
 from sqlalchemy import func
 import csv
 import io
-from utils import Admin, Dashboard, admin
+from utils import Dashboard, admin
 from werkzeug.security import check_password_hash
+
 dashboard = Dashboard()
 
 def get_logs_and_stats(ip_filter=None, type_filter=None, limit=100):
@@ -67,9 +68,9 @@ def setup_dashboard(app, custom_path=None):
         if request.method == "POST":
             username = request.form.get("user")
             password = request.form.get("password")
-            db = get_session()
+            db_session = get_session()
             try:
-                admin = db.query(AdminUser).filter(AdminUser.login == username).first()
+                admin = db_session.query(AdminUser).filter(AdminUser.login == username).first()
 
                 # 3. Valida (Aqui você deveria usar hash, mas vamos focar na lógica)
                 if admin and check_password_hash(admin.password, password):
@@ -80,7 +81,7 @@ def setup_dashboard(app, custom_path=None):
                     flash("Acesso Negado: Credenciais Inválidas", "error")
                     return redirect(request.url)
             finally:
-                db.close()
+                db_session.close()
 
         return render_template("login.html")
     
@@ -104,43 +105,48 @@ def setup_dashboard(app, custom_path=None):
     @app.route(target_path + '/export/csv')
     @admin
     def export_csv():
-
-        ip_filter = request.args.get('ip')
-        type_filter = request.args.get('type')
-        
-        session = get_session()
-        query = session.query(WafLog)
-        
-        if ip_filter:
-            query = query.filter(WafLog.ip == ip_filter)
-        if type_filter:
-            query = query.filter(WafLog.attack_type == type_filter)
+        try:
+            ip_filter = request.args.get('ip')
+            type_filter = request.args.get('type')
             
-        logs = query.order_by(WafLog.timestamp.desc()).all()
-        session.close()
+            session = get_session()
+            query = session.query(WafLog)
+            
+            if ip_filter:
+                query = query.filter(WafLog.ip == ip_filter)
+            if type_filter:
+                query = query.filter(WafLog.attack_type == type_filter)
+                
+            logs = query.order_by(WafLog.timestamp.desc()).all()
+            session.close()
 
-        # Criamos o CSV em memória
-        output = io.StringIO()
-        writer = csv.writer(output)
-        
-        # Cabeçalho
-        writer.writerow(['Data/Hora', 'Tipo', 'IP', 'Endpoint', 'Metodo', 'Payload'])
-        
-        for log in logs:
-            writer.writerow([
-                log.timestamp,
-                log.attack_type,
-                log.ip,
-                log.path,
-                log.method,
-                log.payload
-            ])
+            # Criamos o CSV em memória
+            output = io.StringIO()
+            writer = csv.writer(output)
+            
+            # Cabeçalho
+            writer.writerow(['Data/Hora', 'Tipo', 'IP', 'Endpoint', 'Metodo', 'Payload'])
+            
+            for log in logs:
+                writer.writerow([
+                    log.timestamp,
+                    log.attack_type,
+                    log.ip,
+                    log.path,
+                    log.method,
+                    log.payload
+                ])
 
-        response = make_response(output.getvalue())
-        response.headers["Content-Disposition"] = f"attachment; filename=waf_logs_{datetime.now().strftime('%Y%m%d_%H%M')}.csv"
-        response.headers["Content-type"] = "text/csv"
-        return response
-
+            response = make_response(output.getvalue())
+            response.headers["Content-Disposition"] = f"attachment; filename=waf_logs_{datetime.now().strftime('%Y%m%d_%H%M')}.csv"
+            response.headers["Content-type"] = "text/csv"
+            return response
+        except Exception as e:
+            session.rollback()
+            return jsonify({"status": "error", "message": str(e)}), 500
+        finally:
+            session.close()
+    
     @app.route(target_path + '/block_ip', methods=['POST'])
     @admin
     def block_ip() -> bool:
@@ -213,8 +219,6 @@ def setup_dashboard(app, custom_path=None):
             session.query(Blocked).filter(Blocked.ip == ip).delete()
             session.commit()
             
-            # [IMPORTANTE] Tenta limpar o cache de memória do WAF também se possível
-            # Mas como o WAF roda em outro contexto, o banco é a fonte da verdade principal
             return jsonify({"status": "success"})
         except Exception as e:
             return jsonify({"error": str(e)}), 500
@@ -230,6 +234,42 @@ def setup_dashboard(app, custom_path=None):
     @admin
     def api_stats():
         return jsonify(dashboard.dashboard_setup())
+    
+    @app.route(target_path + '/vars', methods=['GET'])
+    @admin
+    def get_vars():
+        from middleware import Wafahell
+        waf = Wafahell()
+
+        output = {}
+        allowed_types = (str, int, float, bool, list, dict)
+        blacklisted_keys = {'app', 'log', 'recent_blocks_cache', '_instance', 'initialized', 'dashboard_path', 'rules_sqli', 'rules_xss'}
+
+        for key, value in vars(waf).items():
+            if key not in blacklisted_keys and isinstance(value, allowed_types):
+                output[key] = value
+                
+        return output
+
+    @app.route(target_path + '/vars/change', methods=['POST'])
+    @admin
+    def vars_change():
+        data = request.json
+        key = data.get('key')
+        value = data.get('value')
+
+        from middleware import Wafahell
+        waf = Wafahell()
+
+        if hasattr(waf, key):
+            
+            setattr(waf, key, value)
+            
+            print(f" * [WafaHell] Variable '{key}' changed to: {value}")
+            
+            return {"status": "success", "message": f"{key} updated", "newValue": value}
+        
+        return {"status": "error", "message": "Invalid variable"}, 400
 
     print(f" * [WafaHell] Dashboard e API de dados prontos em: {target_path}")
 
