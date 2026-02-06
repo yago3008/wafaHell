@@ -1,3 +1,3 @@
-from .middleware import WafaHell
+from .middleware import Wafahell
 
-__all__ = ["WafaHell"]
+__all__ = ["Wafahell"]

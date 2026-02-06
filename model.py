@@ -9,7 +9,7 @@ from sqlalchemy.orm import declarative_base, sessionmaker, scoped_session
 # CONFIGURAÇÃO GLOBAL
 # =========================
 
-DATABASE_URL = "sqlite:///wafaHell.db"
+DATABASE_URL = "sqlite:///wafahell.db"
 
 engine = create_engine(
     DATABASE_URL,
@@ -32,6 +32,10 @@ Base = declarative_base()
 # =========================
 
 class Blocked(Base):
+    """
+    Entidade responsável por armazenar IPs e User-Agents que foram 
+    temporariamente suspensos pelo WAF devido a violações persistentes.
+    """
     __tablename__ = "blocks"
     
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -53,6 +57,10 @@ class Blocked(Base):
         )
 
 class Whitelist(Base):
+    """
+    Lista de IPs confiáveis (Whitelisting). Requisições vindas destes IPs 
+    ignoram as checagens de segurança padrão do motor do WafaHell.
+    """
     __tablename__ = "whitelist"
     id = Column(Integer, primary_key=True, autoincrement=True)
     ip = Column(String, nullable=False, unique=True)
@@ -64,7 +72,28 @@ class Whitelist(Base):
     def __repr__(self):
         return f"<Whitelist(ip='{self.ip}', added_at='{self.added_at}')>"
 
+class CriticalPaths(Base):
+    """
+    Armazena endpoints sensíveis da aplicação (ex: /login, /admin). 
+    Acessos a estes caminhos podem sofrer inspeção mais rigorosa.
+    """
+    __tablename__ = "critical_paths"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    path = Column(String, nullable=False, unique=True)
+    added_at = Column(
+        String,
+        nullable=False,
+        default=lambda: datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    )
+    def __repr__(self):
+        return f"<CriticalPaths(path='{self.path}', added_at='{self.added_at}')>"
+
 class WafLog(Base):
+    """
+    Repositório central de eventos de segurança. Registra ataques detectados, 
+    o payload utilizado, local da detecção (Headers/Body) e metadados do atacante.
+    Possui uma UniqueConstraint para evitar inundação de logs idênticos no mesmo minuto.
+    """
     __tablename__ = "waf_logs"
 
     id = Column(Integer, primary_key=True)
@@ -86,6 +115,10 @@ class WafLog(Base):
 
 
 class AdminUser(Base):
+    """
+    Credenciais administrativas para acesso ao Dashboard do WafaHell. 
+    Gerencia o acesso ao painel de controle e visualização de métricas.
+    """
     __tablename__ = "admin_user"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -101,11 +134,16 @@ class AdminUser(Base):
 # =========================
 
 def init_db():
-    """Cria as tabelas uma única vez"""
+    """
+    Varre todos os modelos herdados de 'Base' e cria as tabelas no 
+    banco de dados SQLite caso elas ainda não existam.
+    """
     Base.metadata.create_all(bind=engine)
 
 
 def get_session():
-    """Retorna uma sessão reutilizável"""
+    """
+    Provê uma sessão de banco de dados thread-safe gerenciada pelo scoped_session. 
+    Deve ser fechada após o uso para retornar a conexão ao pool.
+    """
     return SessionLocal()
-

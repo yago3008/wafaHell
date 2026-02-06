@@ -1,3 +1,10 @@
+# from .model import WafLog, Blocked, Whitelist, AdminUser, get_session
+# from .globals import waf_cache
+import hashlib
+import uuid
+from model import WafLog, Blocked, Whitelist, AdminUser, get_session
+from globals import waf_cache
+
 from datetime import datetime, timedelta, timezone
 import secrets
 import socket
@@ -7,27 +14,72 @@ import tomllib
 from werkzeug.security import generate_password_hash
 from sqlalchemy.orm import Session
 from sqlalchemy import text, func, case
-from model import WafLog, Blocked, Whitelist
-from model import AdminUser
 from functools import wraps
 from flask import session, redirect, url_for, request
-from model import get_session
-from globals import waf_cache
 import geoip2.database
 import os
 
+
+def b_print(msg):
+    """
+    Exibe uma mensagem formatada no console com a identidade visual do WafaHell.
+    
+    Esta função padroniza os logs de sistema utilizando sequências de escape ANSI 
+    para colorir o prefixo em verde e o conteúdo da mensagem em branco, garantindo 
+    que as notificações do WAF sejam facilmente distinguíveis dos logs padrão 
+    da aplicação servidora (como os do Flask/Werkzeug).
+
+    Args:
+        msg (str): O conteúdo da mensagem a ser exibido no terminal.
+    """
+    VERDE = '\033[92m'
+    BRANCO = '\033[97m'
+    RESET = '\033[0m'
+    print(f"{VERDE} * [WafaHell] {BRANCO}{msg}{RESET}")
+
+
+
 class Admin:
+    """
+    Classe utilitária para gestão de credenciais administrativas do WafaHell.
+    
+    Responsável por gerar senhas criptograficamente seguras e garantir a 
+    existência de um usuário administrador inicial (Bootstrap) no banco de dados.
+    """
     @staticmethod
     def generate_secure_password(length=64):
+        """
+        Gera uma sequência aleatória de alta entropia para uso em chaves e senhas.
+        
+        Utiliza o módulo 'secrets' do Python para garantir que a geração seja 
+        criptograficamente forte, adequada para gerenciar segredos de segurança.
+
+        Args:
+            length (int): O comprimento da senha a ser gerada. Padrão: 64.
+
+        Returns:
+            str: Uma string contendo letras, dígitos e caracteres especiais.
+        """
         alphabet = string.ascii_letters + string.digits + string.punctuation
         return ''.join(secrets.choice(alphabet) for _ in range(length))
 
     @staticmethod
     def create_admin_user(session: Session):
+        """
+        Provisiona o usuário administrador padrão ('admin') caso ele não exista.
+        
+        A senha é gerada de forma determinística baseada na 'impressão digital' 
+        do hardware (MAC Address + Hostname), garantindo que cada instalação 
+        do WafaHell tenha uma senha única e exclusiva. O segredo é armazenado 
+        utilizando hashes seguros para proteção contra vazamentos de banco de dados.
+
+        Args:
+            session (Session): Sessão ativa do SQLAlchemy para persistência.
+        """
         admin = session.query(AdminUser).filter_by(login="admin").first()
         if admin:
             return
-        raw_password = "admin" #Admin.generate_secure_password(64)
+        raw_password = hashlib.sha256(f"{uuid.getnode()}-{socket.gethostname()}-wafahell-security-core-v1".encode()).hexdigest()
         hashed_password = generate_password_hash(raw_password)
 
         admin = AdminUser(
@@ -38,11 +90,29 @@ class Admin:
         session.add(admin)
         session.commit()
 
-        print("* [WafaHell] Usuario admin criado com sucesso.")
-        print("* [WafaHell] Salve essa senha em um lugar seguro, não será mostrada novamente")
-        print("Senha: ", raw_password)
+        b_print("Usuario admin criado com sucesso.")
+        b_print("Salve essa senha em um lugar seguro, não será mostrada novamente.")
+        b_print(f"Senha: {raw_password}")
 
 def admin(fn):
+    """
+    Decorador de controle de acesso para rotas administrativas.
+
+    Esta função atua como um Middleware de autorização em nível de rota. 
+    Ela verifica a existência de uma sessão ativa ('logged_in') antes de 
+    permitir a execução da função original. Caso o usuário não esteja 
+    autenticado, ele é redirecionado para a página de login.
+
+    O decorador utiliza 'functools.wraps' para garantir que os metadados da 
+    função original (como o nome e a docstring) sejam preservados, o que 
+    é essencial para o correto funcionamento do roteamento do Flask.
+
+    Args:
+        fn (function): A função da rota que deve ser protegida.
+
+    Returns:
+        function: O wrapper que valida a sessão antes de chamar a função 'fn'.
+    """
     @wraps(fn)
     def wrapper(*args, **kwargs):
         if not session.get("logged_in"):
@@ -55,9 +125,30 @@ class Dashboard:
         self.geo_db_path = os.path.join(os.path.dirname(__file__), 'GeoLite2-Country.mmdb')
         
     def dashboard_setup(self):
+        """
+    Prepara o conjunto de metadados e configurações globais para a interface do Dashboard.
+    
+    Esta função consolida informações do estado atual do WAF e realiza a leitura 
+    dinâmica da versão do software diretamente dos arquivos de configuração do 
+    projeto, garantindo que o painel exiba dados sempre atualizados.
+
+    Returns:
+        dict: Um objeto JSON contendo variáveis de ambiente e metadados do sistema.
+    """
         json = {}
 
         def get_waf_version():
+            """
+        Localiza e extrai a versão atual do WafaHell do arquivo 'pyproject.toml'.
+        
+        Utiliza caminhos absolutos para navegar na estrutura de diretórios do projeto 
+        e o módulo 'tomllib' para realizar o parse do arquivo de configuração padrão 
+        do ecossistema Python moderno. Em caso de ausência do arquivo, retorna uma 
+        versão de fallback para evitar falhas na renderização do painel.
+
+        Returns:
+            str: A versão do projeto (ex: '1.2.3') ou 'v.0.0.0' em caso de erro.
+        """
             base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             toml_path = os.path.join(base_path, "pyproject.toml")
             
@@ -69,6 +160,17 @@ class Dashboard:
                 return "v.0.0.0"
         
         def get_server_info():
+            """
+            Coleta metadados operacionais e o estado de saúde (health check) do servidor.
+
+            Realiza a leitura da latência média armazenada no cache para determinar 
+            o status do sistema (Healthy, Degraded ou Critical) e identifica o nó 
+            da rede via Hostname.
+
+            Returns:
+                dict: Dicionário contendo timestamp UTC, ID do nó, latência em ms, 
+                      status de saúde do sistema e versão do WAF.
+            """
             server_time = datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
             node_id = socket.gethostname()
             avg_latency = waf_cache.get('latency_avg', default=0.0)
@@ -82,6 +184,24 @@ class Dashboard:
             }
         
         def get_kpis():
+            """
+            Calcula os Indicadores Chave de Desempenho (KPIs) de segurança e tráfego.
+
+            Esta função realiza uma análise comparativa entre as últimas 24h e o 
+            período anterior de 48h para gerar tendências percentuais de ataques 
+            e requisições. Além disso, monitora métricas de throughput em tempo 
+            real (RPS) e o estado atual da Blacklist.
+
+            A lógica inclui:
+            - Cálculo de tendência (Trend %) para volume de tráfego e ameaças;
+            - Monitoramento de RPS (Requisições por Segundo) atual e pico (Peak);
+            - Contagem de ativos na Blacklist com validação de expiração;
+            - Integração entre persistência (SQLAlchemy) e cache volátil (WafCache).
+
+            Returns:
+                dict: Conjunto de métricas estruturadas para alimentação dos 
+                      cards informativos do Dashboard.
+            """
             now = datetime.now(timezone.utc)
             last_24h = now - timedelta(hours=24)
             prev_24h = now - timedelta(hours=48)
@@ -135,7 +255,9 @@ class Dashboard:
                     waf_cache.set('rps_peak_hour', peak_rps, expire=3600)
                 
                 # Dados da Blacklist
-                total_blacklist = session.query(func.count(Blocked.id)).scalar() or 0
+                total_blacklist = session.query(func.count(Blocked.id))\
+                    .filter(Blocked.blocked_until > now)\
+                    .scalar() or 0
                 # Como blocked_at é String formatada no seu modelo, comparamos com o horário
                 added_today = session.query(func.count(Blocked.id)).filter(
                     Blocked.blocked_until >= now # Um IP "adicionado hoje" é tecnicamente um ainda bloqueado
@@ -166,6 +288,20 @@ class Dashboard:
                 session.close()
                 
         def get_traffic_chart():
+            """
+            Gera os dados de séries temporais para o gráfico de tráfego dos últimos 40 minutos.
+
+            Esta função realiza uma agregação granular por minuto diretamente no banco de dados, 
+            separando o tráfego legítimo (INFO) das tentativas de ataque detectadas. O uso 
+            da cláusula 'CASE' no SQL permite a contagem condicional em uma única varredura 
+            (scan) na tabela, otimizando a performance da query.
+
+            Returns:
+                dict: Conjunto de dados estruturado com:
+                    - labels: Lista de horários (HH:MM).
+                    - series_legit: Volume de requisições normais.
+                    - series_attacks: Volume de ameaças mitigadas.
+            """
             now = datetime.now(timezone.utc)
             start_time = now - timedelta(minutes=40)
             session = get_session()
@@ -203,6 +339,19 @@ class Dashboard:
                 session.close()
 
         def get_distribution_vectors():
+            """
+            Calcula a distribuição percentual dos vetores de ataque (SQLi, XSS, etc.) 
+            nas últimas 24 horas.
+
+            A função agrupa as ameaças mitigadas por tipo e calcula a relevância 
+            estatística de cada vetor em relação ao total de ataques. Estes dados 
+            são fundamentais para identificar o foco predominante de tentativas 
+            de invasão contra a aplicação protegida.
+
+            Returns:
+                list: Lista de dicionários contendo o rótulo do ataque, a contagem 
+                      absoluta e a participação percentual no tráfego malicioso.
+            """
             now = datetime.now(timezone.utc)
             last_24h = now - timedelta(hours=24)
             session = get_session()
@@ -238,6 +387,16 @@ class Dashboard:
                 session.close()
 
         def get_top_geo():
+            """
+            Realiza a geolocalização dos ataques para identificar as origens geográficas das ameaças.
+            
+            Esta função cruza os endereços IP registrados nos logs com o banco de dados binário 
+            GeoLite2 (MaxMind) para extrair o código ISO e o nome do país. Os dados são 
+            agrupados e ordenados para retornar os 5 países com maior volume de tráfego malicioso.
+
+            Returns:
+                list: Top 5 países contendo código, nome, contagem absoluta e percentual.
+            """
             def resolve_ip(ip):
                 try:         
                     if not os.path.exists(self.geo_db_path):
@@ -297,6 +456,21 @@ class Dashboard:
                 session.close()
         
         def get_top_offenders():
+            """
+            Identifica os principais agressores (Top Offenders) e calcula um Score de Risco.
+
+            A função analisa o comportamento de IPs específicos nas últimas 24h, levando em 
+            conta não apenas o volume (hits), mas a diversidade de vetores de ataque utilizados 
+            (ex: se um IP tentou SQLi e XSS simultaneamente, seu risco é maior).
+
+            Lógica de Score (0-100):
+            - Multiplicador de diversidade: 20 pontos por vetor único de ataque.
+            - Multiplicador de volume: 1 ponto para cada 50 requisições maliciosas.
+            - Teto: 100 pontos (Risco Crítico).
+
+            Returns:
+                list: Lista dos 5 IPs com maior pontuação de risco e seus respectivos metadados.
+            """
             now = datetime.now(timezone.utc)
             last_24h = now - timedelta(hours=24)
             session = get_session()
@@ -357,6 +531,7 @@ def seed_default_whitelist():
         # --- Localhost / Loopback (Essencial) ---
         "127.0.0.1",
         "::1",
+        "0.0.0.0",
 
         # Redes Privadas (As gigantes)
         "10.0.0.0/8",      # 16 milhões de IPs
@@ -390,7 +565,7 @@ def seed_default_whitelist():
         ips_to_insert = set(DEFAULT_IPS) - existing_ips
         
         if not ips_to_insert:
-            print(" * [WafaHell] Whitelist padrão já está atualizada.")
+            b_print("Whitelist padrão já está atualizada.")
             return
 
         # 3. Prepara Bulk Insert e Cache
@@ -409,7 +584,7 @@ def seed_default_whitelist():
         session.bulk_insert_mappings(Whitelist, bulk_data)
         session.commit()
         
-        print(f" * [WafaHell] Seed Whitelist: {len(ips_to_insert)} IPs padrão adicionados.")
+        b_print(f"Seed Whitelist: {len(ips_to_insert)} IPs padrão adicionados.")
 
     except Exception as e:
         session.rollback()

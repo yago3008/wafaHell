@@ -1,17 +1,38 @@
+# from .model import AdminUser, WafLog, Whitelist, get_session, Blocked
+# from .globals import waf_cache
+# from .utils import Dashboard, admin
+from model import AdminUser, CriticalPaths, WafLog, Whitelist, get_session, Blocked
+from globals import waf_cache
+from utils import Dashboard, admin
 from datetime import datetime, timedelta, timezone
 import re
-from flask import render_template_string, request, jsonify, make_response, flash, session, redirect, render_template
-from model import AdminUser, WafLog, Whitelist, get_session, Blocked
+from flask import request, jsonify, make_response, flash, session, redirect, render_template
 from sqlalchemy import func
 import csv
 import io
-from globals import waf_cache
-from utils import Dashboard, admin
 from werkzeug.security import check_password_hash
+from utils import b_print
 
 dashboard = Dashboard()
 
+
 def get_logs_and_stats(ip_filter=None, type_filter=None, limit=100):
+    """
+    Consulta o banco de dados para extrair logs de auditoria e gerar métricas 
+    agrupadas por tipo de ameaça para o Dashboard.
+
+    A função realiza queries dinâmicas que se adaptam aos filtros de busca (IP ou Tipo)
+    e formata os objetos do SQLAlchemy para dicionários compatíveis com JSON, 
+    além de mapear os tipos internos do WAF para labels visuais (ATTACK, BLOCKED, INFO).
+
+    Args:
+        ip_filter (str, optional): Filtra os resultados por um endereço IP específico.
+        type_filter (str, optional): Filtra os logs por tipo (ex: 'SQLI', 'XSS').
+        limit (int): Número máximo de registros para a listagem principal.
+
+    Returns:
+        tuple: (list, dict) Contendo a lista de logs formatados e o dicionário de estatísticas.
+    """
     session = get_session()
     try:
         log_query = session.query(WafLog).order_by(WafLog.id.desc())
@@ -63,6 +84,7 @@ def get_logs_and_stats(ip_filter=None, type_filter=None, limit=100):
         session.close()
 
 def setup_dashboard(app, custom_path=None):
+
     target_path = custom_path or '/admin/dashboard'
 
     @app.route(target_path + "/login", methods=["GET", "POST"])
@@ -267,8 +289,6 @@ def setup_dashboard(app, custom_path=None):
             
             setattr(waf, key, value)
             
-            print(f" * [WafaHell] Variable '{key}' changed to: {value}")
-            
             return {"status": "success", "message": f"{key} updated", "newValue": value}
         
         return {"status": "error", "message": "Invalid variable"}, 400
@@ -328,7 +348,7 @@ def setup_dashboard(app, custom_path=None):
             session.commit()
             
             count = len(ips_to_insert)
-            print(f" * [WafaHell] Blacklist importada: {count} novos IPs.")
+            b_print(f"Blacklist importada: {count} novos IPs.")
             
             return jsonify({
                 "status": "success", 
@@ -361,7 +381,6 @@ def setup_dashboard(app, custom_path=None):
         session = get_session()
         try:
             # 2. Verifica Duplicatas no Banco
-            # Como sua coluna 'ip' é unique=True, precisamos filtrar o que já existe
             existing_query = session.query(Whitelist.ip).filter(Whitelist.ip.in_(valid_ips)).all()
             existing_ips = {row.ip for row in existing_query}
             
@@ -388,7 +407,6 @@ def setup_dashboard(app, custom_path=None):
             session.commit()
             
             count = len(ips_to_insert)
-            print(f" * [WafaHell] Whitelist importada: {count} novos IPs.")
             
             return jsonify({
                 "status": "success", 
@@ -402,5 +420,67 @@ def setup_dashboard(app, custom_path=None):
         finally:
             session.close()
 
-    print(f" * [WafaHell] Dashboard e API de dados prontos em: {target_path}")
+    @app.route(target_path + '/import_critical_paths', methods=['POST'])
+    @admin
+    def import_critical_paths():
+        """
+    Configura e registra dinamicamente todas as rotas da interface administrativa (Dashboard) 
+    na instância principal do Flask.
+
+    Este método encapsula toda a lógica de endpoints do WAF, incluindo:
+    - Autenticação de administradores (Login/Session);
+    - Visualização de logs e estatísticas em tempo real;
+    - Gestão de Blacklist e Whitelist (bloqueio/desbloqueio manual e importação em massa);
+    - Exportação de dados para relatórios CSV;
+    - Alteração dinâmica de variáveis de configuração do Middleware via API.
+
+    Args:
+        app (Flask): A instância da aplicação Flask onde o Dashboard será injetado.
+        custom_path (str, optional): O prefixo da URL para o painel. 
+                                     Padrão: '/admin/dashboard'.
+
+    Note:
+        Todas as rotas críticas são protegidas pelo decorador '@admin', que valida 
+        se existe uma sessão ativa antes de permitir o acesso.
+    """
+        data = request.get_json()
+        raw_paths = data.get('paths', [])
+        
+        if not raw_paths:
+            return jsonify({"status": "error", "message": "Nenhum path fornecido."}), 400
+
+        # Limpa e valida paths
+        valid_paths = set(path.strip() for path in raw_paths if path.strip())
+        
+        if not valid_paths:
+            return jsonify({"status": "error", "message": "Nenhum path válido encontrado."}), 400
+
+        session = get_session()
+        try:
+            # 1. Salva no Banco de Dados (ignora duplicados se houver UNIQUE no model)
+            for p in valid_paths:
+                # Verifica se já existe para não dar erro de Unique
+                exists = session.query(CriticalPaths).filter_by(path=p).first()
+                if not exists:
+                    new_path = CriticalPaths(path=p)
+                    session.add(new_path)
+            
+            session.commit()
+
+            # 2. Busca TODOS os paths do banco para atualizar o cache completo
+            all_paths = [cp.path for cp in session.query(CriticalPaths).all()]
+            waf_cache.set('critical_paths', all_paths, expire=3600)
+
+            return jsonify({
+                "status": "success", 
+                "message": f"Sucesso! {len(valid_paths)} caminhos críticos importados."
+            })
+        
+        except Exception as e:
+            session.rollback()
+            return jsonify({"status": "error", "message": str(e)}), 500
+        finally:
+            session.close()
+
+    b_print(f"Dashboard e API de dados prontos em: {target_path}")
 

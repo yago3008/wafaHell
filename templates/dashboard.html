@@ -249,6 +249,10 @@
                                 <span class="w-6 h-6 rounded bg-red-500/10 flex items-center justify-center text-red-500 group-hover:bg-red-500 group-hover:text-white transition"><i class="fas fa-ban"></i></span> 
                                 BLOCK IP
                             </button>
+                            <button onclick="openUploadModal('critical_paths')" class="flex items-center w-full px-3 py-2.5 text-left text-[11px] font-bold text-slate-300 hover:bg-slate-800 rounded-lg transition gap-3 group">
+                                <span class="w-6 h-6 rounded bg-amber-500/10 flex items-center justify-center text-amber-500 group-hover:bg-amber-500 group-hover:text-white transition"><i class="fas fa-folder-tree"></i></span> 
+                                IMPORT CRITICAL PATHS
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -366,7 +370,7 @@
         </div>
     </div>
 
-    <script>
+   <script>
     // --- TOAST SYSTEM ---
     function showToast(message, type = 'success') {
         const container = document.getElementById('toast-container');
@@ -448,7 +452,7 @@
         currentEditingKey = null;
     }
 
-    let currentUploadType = ''; // 'blacklist' ou 'whitelist'
+    let currentUploadType = ''; // 'blacklist', 'whitelist' ou 'critical_paths'
     let parsedIPs = [];
 
     function openUploadModal(type) {
@@ -458,12 +462,13 @@
         const iconContainer = document.getElementById("upload-icon-container");
         const icon = document.getElementById("upload-icon");
         const btn = document.getElementById("btn-upload-confirm");
+        const fileLabel = document.getElementById("file-label");
 
         // Reset UI
-        document.getElementById("drop-zone").classList.remove("border-emerald-500", "bg-emerald-900/10");
+        document.getElementById("drop-zone").classList.remove("border-emerald-500", "bg-emerald-900/10", "border-indigo-500", "bg-slate-900");
         document.getElementById("file-input").value = "";
         document.getElementById("upload-status").classList.add("hidden");
-        document.getElementById("file-label").innerText = "Drop file here or click to browse";
+        fileLabel.innerText = "Drop file here or click to browse";
         btn.disabled = true;
         btn.classList.add("bg-slate-800", "text-slate-500", "cursor-not-allowed");
         btn.classList.remove("bg-gradient-to-r", "text-white", "shadow-lg");
@@ -473,16 +478,21 @@
             title.innerText = "IMPORT BLACKLIST";
             iconContainer.className = "inline-block p-3 rounded-full bg-purple-900/20 border border-purple-500/30 mb-3";
             icon.className = "fas fa-file-import text-2xl text-purple-400";
-            btn.className = btn.className.replace(/from-\w+-700/, "from-purple-700").replace(/to-\w+-600/, "to-purple-600"); // Reset colors logic if needed
-        } else {
+            btn.className = btn.className.replace(/from-\w+-700/, "from-purple-700").replace(/to-\w+-600/, "to-purple-600");
+        } else if (type === 'whitelist') {
             title.innerText = "IMPORT WHITELIST";
             iconContainer.className = "inline-block p-3 rounded-full bg-cyan-900/20 border border-cyan-500/30 mb-3";
             icon.className = "fas fa-file-shield text-2xl text-cyan-400";
+        } else if (type === 'critical_paths') {
+            title.innerText = "IMPORT CRITICAL PATHS";
+            iconContainer.className = "inline-block p-3 rounded-full bg-amber-900/20 border border-amber-500/30 mb-3";
+            icon.className = "fas fa-folder-tree text-2xl text-amber-400";
+            fileLabel.innerText = "Upload .txt (e.g. /.env, /.git)";
         }
 
         modal.classList.remove("hidden");
         modal.classList.add("flex");
-        toggleDropdown(); // Fecha o dropdown
+        if(document.getElementById("actionDropdown").classList.contains('show')) toggleDropdown();
     }
 
     function closeUploadModal() {
@@ -527,12 +537,16 @@
         const reader = new FileReader();
         reader.onload = function(e) {
             const content = e.target.result;
-            // Extrai IPs usando Regex simples (IPv4)
-            const ipRegex = /\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b/g;
-            const matches = content.match(ipRegex) || [];
             
-            // Remove duplicatas
-            parsedIPs = [...new Set(matches)];
+            if (currentUploadType === 'critical_paths') {
+                // Lógica para Paths: separa por linha e remove vazios
+                parsedIPs = content.split('\n').map(p => p.trim()).filter(p => p.length > 0);
+            } else {
+                // Lógica original para IPs
+                const ipRegex = /\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b/g;
+                const matches = content.match(ipRegex) || [];
+                parsedIPs = [...new Set(matches)];
+            }
 
             // Atualiza UI
             document.getElementById("file-label").innerText = "File Selected";
@@ -549,11 +563,13 @@
                 // Cor do botão baseada no tipo
                 if(currentUploadType === 'blacklist') {
                     btn.classList.add("bg-gradient-to-r", "from-purple-700", "to-purple-600", "text-white", "shadow-lg", "shadow-purple-900/30");
-                } else {
+                } else if(currentUploadType === 'whitelist') {
                     btn.classList.add("bg-gradient-to-r", "from-cyan-700", "to-cyan-600", "text-white", "shadow-lg", "shadow-cyan-900/30");
+                } else if(currentUploadType === 'critical_paths') {
+                    btn.classList.add("bg-gradient-to-r", "from-amber-700", "to-amber-600", "text-white", "shadow-lg", "shadow-amber-900/30");
                 }
             } else {
-                showToast("No valid IPs found in this file.", 'error');
+                showToast("No valid data found in this file.", 'error');
             }
         };
         reader.readAsText(file);
@@ -562,8 +578,14 @@
     function processUpload() {
         if (!parsedIPs.length) return;
 
-        const endpoint = currentUploadType === 'blacklist' ? '/import_blacklist' : '/import_whitelist';
-        const fullPath = window.location.pathname.replace(/\/$/, '') + endpoint;
+        const endpoints = {
+            'blacklist': '/import_blacklist',
+            'whitelist': '/import_whitelist',
+            'critical_paths': '/import_critical_paths'
+        };
+
+        const fullPath = window.location.pathname.replace(/\/$/, '') + endpoints[currentUploadType];
+        const bodyKey = currentUploadType === 'critical_paths' ? 'paths' : 'ips';
 
         // Animação de loading
         const btn = document.getElementById("btn-upload-confirm");
@@ -574,11 +596,11 @@
         fetch(fullPath, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ips: parsedIPs })
+            body: JSON.stringify({ [bodyKey]: parsedIPs })
         })
         .then(res => res.json())
         .then(data => {
-            showToast(data.message || `Success! ${parsedIPs.length} IPs imported.`, 'success');
+            showToast(data.message || `Success! ${parsedIPs.length} items imported.`, 'success');
             closeUploadModal();
             updateDashboard(); // Atualiza contadores
         })
@@ -617,7 +639,6 @@
         .then(data => {
             // Atualiza a UI imediatamente após o sucesso
             updateSystemStatus(); 
-            //showToast(`Variable ${key} updated successfully!`, 'success');
         })
         .catch(err => showToast("Failed to update configuration.", 'error'));
     }
@@ -660,7 +681,6 @@
             const humanTitle = key.replace('_', ' ').toUpperCase();
             openConfigModal(key, currentValue, humanTitle);
         }
-        // Se for string ou outro tipo não editável, não faz nada
     }
 
     // Submissão do Modal de Inteiros
@@ -724,17 +744,14 @@
                 
                 grid.innerHTML = ''; 
 
-                // createCard atualizado com suporte a clique
                 const createCard = (key, type, label, icon, isActive, valueText = null, colorClass = "text-emerald-400 border-emerald-500/50 shadow-emerald-900/20") => {
                     
-                    // Definição visual de Ativo/Inativo
                     let containerClass = "bg-slate-900/40 border border-slate-800 text-slate-600 opacity-50 grayscale transition-all duration-300";
                     let glowClass = "";
                     let statusText = "OFFLINE";
                     let statusDot = "bg-slate-600";
-                    let cursorClass = "cursor-pointer hover:bg-slate-800"; // Interativo por padrão
+                    let cursorClass = "cursor-pointer hover:bg-slate-800"; 
 
-                    // Se for apenas leitura (ex: Modo de Operação String), remove cursor
                     if (type === 'readonly') {
                         cursorClass = "cursor-default";
                     }
@@ -746,22 +763,8 @@
                         statusDot = (type === 'int' || type === 'readonly') ? "bg-current" : "bg-current animate-pulse";
                     }
 
-                    // Prepara os argumentos para o onclick (escapando strings)
-                    // Se for readonly, onclick é vazio
-                    // O valor 'isActive' aqui representa o valor atual (true/false) para booleanos, ou true para ints
-                    // Para INTs, precisamos passar o valor numérico real.
-                    
                     let clickHandler = "";
-                    let rawValue = isActive; // Default para bool
-
-                    if (type === 'int') {
-                        // Para INTs, 'valueText' geralmente contém a string formatada "15 MIN", 
-                        // precisamos do valor cru do config. Vamos passar via parametro na chamada da função wrapper.
-                    }
-
                     if (type !== 'readonly') {
-                        // Truque para passar o valor correto no onclick
-                        // Se for bool, passamos true/false. Se for int, o valor será passado na chamada abaixo
                         clickHandler = `onclick="handleModuleClick('${key}', '${type}', ${isActive})"`;
                     }
 
@@ -785,37 +788,28 @@
                     grid.innerHTML += html;
                 };
 
-                // --- GERAÇÃO DOS CARDS ---
-
-                // 1. Auto Blocker (BOOL - Toggle)
                 createCard('block_ip', 'bool', "Auto Blocker", "fas fa-ban", config.block_ip, 
-                           config.block_ip ? "ACTIVE" : "OFFLINE", 
-                           "text-red-400 border-red-500/50 shadow-red-900/20");
+                            config.block_ip ? "ACTIVE" : "OFFLINE", 
+                            "text-red-400 border-red-500/50 shadow-red-900/20");
 
-                // 2. Rate Limiting (BOOL - Toggle)
                 createCard('rate_limit', 'bool', "Rate Limiting", "fas fa-tachometer-alt", config.rate_limit, null, 
-                           "text-purple-400 border-purple-500/50 shadow-purple-900/20");
+                            "text-purple-400 border-purple-500/50 shadow-purple-900/20");
 
-                // 3. Monitor Mode (BOOL - Toggle)
                 createCard('monitor_mode', 'bool', "Passive Monitor", "fas fa-eye", config.monitor_mode, "LOG ONLY", 
-                           "text-emerald-400 border-emerald-500/50 shadow-emerald-900/20");
+                            "text-emerald-400 border-emerald-500/50 shadow-emerald-900/20");
 
-                // 4. Response Code (INT - Modal)
-                // Passamos config.block_code no lugar de isActive para o handler de clique receber o valor numérico
                 createCard('block_code', 'int', "Response Code", "fas fa-network-wired", config.block_code, 
-                           config.block_code.toString(), 
-                           "text-blue-400 border-blue-500/50 shadow-blue-900/20");
+                            config.block_code.toString(), 
+                            "text-blue-400 border-blue-500/50 shadow-blue-900/20");
 
-                // 5. Block Duration (INT - Modal)
                 createCard('block_durantion', 'int', "Ban Duration", "fas fa-stopwatch", config.block_durantion, 
-                           config.block_durantion + " MIN", 
-                           "text-cyan-400 border-cyan-500/50 shadow-cyan-900/20");
-                           
-                 // 6. Operation Mode (READONLY - String)
+                            config.block_durantion + " MIN", 
+                            "text-cyan-400 border-cyan-500/50 shadow-cyan-900/20");
+                            
                  const isBlocking = config.mode === 'blocking';
                  createCard('mode', 'readonly', "Operation Mode", "fas fa-shield-alt", true, 
-                            config.mode.toUpperCase(), 
-                            isBlocking ? "text-red-400 border-red-500/50" : "text-blue-400 border-blue-500/50");
+                             config.mode.toUpperCase(), 
+                             isBlocking ? "text-red-400 border-red-500/50" : "text-blue-400 border-blue-500/50");
 
             })
             .catch(err => console.error("Erro config:", err));
@@ -848,16 +842,13 @@
                 data.logs.forEach(log => {
                     const tr = document.createElement('tr');
                     tr.className = "attack-row transition-colors border-b border-slate-800/50 text-slate-300 hover:bg-slate-800/30";
-                    // ... (resto da lógica da tabela igual ao anterior) ...
-                    
-                    // (Para economizar espaço na resposta, mantive a lógica de tabela idêntica à anterior.
-                    // Se precisar que eu repita o código da tabela, me avise, mas ele é o mesmo do script anterior)
                     
                     // Coluna Timestamp
                     const tdTime = document.createElement('td');
                     tdTime.className = "p-4 text-slate-500 text-xs whitespace-nowrap";
                     tdTime.textContent = log.timestamp;
                     tr.appendChild(tdTime);
+                    
                     // Coluna Type
                     const rawType = (log.details.attack_type || log.type).toUpperCase();
                     const tdType = document.createElement('td');
@@ -865,19 +856,23 @@
                     const badge = document.createElement('span');
                     badge.className = "px-2 py-0.5 rounded text-[10px] font-bold border";
                     badge.textContent = rawType;
+                    
                     if (rawType === 'INFO') badge.className += " bg-slate-800 text-slate-400 border-slate-700";
                     else if (rawType === 'SQLI') badge.className += " bg-red-900/30 text-red-400 border-red-500/30";
                     else if (rawType === 'XSS') badge.className += " bg-yellow-900/30 text-yellow-400 border-yellow-500/30";
                     else if (rawType === 'RATE LIMIT') badge.className += " bg-purple-900/30 text-purple-400 border-purple-500/30";
                     else if (rawType === 'IP BLOCK') badge.className += " bg-orange-900/30 text-orange-400 border-orange-500/30";
                     else badge.className += " bg-red-900/30 text-red-400 border-red-500/30";
+                    
                     tdType.appendChild(badge);
                     tr.appendChild(tdType);
+                    
                     // Coluna IP
                     const tdIP = document.createElement('td');
                     tdIP.className = "p-4 font-mono text-xs text-indigo-300";
                     tdIP.textContent = log.details.ip;
                     tr.appendChild(tdIP);
+                    
                     // Coluna Path
                     const tdPath = document.createElement('td');
                     tdPath.className = "p-4 text-xs text-slate-400";
@@ -885,6 +880,7 @@
                     pathSpan.textContent = log.details.path;
                     tdPath.appendChild(pathSpan);
                     tr.appendChild(tdPath);
+                    
                     // Coluna Payload
                     const tdPayload = document.createElement('td');
                     tdPayload.className = "p-4 font-mono text-xs";

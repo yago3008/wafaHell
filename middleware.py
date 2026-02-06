@@ -1,18 +1,24 @@
-from datetime import datetime, timedelta, timezone 
-import os
-import re
-import subprocess
-import time
-from flask import request as req, abort, g
-from urllib.parse import unquote
-from model import Base, Blocked, WafLog, Whitelist, get_session, engine
+# from .model import Base, Blocked, WafLog, Whitelist, get_session, engine
+# from .logger import Logger
+# from .rateLimiter import RateLimiter
+# from .panel import setup_dashboard
+# from .utils import Admin, seed_default_whitelist
+# from .globals import waf_cache
+import urllib
+from model import Base, Blocked, CriticalPaths, WafLog, Whitelist, get_session, engine
 from logger import Logger
 from rateLimiter import RateLimiter
-from sqlalchemy.exc import OperationalError
 from panel import setup_dashboard
 from utils import Admin, seed_default_whitelist
-from sqlalchemy import text
 from globals import waf_cache
+
+from datetime import datetime, timedelta, timezone 
+import re
+import time
+from flask import Flask, request as req, abort, g
+from urllib.parse import unquote
+from sqlalchemy.exc import OperationalError
+from sqlalchemy import text
 import hashlib
 import uuid
 import socket
@@ -22,14 +28,29 @@ import ipaddress
 limiter = RateLimiter(limit=100, window=60)
 
 class Wafahell:
+    """
+    Motor principal de segurança do Framework WafaHell.
+    
+    Implementa o padrão Singleton para garantir uma única instância de controle 
+    sobre a aplicação Flask. Gerencia a detecção de ameaças (SQLi, XSS), 
+    controle de fluxo (Rate Limit, Whitelist), persistência de auditoria 
+    e métricas de performance (RPS e Latência).
+    """
     _instance = None
 
     def __new__(cls, *args, **kwargs):
+        """Garante que apenas uma instância do WAF exista durante a execução do servidor."""
         if not cls._instance:
             cls._instance = super(Wafahell, cls).__new__(cls)
         return cls._instance
     
     def __init__(self, app=None, block_code=403, block_durantion=5, block_ip=False, log_func=None, monitor_mode=False,  rate_limit=False, dashboard_path=None):
+        """
+        Inicializa o WAF com as configurações de bloqueio e monitoramento.
+        
+        Define as regras de filtragem baseadas em assinaturas (Regex) e configura 
+        os estados internos de cache e auditoria.
+        """
         if not hasattr(self, 'initialized'):
             self.initialized = True
             
@@ -42,6 +63,8 @@ class Wafahell:
             self.dashboard_path = dashboard_path
             self.block_durantion = block_durantion
             self.recent_blocks_cache = {}
+            self.port = None
+            self.ip = None
 
             self.rules_sqli = [
                 r"(\bUNION\b|\bSELECT\b|\bINSERT\b|\bDROP\b)",  
@@ -52,26 +75,36 @@ class Wafahell:
                 r"javascript:"
             ]
 
-            if app is not None:
-                self.init_app(app)
+            if not self.app:
+                raise ValueError(" * [Waffahell] O atributo 'app' é obrigatório e não pode ser vazio.")
+            if not isinstance(app, Flask):
+                raise TypeError(f" * [Waffahell] O atributo 'app' deve ser uma instância de Flask, mas recebeu {type(app).__name__}.")
+            self._init_app(self.app)
 
-    def init_app(self, app):
+    def _init_app(self, app):
+        """
+        Acopla a lógica do WAF ao ciclo de vida das requisições do Flask.
+        
+        Configura o banco de dados, dashboard, autenticação administrativa 
+        e registra os hooks de interceptação (before/after request).
+        """
         Base.metadata.create_all(engine)
         setup_dashboard(app, self.dashboard_path)
         seed_default_whitelist()
         Admin.create_admin_user(get_session())
 
         if not app.secret_key:
-            def create_secret_key():
+            def _create_secret_key():
                 mac_address = str(uuid.getnode())
                 hostname = socket.gethostname()
                 project_salt = "wafahell-security-core-v1"
                 fingerprint = f"{mac_address}-{hostname}-{project_salt}"
                 return hashlib.sha256(fingerprint.encode()).hexdigest()
-            app.secret_key = create_secret_key()
+            app.secret_key = _create_secret_key()
+
 
         @app.before_request
-        def create_session():
+        def _create_session():
             try:
                 req.session = get_session()
             except Exception as e:
@@ -79,7 +112,7 @@ class Wafahell:
                 abort(self.block_code)
 
         @app.teardown_request
-        def close_session(exc=None):
+        def _close_session(exc=None):
             if hasattr(req, 'session'):
                 try:
                     req.session.close()
@@ -88,10 +121,25 @@ class Wafahell:
         
 
         @app.before_request
-        def waf_check():
+        def _waf_check():
+            """
+            Pipeline principal de inspeção de segurança (Ingress Protection).
+            
+            Executa na seguinte ordem:
+            1. Validação de Whitelist (IPs confiáveis).
+            2. Verificação de IPs bloqueados (Blacklist ativa).
+            3. Proteção de Caminhos Críticos.
+            4. Controle de Frequência (Rate Limit).
+            5. Inspeção de Payload (Heurística de Malícia).
+            """
             if self.check_whitelist(req):
                 return
+            
             self.verify_client_blocked(req)
+
+            if self.verify_critical_path_attack(req):
+                abort(self.block_code)
+
             self.verify_rate_limit(req)
             is_malicious, attack_local, payload, attack_type = self.is_malicious(req)
             
@@ -108,15 +156,22 @@ class Wafahell:
                 self.log.info(self.parse_req(req, payload, attack_local, attack_type))
 
         @app.before_request
-        def start_timer():
+        def _start_timer():
             g.waf_start_time = time.time()
 
         @app.after_request
-        def stop_timer(response):
+        def _stop_timer(response):
+            """
+            Coleta métricas de observabilidade e telemetria (Egress Monitoring).
+            
+            Calcula a latência da requisição usando EMA (Exponential Moving Average) 
+            e contabiliza o tráfego para cálculo de RPS (Requests Per Second), 
+            ignorando rotas administrativas do painel.
+            """
             ignored_paths = [self.dashboard_path, f'{self.dashboard_path}/stats', '/static']
 
             # 1. Ignora rotas do próprio painel para não sujar os logs e métricas
-            if any(req.path.startswith(path) for path in ignored_paths):
+            if any(req.path.startswith(path) for path in ignored_paths if path):
                 return response
             
             # 2. LOG DE TRÁFEGO LEGÍTIMO
@@ -142,7 +197,42 @@ class Wafahell:
                 waf_cache.set('latency_avg', new_avg, expire=3600)
                 
             return response
+    
+    def _normalize_path(self, path):
+        while '%' in path:
+            new_path = unquote(path)
+            if path == new_path:
+                break
+            path = new_path
+        path = path.replace('\0', '')
+        return path.lower()
+            
+    def verify_critical_path_attack(self, req) -> bool:
+        """
+        Verifica se o path requisitado está na lista de caminhos críticos.
+        Se estiver, bloqueia o IP imediatamente.
+        """
+        # 1. Tenta pegar do cache, se não tiver, busca do banco
+        paths = waf_cache.get('critical_paths')
+        if paths is None:
+            session = get_session()
+            # Ordenamos os paths do maior para o menor para evitar "falsos positivos" parciais
+            paths = [cp.path for cp in session.query(CriticalPaths).all()]
+            waf_cache.set('critical_paths', paths, expire=3600)
+            session.close()
+
+        # 2. Pega o path completo da requisição (ex: /uploads/backup/.env)
         
+        # 3. Itera sobre a lista de paths proibidos
+        for p in paths:
+            if self._normalize_path(p) in self._normalize_path(req.path):
+                self.log_attack(req, attack_type="", payload="", attack_local="URL")
+                if self.block_ip:
+                    self.log_block(req)
+                    self.block_ip_address(req.remote_addr, req.headers.get("User-Agent", "unknown"))
+                return True 
+        return False
+            
     def log_legit_access(self, req):
             entry = {
                 "timestamp": datetime.now(timezone.utc),
@@ -158,6 +248,18 @@ class Wafahell:
             self._push_to_batch(entry)
 
     def log_attack(self, req, attack_type, payload, attack_local):
+        """
+        Registra uma tentativa de ataque detectada, decodifica o payload e inicia o bloqueio.
+
+        Args:
+            req: O objeto de requisição (Flask/Django/etc) contendo metadados do cliente.
+            attack_type (str): O tipo de ameaça detectada (ex: 'SQLI', 'XSS').
+            payload (str): O conteúdo malicioso original da requisição.
+            attack_local (str): Onde o ataque foi encontrado (ex: 'BODY', 'HEADER', 'URL').
+
+        Returns:
+            None
+        """
         # Decodifica o payload para ficar legível no banco
         safe_payload = unquote(payload) if payload else "---"
         
@@ -176,7 +278,16 @@ class Wafahell:
 
     def log_block(self, req):
         """
-        Registra especificamente bloqueios de conexão (Blacklist/Manual Block).
+        Registra especificamente eventos de bloqueio de conexão no sistema de logs.
+
+        Gera uma entrada de log com nível 'INFO' indicando que um IP foi impedido 
+        de prosseguir, seja por blacklist ou bloqueio manual.
+
+        Args:
+            req: O objeto de requisição contendo os dados do cliente bloqueado.
+
+        Returns:
+            None
         """
         entry = {
             "timestamp": datetime.now(timezone.utc),
@@ -194,8 +305,21 @@ class Wafahell:
 
     def _push_to_batch(self, log_entry):
         """
-        Função central que gerencia o Buffer de Logs (Memória -> Banco).
-        Usada tanto por logs legítimos quanto por ataques.
+        Gerencia o buffer de logs em memória e realiza o flush para o banco de dados.
+
+        Esta função implementa uma estratégia de escrita em lote (batching) para otimizar 
+        a performance do banco de dados. O flush ocorre quando o limite de 50 logs é 
+        atingido ou se passarem mais de 3 segundos desde o último flush.
+
+        Args:
+            log_entry (dict): Dicionário contendo todos os campos do log a ser persistido.
+
+        Note:
+            Utiliza `bulk_insert_mappings` para alta performance. Em caso de falha na 
+            escrita, os logs permanecem no cache para tentativa na próxima execução.
+        
+        Returns:
+            None
         """
         # 1. Recupera os logs pendentes do cache global
         pending_logs = waf_cache.get('pending_logs_batch', default=[])
@@ -231,6 +355,19 @@ class Wafahell:
             waf_cache.set('pending_logs_batch', pending_logs, expire=60)
 
     def detect_attack(self, data: str) -> bool:
+        """
+        Analisa uma string em busca de padrões de ataques conhecidos (XSS e SQLI).
+
+        Varre o conteúdo fornecido utilizando expressões regulares definidas nas 
+        regras do WAF. A verificação é case-insensitive.
+
+        Args:
+            data (str): O conteúdo textual a ser analisado (ex: valor de um input).
+
+        Returns:
+            str | None: Retorna o nome do tipo de ataque ("XSS" ou "SQLI") se 
+            encontrado, ou None caso a string pareça segura.
+        """
         for pattern in self.rules_xss:
             if re.search(pattern, data, re.IGNORECASE):
                 return "XSS"
@@ -240,6 +377,27 @@ class Wafahell:
         return None
 
     def is_malicious(self, req) -> tuple:
+        """
+        Realiza uma inspeção profunda em todos os componentes de uma requisição HTTP.
+
+        A função verifica sequencialmente:
+        1. URL base
+        2. Campos de formulário (POST/PUT)
+        3. Parâmetros de query (GET)
+        4. Cabeçalhos (Headers)
+        5. Corpo bruto (Raw Body)
+        6. Conteúdo JSON
+
+        Args:
+            req: O objeto de requisição (ex: flask.Request) a ser inspecionado.
+
+        Returns:
+            tuple: Uma tupla contendo quatro elementos:
+                - (bool): True se for malicioso, False caso contrário.
+                - (str | None): Onde o ataque foi detectado (ex: "URL", "HEADER 'User-Agent'").
+                - (str | None): O conteúdo específico que disparou o alerta.
+                - (str | None): O tipo de ataque detectado ("XSS" ou "SQLI").
+        """
         attack = self.detect_attack(req.base_url)
         if attack:
             print(f"[DEBUG] Attack detected in URL: {attack}")
@@ -283,6 +441,23 @@ class Wafahell:
         return False, None, None, None
 
     def verify_client_blocked(self, req) -> None:
+        """
+        Verifica se o IP de origem está na lista de bloqueio antes de processar a requisição.
+
+        A verificação ocorre em dois níveis:
+        1. **Fast Path (Cache):** Consulta rápida em memória. Se o IP estiver marcado, 
+           a requisição é abortada imediatamente (economiza recursos de DB).
+        2. **Slow Path (Database):** Se não estiver no cache, consulta o banco de dados. 
+           Se bloqueado no DB, o cache é "aquecido" para as próximas chamadas. Caso o 
+           bloqueio tenha expirado, o registro é removido.
+
+        Args:
+            req: Objeto de requisição contendo o `remote_addr` e a sessão do banco.
+
+        Raises:
+            HTTPException: Aborta a requisição com o código configurado (`self.block_code`) 
+            caso o IP esteja bloqueado ou ocorra erro operacional no banco.
+        """
         ip = req.remote_addr
         
         # ---------------------------------------------------------
@@ -338,9 +513,25 @@ class Wafahell:
             abort(self.block_code)
 
     def block_ip_address(self, ip, user_agent=None):
+        """
+        Registra permanentemente (via DB) e temporariamente (via Cache) o bloqueio de um IP.
+
+        Implementa uma "Trava de Cache" (blocking_lock) para evitar condições de corrida 
+        (Race Conditions) onde múltiplas threads tentam inserir o mesmo bloqueio 
+        simultaneamente durante um ataque de alta frequência.
+
+        Args:
+            ip (str): O endereço IP a ser bloqueado.
+            user_agent (str, optional): O cabeçalho User-Agent do atacante para fins de auditoria.
+
+        Note:
+            A função utiliza a sessão de banco de dados vinculada à requisição atual e 
+            realiza o "pré-aquecimento" do cache de bloqueio para garantir que a 
+            próxima requisição deste IP seja barrada no 'Fast Path'.
+        """
         if not self.block_ip:
             return
-
+        
         # 1. TRAVA DE CACHE (A Salvação do Fuzzing)
         # Verifica se já existe um processo de bloqueio rodando para este IP.
         # Isso impede que 50 threads do ffuf tentem fazer INSERT ao mesmo tempo.
@@ -395,6 +586,23 @@ class Wafahell:
         # Quem fecha é o @app.teardown_request no final do ciclo.
 
     def verify_rate_limit(self, req) -> None:
+        """
+        Monitora e controla a frequência de requisições por IP e User-Agent.
+
+        Se o limite for excedido, a função registra o evento como um ataque de 
+        'RATE LIMIT'. Caso o modo de monitoramento esteja desativado e o bloqueio 
+        de IP esteja ativo, o cliente é banido e a requisição é abortada.
+
+        Args:
+            req: Objeto de requisição contendo o IP e os cabeçalhos do cliente.
+
+        Returns:
+            None
+
+        Raises:
+            HTTPException: Aborta a requisição com o código configurado se o 
+            limite for excedido e o sistema não estiver apenas em modo de monitoramento.
+        """
         if self.rate_limit:
                 ip = req.remote_addr
                 ua = req.headers.get("User-Agent", "unknown")
@@ -418,6 +626,22 @@ class Wafahell:
 
 
     def check_whitelist(self, req) -> bool:
+        """
+        Valida se o IP da requisição está autorizado a ignorar as regras do WAF.
+
+        A validação segue três níveis de prioridade:
+        1. **Cache (O(1)):** Verifica se o IP específico já foi validado recentemente.
+        2. **Busca Exata (DB):** Procura pelo IP exato na tabela de Whitelist.
+        3. **Busca por Sub-rede (CIDR):** Analisa se o IP pertence a alguma faixa 
+           declarada (ex: 192.168.1.0/24). Se houver match, o IP individual é 
+           armazenado no cache por 1 hora para otimizar futuras requisições.
+
+        Args:
+            req: Objeto de requisição contendo o endereço IP do cliente.
+
+        Returns:
+            bool: True se o IP estiver na whitelist, False caso contrário.
+        """
         ip_str = req.remote_addr
         
         # 1. CACHE (Velocidade Extrema)
@@ -462,6 +686,24 @@ class Wafahell:
         return False
 
     def parse_req(self, req, payload, attack_local=None, attack_type=None) -> str:
+        """
+        Formata os detalhes de uma tentativa de ataque em uma string legível.
+
+        Esta função consolida metadados da requisição (IP, User-Agent, Path) e 
+        detalhes da detecção em uma única linha, facilitando a visualização em 
+        arquivos de log de texto ou no console (stdout). O payload é decodificado 
+        automaticamente para facilitar a análise humana.
+
+        Args:
+            req: Objeto de requisição contendo os cabeçalhos e metadados do cliente.
+            payload (str): O conteúdo malicioso detectado.
+            attack_local (str, optional): Onde o ataque foi encontrado (ex: 'URL', 'BODY'). 
+                Padrão é "unknown".
+            attack_type (str, optional): A classificação do ataque (ex: 'SQLI', 'XSS').
+
+        Returns:
+            str: Uma string formatada no padrão "[ATTACK] Attack_type: ..., IP: ...".
+        """
         ip = req.remote_addr
         user_agent = req.headers.get("User-Agent", "unknown")
         path = req.path
