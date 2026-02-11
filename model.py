@@ -5,10 +5,6 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import declarative_base, sessionmaker, scoped_session
 
-# =========================
-# CONFIGURAÇÃO GLOBAL
-# =========================
-
 DATABASE_URL = "sqlite:///wafahell.db"
 
 engine = create_engine(
@@ -133,7 +129,7 @@ class AdminUser(Base):
 # DB INIT / SESSION
 # =========================
 
-def init_db():
+def init_db() -> None:
     """
     Varre todos os modelos herdados de 'Base' e cria as tabelas no 
     banco de dados SQLite caso elas ainda não existam.
@@ -141,7 +137,7 @@ def init_db():
     Base.metadata.create_all(bind=engine)
 
 
-def get_session():
+def get_session() -> scoped_session:
     """
     Provê uma sessão de banco de dados thread-safe gerenciada pelo scoped_session. 
     Deve ser fechada após o uso para retornar a conexão ao pool.

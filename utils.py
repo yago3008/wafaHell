@@ -13,14 +13,14 @@ import time
 import tomllib
 from werkzeug.security import generate_password_hash
 from sqlalchemy.orm import Session
-from sqlalchemy import text, func, case
+from sqlalchemy import literal, text, func, case
 from functools import wraps
 from flask import session, redirect, url_for, request
 import geoip2.database
 import os
 
 
-def b_print(msg):
+def b_print(msg: str) -> None:
     """
     Exibe uma mensagem formatada no console com a identidade visual do WafaHell.
     
@@ -47,7 +47,7 @@ class Admin:
     existência de um usuário administrador inicial (Bootstrap) no banco de dados.
     """
     @staticmethod
-    def generate_secure_password(length=64):
+    def generate_secure_password(length: int = 64) -> str:
         """
         Gera uma sequência aleatória de alta entropia para uso em chaves e senhas.
         
@@ -64,7 +64,7 @@ class Admin:
         return ''.join(secrets.choice(alphabet) for _ in range(length))
 
     @staticmethod
-    def create_admin_user(session: Session):
+    def create_admin_user(session: Session) -> None:
         """
         Provisiona o usuário administrador padrão ('admin') caso ele não exista.
         
@@ -94,7 +94,7 @@ class Admin:
         b_print("Salve essa senha em um lugar seguro, não será mostrada novamente.")
         b_print(f"Senha: {raw_password}")
 
-def admin(fn):
+def admin(fn: callable) -> callable:
     """
     Decorador de controle de acesso para rotas administrativas.
 
@@ -124,7 +124,7 @@ class Dashboard:
     def __init__(self):
         self.geo_db_path = os.path.join(os.path.dirname(__file__), 'GeoLite2-Country.mmdb')
         
-    def dashboard_setup(self):
+    def dashboard_setup(self: object) -> dict:
         """
     Prepara o conjunto de metadados e configurações globais para a interface do Dashboard.
     
@@ -137,7 +137,7 @@ class Dashboard:
     """
         json = {}
 
-        def get_waf_version():
+        def get_waf_version() -> str:
             """
         Localiza e extrai a versão atual do WafaHell do arquivo 'pyproject.toml'.
         
@@ -159,7 +159,7 @@ class Dashboard:
             except FileNotFoundError:
                 return "v.0.0.0"
         
-        def get_server_info():
+        def get_server_info() -> dict:
             """
             Coleta metadados operacionais e o estado de saúde (health check) do servidor.
 
@@ -183,7 +183,7 @@ class Dashboard:
                 "version": get_waf_version()
             }
         
-        def get_kpis():
+        def get_kpis() -> dict:
             """
             Calcula os Indicadores Chave de Desempenho (KPIs) de segurança e tráfego.
 
@@ -287,7 +287,7 @@ class Dashboard:
             finally:
                 session.close()
                 
-        def get_traffic_chart():
+        def get_traffic_chart() -> dict:
             """
             Gera os dados de séries temporais para o gráfico de tráfego dos últimos 40 minutos.
 
@@ -303,42 +303,78 @@ class Dashboard:
                     - series_attacks: Volume de ameaças mitigadas.
             """
             now = datetime.now(timezone.utc)
-            start_time = now - timedelta(minutes=40)
+            # Arredonda para o minuto atual para ficar limpo (ex: 10:05:00)
+            end_date = now.replace(second=0, microsecond=0)
+            start_date = end_date - timedelta(minutes=40)
+            
             session = get_session()
+            
             try:
-                # Query para agrupar por minuto
-                # No SQLite usamos strftime, no Postgres/MySQL seria date_format ou similar
+                # 2. Query otimizada com group_concat para pegar IPs
                 query = session.query(
                     func.strftime('%H:%M', WafLog.timestamp).label('minute'),
-                    func.count(WafLog.id).label('total'),
                     func.sum(case({WafLog.attack_type == 'INFO': 1}, else_=0)).label('legit'),
-                    func.sum(case({WafLog.attack_type != 'INFO': 1}, else_=0)).label('attacks')
-                ).filter(WafLog.timestamp >= start_time)\
+                    func.sum(case({WafLog.attack_type != 'INFO': 1}, else_=0)).label('attacks'),
+                    # Agrega IPs maliciosos numa string separada por vírgula
+                    func.group_concat(
+                        case({WafLog.attack_type != 'INFO': WafLog.ip}, else_=literal(None)), 
+                        ','
+                    ).label('attack_ips_str')
+                ).filter(
+                    WafLog.timestamp >= start_date,
+                    WafLog.timestamp <= now # Garante não pegar dados futuros se houver drift
+                )\
                 .group_by('minute')\
-                .order_by('minute').all()
+                .all()
 
+                # Transforma resultado do banco em um Dicionário para busca rápida
+                # Ex: {'10:05': {'legit': 10, ...}, '10:06': ...}
+                data_map = {
+                    row.minute: {
+                        'legit': row.legit or 0,
+                        'attacks': row.attacks or 0,
+                        'ips': list(set(row.attack_ips_str.split(','))) if row.attack_ips_str else []
+                    }
+                    for row in query
+                }
+
+                # 3. Preenchimento de Lacunas (Gap Filling)
+                # Cria os arrays finais garantindo que todos os 40 minutos existam, mesmo vazios
                 labels = []
                 series_legit = []
                 series_attacks = []
+                series_attack_ips = []
 
-                # Preenche os arrays para o gráfico
-                for row in query:
-                    labels.append(row.minute)
-                    series_legit.append(row.legit or 0)
-                    series_attacks.append(row.attacks or 0)
+                # Loop de 0 a 40 minutos atrás
+                current_step = start_date
+                while current_step <= end_date:
+                    step_label = current_step.strftime('%H:%M')
+                    
+                    # Se tiver dados no banco para esse minuto, usa. Se não, usa 0 e lista vazia.
+                    step_data = data_map.get(step_label, {'legit': 0, 'attacks': 0, 'ips': []})
+                    
+                    labels.append(step_label)
+                    series_legit.append(step_data['legit'])
+                    series_attacks.append(step_data['attacks'])
+                    series_attack_ips.append(step_data['ips']) # Sempre adiciona uma lista, mesmo que vazia []
+                    
+                    current_step += timedelta(minutes=1)
 
-                # Caso não existam dados nos últimos 40 min, retorna arrays vazios para não quebrar o front
                 return {
-                    "labels": labels,
-                    "series_legit": series_legit,
-                    "series_attacks": series_attacks
-                }
+                        "labels": labels,
+                        "series_legit": series_legit,
+                        "series_attacks": series_attacks,
+                        "series_attack_ips": series_attack_ips
+                    }
+                    
             except Exception as e:
                 print(f"Erro no Dashboard: {e}")
+                # Retorna estrutura vazia válida para não quebrar o JS
+                return {"traffic_chart": {"labels": [], "series_legit": [], "series_attacks": [], "series_attack_ips": []}}
             finally:
                 session.close()
 
-        def get_distribution_vectors():
+        def get_distribution_vectors() -> list:
             """
             Calcula a distribuição percentual dos vetores de ataque (SQLi, XSS, etc.) 
             nas últimas 24 horas.
@@ -386,7 +422,7 @@ class Dashboard:
             finally:
                 session.close()
 
-        def get_top_geo():
+        def get_top_geo() -> tuple:
             """
             Realiza a geolocalização dos ataques para identificar as origens geográficas das ameaças.
             
@@ -407,11 +443,9 @@ class Dashboard:
                         response = reader.country(ip)
                         return response.country.iso_code, response.country.name
                 except Exception as e:
-                    print(f"Erro na consulta GeoIP: {e}") # Isso vai te dizer se o banco está corrompido ou o IP é inválido
+                    print(f"Erro na consulta GeoIP: {e}")
                     return "XX", "Unknown"
                 
-            now = datetime.now(timezone.utc)
-            last_24h = now - timedelta(hours=24)
             session = get_session()
             # 1. Busca todos os ataques agrupados por IP
             try:
@@ -419,7 +453,6 @@ class Dashboard:
                     WafLog.ip,
                     func.count(WafLog.id).label('count')
                 ).filter(
-                    WafLog.timestamp >= last_24h,
                     WafLog.attack_type != 'INFO'
                 ).group_by(WafLog.ip).all()
 
@@ -455,7 +488,7 @@ class Dashboard:
             finally:
                 session.close()
         
-        def get_top_offenders():
+        def get_top_offenders() -> list:
             """
             Identifica os principais agressores (Top Offenders) e calcula um Score de Risco.
 
@@ -471,8 +504,6 @@ class Dashboard:
             Returns:
                 list: Lista dos 5 IPs com maior pontuação de risco e seus respectivos metadados.
             """
-            now = datetime.now(timezone.utc)
-            last_24h = now - timedelta(hours=24)
             session = get_session()
             # 1. Agrupamos por IP e contamos os hits e os tipos de ataques diferentes
             # Ignoramos tráfego INFO
@@ -482,7 +513,6 @@ class Dashboard:
                     func.count(WafLog.id).label('hits_count'),
                     func.count(func.distinct(WafLog.attack_type)).label('unique_vectors')
                 ).filter(
-                    WafLog.timestamp >= last_24h,
                     WafLog.attack_type != 'INFO'
                 ).group_by(WafLog.ip).order_by(text('hits_count DESC')).limit(5).all()
 
@@ -521,7 +551,7 @@ class Dashboard:
             print(f"Erro no Dashboard: {e}")
             return {"error": str(e)}
         
-def seed_default_whitelist():
+def seed_default_whitelist() -> None:
     """
     Popula a Whitelist com IPs essenciais (Localhost, DNS públicos, etc)
     Executar na inicialização do app.
@@ -529,7 +559,7 @@ def seed_default_whitelist():
     # Lista de IPs Padrão (Adicione aqui IPs unitários que confia)
     DEFAULT_IPS = [
         # --- Localhost / Loopback (Essencial) ---
-        "127.0.0.1",
+        #"127.0.0.1",
         "::1",
         "0.0.0.0",
 

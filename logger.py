@@ -135,22 +135,22 @@ class Logger:
             db_handler = SQLAlchemyHandler()
             self.logger.addHandler(db_handler)
 
-    def info(self, msg):
+    def info(self, msg: str) -> None:
         """Registra uma mensagem informativa de rotina."""
         self.logger.info(msg)
 
-    def warning(self, msg):
+    def warning(self, msg: str) -> None:
         """Registra avisos e comportamentos suspeitos que não geram bloqueio."""
         self.logger.warning(msg)
 
-    def error(self, msg):
+    def error(self, msg: str) -> None:
         """Registra falhas no processamento ou erros de validação."""
         self.logger.error(msg)
 
-    def critical(self, msg):
+    def critical(self, msg: str) -> None:
         """Registra ataques confirmados e eventos de alta severidade."""
         self.logger.critical(msg)
 
-    def debug(self, msg):
+    def debug(self, msg: str) -> None:
         """Registra informações detalhadas para desenvolvedores em modo de teste."""
         self.logger.debug(msg)

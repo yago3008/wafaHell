@@ -11,11 +11,11 @@ from rateLimiter import RateLimiter
 from panel import setup_dashboard
 from utils import Admin, seed_default_whitelist
 from globals import waf_cache
-
+import joblib
 from datetime import datetime, timedelta, timezone 
 import re
 import time
-from flask import Flask, request as req, abort, g
+from flask import Flask, json, request as req, abort, g
 from urllib.parse import unquote
 from sqlalchemy.exc import OperationalError
 from sqlalchemy import text
@@ -44,7 +44,7 @@ class Wafahell:
             cls._instance = super(Wafahell, cls).__new__(cls)
         return cls._instance
     
-    def __init__(self, app=None, block_code=403, block_durantion=5, block_ip=False, log_func=None, monitor_mode=False,  rate_limit=False, dashboard_path=None):
+    def __init__(self, app: Flask = None, block_code: int = 403, block_durantion: int = 5, block_ip: bool = False, log_func: callable = None, monitor_mode: bool = False,  rate_limit: bool = False, dashboard_path: str = None, ai_treshold: float = 0.80):
         """
         Inicializa o WAF com as configurações de bloqueio e monitoramento.
         
@@ -65,15 +65,8 @@ class Wafahell:
             self.recent_blocks_cache = {}
             self.port = None
             self.ip = None
-
-            self.rules_sqli = [
-                r"(\bUNION\b|\bSELECT\b|\bINSERT\b|\bDROP\b)",  
-                r"' OR '1'='1"                                                                                                                                                                                                                                
-            ]
-            self.rules_xss = [
-                r"<script.*?>.*?</script>",                    
-                r"javascript:"
-            ]
+            self.ai_treshold = ai_treshold
+            self.ai_model = joblib.load('wafahell_brain.pkl')
 
             if not self.app:
                 raise ValueError(" * [Waffahell] O atributo 'app' é obrigatório e não pode ser vazio.")
@@ -81,7 +74,7 @@ class Wafahell:
                 raise TypeError(f" * [Waffahell] O atributo 'app' deve ser uma instância de Flask, mas recebeu {type(app).__name__}.")
             self._init_app(self.app)
 
-    def _init_app(self, app):
+    def _init_app(self, app) -> None:
         """
         Acopla a lógica do WAF ao ciclo de vida das requisições do Flask.
         
@@ -186,11 +179,9 @@ class Wafahell:
             waf_cache.incr(rps_key, default=0)
             waf_cache.expire(rps_key, 10)
 
-            # 4. Latency Logic
             if hasattr(g, 'waf_start_time'):
                 latency = (time.time() - g.waf_start_time) * 1000
                 
-                # Exponential Moving Average
                 old_avg = waf_cache.get('latency_avg', default=0.0)
                 new_avg = (old_avg * 0.95) + (latency * 0.05) if old_avg > 0 else latency
                 
@@ -198,7 +189,7 @@ class Wafahell:
                 
             return response
     
-    def _normalize_path(self, path):
+    def _normalize_path(self, path: str) -> str:
         while '%' in path:
             new_path = unquote(path)
             if path == new_path:
@@ -233,7 +224,7 @@ class Wafahell:
                 return True 
         return False
             
-    def log_legit_access(self, req):
+    def log_legit_access(self, req) -> None:
             entry = {
                 "timestamp": datetime.now(timezone.utc),
                 "attack_type": 'INFO',
@@ -241,13 +232,12 @@ class Wafahell:
                 "path": req.path,
                 "method": req.method,
                 "level": 'INFO',
-                "payload": None,       # INFO não tem payload
-                "attack_local": None   # INFO não tem local de ataque
+                "payload": None,
+                "attack_local": None
             }
-            # Manda para o gerenciador de lote
             self._push_to_batch(entry)
 
-    def log_attack(self, req, attack_type, payload, attack_local):
+    def log_attack(self, req, attack_type: str, payload: str, attack_local: str) -> None:
         """
         Registra uma tentativa de ataque detectada, decodifica o payload e inicia o bloqueio.
 
@@ -276,7 +266,7 @@ class Wafahell:
         self.log_block(req)
         self._push_to_batch(entry)
 
-    def log_block(self, req):
+    def log_block(self, req) -> None:
         """
         Registra especificamente eventos de bloqueio de conexão no sistema de logs.
 
@@ -300,10 +290,9 @@ class Wafahell:
             "attack_local": "WAF"
         }
         
-        # Envia para o mesmo lote que os ataques normais
         self._push_to_batch(entry)
 
-    def _push_to_batch(self, log_entry):
+    def _push_to_batch(self, log_entry: dict) -> None:
         """
         Gerencia o buffer de logs em memória e realiza o flush para o banco de dados.
 
@@ -368,13 +357,49 @@ class Wafahell:
             str | None: Retorna o nome do tipo de ataque ("XSS" ou "SQLI") se 
             encontrado, ou None caso a string pareça segura.
         """
-        for pattern in self.rules_xss:
-            if re.search(pattern, data, re.IGNORECASE):
-                return "XSS"
-        for pattern in self.rules_sqli:
-            if re.search(pattern, data, re.IGNORECASE):
-                return "SQLI"
+        if not data or len(data.strip()) < 2: # Ignora campos vazios ou irrelevantes
+                return None
+
+        # Normalização para a IA
+        clean_data = urllib.parse.unquote(data).lower()
+
+        # Predição
+        # Se seu modelo for multiclasse (0: Benigno, 1: SQLI, 2: XSS)
+        prediction = self.ai_model.predict([clean_data])[0]
+        
+        # Se seu modelo for apenas binário, você retornaria "ATTACK" ou None
+        if prediction == 1: return "SQLI"
+        if prediction == 2: return "XSS"
+        
         return None
+
+    def get_ai_features(self, req):
+        # 1. Coleta das partes
+        method = req.method
+        url = req.base_url
+        query_params = json.dumps(dict(req.args))
+        form_data = json.dumps(dict(req.form))
+        headers = json.dumps(dict(req.headers))
+        
+        # Trata Body Raw e Multipart (WebBoundary)
+        body_raw = req.data.decode(errors="ignore") if req.data else ""
+        
+        # Trata JSON
+        json_body = ""
+        if req.is_json:
+            jd = req.get_json(silent=True)
+            json_body = json.dumps(jd) if jd else ""
+
+        # 2. Construção da String Mestra (O que a IA vai analisar)
+        # A ordem ajuda a IA a entender o contexto da requisição
+        full_content = f"METHOD:{method} | URL:{url} | ARGS:{query_params} | " \
+                    f"FORM:{form_data} | HEADERS:{headers} | BODY:{body_raw} | JSON:{json_body}"
+        
+        # 3. Normalização (Lower case e Unquote para evitar bypass de encoding)
+        full_content = urllib.parse.unquote(full_content).lower()
+    
+        return full_content
+    
 
     def is_malicious(self, req) -> tuple:
         """
@@ -398,45 +423,49 @@ class Wafahell:
                 - (str | None): O conteúdo específico que disparou o alerta.
                 - (str | None): O tipo de ataque detectado ("XSS" ou "SQLI").
         """
-        attack = self.detect_attack(req.base_url)
-        if attack:
-            print(f"[DEBUG] Attack detected in URL: {attack}")
-            return True, "URL", req.base_url, attack
-        
-        for key, value in req.form.items():
-            attack = self.detect_attack(value)
+        full_request_string = self.get_ai_features(req)
+        prob_global = self.ai_model.predict_proba([full_request_string])[0][1]
+        print(f"[DEBUG AI] TRESHOLD: {self.ai_treshold} | PROB: {prob_global}")
+        if prob_global >= self.ai_treshold:
+            attack = self.detect_attack(req.base_url)
             if attack:
-                print(f"[DEBUG] Attack detected in FORM '{key}': {attack}")
-                return True, f"FORM '{key}'", value, attack
-        
-        for key, value in req.args.items():
-            attack = self.detect_attack(value)
-            if attack:
-                print(f"[DEBUG] Attack detected in QUERY '{key}': {attack}")
-                return True, f"QUERY '{key}'", value, attack
-
-        for key, value in req.headers.items():
-            attack = self.detect_attack(value)
-            if attack:
-                print(f"[DEBUG] Attack detected in HEADER '{key}': {attack}")
-                return True, f"HEADER '{key}'", value, attack
-
-        if req.data:
-            body_content = req.data.decode(errors="ignore")
-            attack = self.detect_attack(body_content)
-            if attack:
-                print(f"[DEBUG] Attack detected in BODY: {attack}")
-                return True, "BODY", body_content, attack
+                print(f"[DEBUG] Attack detected in URL: {attack}")
+                return True, "URL", req.base_url, attack
             
-        if req.is_json:
-            json_data = req.get_json(silent=True)
-            if json_data:
-                import json
-                json_str = json.dumps(json_data)
-                attack = self.detect_attack(json_str)
+            for key, value in req.form.items():
+                attack = self.detect_attack(value)
                 if attack:
-                    print(f"[DEBUG] Attack detected in JSON BODY: {attack}")
-                    return True, "JSON BODY", json_str, attack
+                    print(f"[DEBUG] Attack detected in FORM '{key}': {attack}")
+                    return True, f"FORM '{key}'", value, attack
+            
+            for key, value in req.args.items():
+                attack = self.detect_attack(value)
+                if attack:
+                    print(f"[DEBUG] Attack detected in QUERY '{key}': {attack}")
+                    return True, f"QUERY '{key}'", value, attack
+
+            for key, value in req.headers.items():
+                attack = self.detect_attack(value)
+                if attack:
+                    print(f"[DEBUG] Attack detected in HEADER '{key}': {attack}")
+                    return True, f"HEADER '{key}'", value, attack
+
+            if req.data:
+                body_content = req.data.decode(errors="ignore")
+                attack = self.detect_attack(body_content)
+                if attack:
+                    print(f"[DEBUG] Attack detected in BODY: {attack}")
+                    return True, "BODY", body_content, attack
+                
+            if req.is_json:
+                json_data = req.get_json(silent=True)
+                if json_data:
+                    import json
+                    json_str = json.dumps(json_data)
+                    attack = self.detect_attack(json_str)
+                    if attack:
+                        print(f"[DEBUG] Attack detected in JSON BODY: {attack}")
+                        return True, "JSON BODY", json_str, attack
 
         return False, None, None, None
 
@@ -460,19 +489,10 @@ class Wafahell:
         """
         ip = req.remote_addr
         
-        # ---------------------------------------------------------
-        # 1. FAST PATH: Cache Check (Memória/Disco)
-        # ---------------------------------------------------------
-        # Se o cache diz que está bloqueado, abortamos imediatamente.
-        # Isso economiza 99% das queries de SELECT durante um ataque (fuzzing).
+        # Se o cache diz que está bloqueado, aborta imediatamente.
+        # economiza queries de SELECT durante um ataque (fuzzing).
         if waf_cache.get(f"blocked_{ip}"):
             abort(self.block_code)
-
-        # ---------------------------------------------------------
-        # 2. SLOW PATH: Database Check
-        # ---------------------------------------------------------
-        # Só chegamos aqui se o IP não estiver no cache.
-        # Pode ser um IP limpo OU um IP bloqueado cujo cache expirou (TTL).
         
         session = req.session # Reutiliza a sessão da request (Fundamental!)
 
@@ -485,7 +505,6 @@ class Wafahell:
                 
                 # Caso 1: Ainda está bloqueado
                 if client_blocked.blocked_until > now:
-                    # RE-AQUECIMENTO DO CACHE:
                     # O bloqueio ainda é válido no banco, então renovamos o cache por mais 60s.
                     # Assim, as próximas requisições desse IP vão cair no Fast Path acima.
                     waf_cache.set(f"blocked_{ip}", True, expire=60)
@@ -512,7 +531,7 @@ class Wafahell:
             session.rollback()
             abort(self.block_code)
 
-    def block_ip_address(self, ip, user_agent=None):
+    def block_ip_address(self, ip: str, user_agent: str = None) -> None:
         """
         Registra permanentemente (via DB) e temporariamente (via Cache) o bloqueio de um IP.
 
@@ -532,7 +551,6 @@ class Wafahell:
         if not self.block_ip:
             return
         
-        # 1. TRAVA DE CACHE (A Salvação do Fuzzing)
         # Verifica se já existe um processo de bloqueio rodando para este IP.
         # Isso impede que 50 threads do ffuf tentem fazer INSERT ao mesmo tempo.
         cache_key = f"blocking_lock_{ip}"
@@ -543,7 +561,6 @@ class Wafahell:
         # Cria a trava por 5 segundos (tempo mais que suficiente para o insert ocorrer)
         waf_cache.set(cache_key, True, expire=5)
 
-        # 2. REUTILIZAÇÃO DE SESSÃO
         # Usamos a sessão que já está aberta na requisição atual.
         session = req.session 
         
@@ -570,7 +587,6 @@ class Wafahell:
                 # Log no arquivo/console
                 self.log.warning(f"[BLOCKED] IP: {ip} bloqueado por {self.block_durantion} min.")
                 
-                # 3. PRÉ-AQUECIMENTO DE CACHE
                 # Já avisa o cache que este IP está bloqueado.
                 # A próxima requisição vai bater no verify_client_blocked, ler o cache e ser barrada sem tocar no banco.
                 waf_cache.set(f"blocked_{ip}", True, expire=60)
@@ -580,10 +596,6 @@ class Wafahell:
             self.log.error(f"Erro ao persistir bloqueio: {e}")
             # Se deu erro, removemos a trava para tentar novamente na próxima
             waf_cache.delete(cache_key)
-        
-        # IMPORTANTE:
-        # Não usamos 'finally: session.close()' aqui!
-        # Quem fecha é o @app.teardown_request no final do ciclo.
 
     def verify_rate_limit(self, req) -> None:
         """
@@ -644,20 +656,17 @@ class Wafahell:
         """
         ip_str = req.remote_addr
         
-        # 1. CACHE (Velocidade Extrema)
         # Se esse IP já foi validado antes (seja por faixa ou exato), libera.
         if waf_cache.get(f"whitelist_{ip_str}"):
             return True
 
         session = req.session
         try:
-            # 2. Busca Exata (Para IPs unitários como 8.8.8.8)
-            # É muito rápido.
+
             if session.query(Whitelist).filter_by(ip=ip_str).first():
                 waf_cache.set(f"whitelist_{ip_str}", True, expire=3600)
                 return True
 
-            # 3. Busca por Faixas (CIDR)
             # Só executamos isso se não achou match exato.
             # Trazemos apenas as faixas que contêm "/" para não trazer IPs soltos
             cidr_ranges = session.query(Whitelist.ip).filter(Whitelist.ip.like('%/%')).all()
@@ -672,8 +681,7 @@ class Wafahell:
                     # Verifica matematicamente se o IP está na rede
                     network = ipaddress.ip_network(row.ip, strict=False)
                     if user_ip in network:
-                        # ACHOU!
-                        # Salva o IP DO USUÁRIO no cache. 
+
                         # Na próxima requisição, ele cai no passo 1 e nem passa por aqui.
                         waf_cache.set(f"whitelist_{ip_str}", True, expire=3600)
                         return True
@@ -685,7 +693,7 @@ class Wafahell:
             
         return False
 
-    def parse_req(self, req, payload, attack_local=None, attack_type=None) -> str:
+    def parse_req(self, req, payload: str, attack_local: str = None, attack_type: str = None) -> str:
         """
         Formata os detalhes de uma tentativa de ataque em uma string legível.
 

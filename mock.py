@@ -13,18 +13,16 @@ payloads = {
     "Multipart File": {"method": "POST", "files": {"file": ("README.md", "payload: <script>alert('XSS')</script>")}},
 }
 
-def run_mock():
+def run_mock() -> None:
     print(f"🚀 Iniciando Mock de Testes WafaHell no alvo: {BASE_URL}\n")
     print(f"{'VETOR DE TESTE':<20} | {'STATUS':<10} | {'RESULTADO'}")
     print("-" * 55)
 
     for test_name, config in payloads.items():
         try:
-            # Prepara a requisição
             url = config.get("url", BASE_URL)
             method = config.get("method", "GET")
             
-            # Executa a requisição com os parâmetros dinâmicos
             response = requests.request(
                 method=method,
                 url=url,
@@ -36,7 +34,6 @@ def run_mock():
                 timeout=5
             )
 
-            # Validação: 403 significa que o WAF bloqueou (Sucesso no teste)
             if response.status_code == 403:
                 status_txt = "✅ BLOQUEADO"
                 result_txt = "Sucesso (WAF Ativo)"

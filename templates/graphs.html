@@ -339,15 +339,94 @@
         // 1. Traffic Chart
         const initTrafficChart = () => {
             const trafficCtx = document.getElementById('trafficChart').getContext('2d');
+            
+            // Gradientes (mantidos iguais ao seu original)
             const gradientRed = trafficCtx.createLinearGradient(0, 0, 0, 400);
-            gradientRed.addColorStop(0, 'rgba(220, 38, 38, 0.5)'); gradientRed.addColorStop(1, 'rgba(220, 38, 38, 0.0)');
+            gradientRed.addColorStop(0, 'rgba(220, 38, 38, 0.5)'); 
+            gradientRed.addColorStop(1, 'rgba(220, 38, 38, 0.0)');
+            
             const gradientBlue = trafficCtx.createLinearGradient(0, 0, 0, 400);
-            gradientBlue.addColorStop(0, 'rgba(71, 85, 105, 0.5)'); gradientBlue.addColorStop(1, 'rgba(15, 23, 42, 0.0)');
+            gradientBlue.addColorStop(0, 'rgba(71, 85, 105, 0.5)'); 
+            gradientBlue.addColorStop(1, 'rgba(15, 23, 42, 0.0)');
 
             trafficChart = new Chart(trafficCtx, {
                 type: 'line',
-                data: { labels: [], datasets: [{ label: 'Ataques', data: [], borderColor: '#dc2626', backgroundColor: gradientRed, fill: true, tension: 0.4, pointRadius: 0 }, { label: 'Legítimo', data: [], borderColor: '#475569', backgroundColor: gradientBlue, fill: true, tension: 0.4, pointRadius: 0 }] },
-                options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { grid: { color: '#1e293b' }, beginAtZero: true } } }
+                data: { 
+                    labels: [], 
+                    datasets: [
+                        { 
+                            label: 'Ataques', 
+                            data: [], 
+                            // Propriedade vazia para iniciar, será preenchida no updateDashboard
+                            attackIps: [], 
+                            borderColor: '#dc2626', 
+                            backgroundColor: gradientRed, 
+                            fill: true, 
+                            tension: 0.4, 
+                            pointRadius: 0,
+                            // Aumentar o raio ao passar o mouse para facilitar
+                            hoverPointRadius: 4 
+                        }, 
+                        { 
+                            label: 'Legítimo', 
+                            data: [], 
+                            borderColor: '#475569', 
+                            backgroundColor: gradientBlue, 
+                            fill: true, 
+                            tension: 0.4, 
+                            pointRadius: 0 
+                        }
+                    ] 
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    interaction: { 
+                        mode: 'index', 
+                        intersect: false 
+                    }, 
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            titleColor: '#e2e8f0',
+                            bodyColor: '#cbd5e1',
+                            borderColor: '#334155',
+                            borderWidth: 1,
+                            padding: 10,
+                            callbacks: {
+                                // Customização para mostrar os IPs no rodapé do tooltip
+                                footer: (tooltipItems) => {
+                                    let footerText = [];
+                                    
+                                    tooltipItems.forEach(function(tooltipItem) {
+                                        // Verifica se é o dataset de Ataques
+                                        if (tooltipItem.dataset.label === 'Ataques') {
+                                            // Pega os IPs baseados no índice atual do gráfico
+                                            const ips = tooltipItem.dataset.attackIps ? tooltipItem.dataset.attackIps[tooltipItem.dataIndex] : [];
+                                            
+                                            if (ips && ips.length > 0) {
+                                                footerText.push(''); // Linha em branco para separar
+                                                footerText.push('Atacantes:');
+                                                // Mostra no máximo 5 IPs para não quebrar a tela
+                                                ips.slice(0, 5).forEach(ip => footerText.push('• ' + ip));
+                                                
+                                                if (ips.length > 5) {
+                                                    footerText.push(`(+${ips.length - 5} outros)`);
+                                                }
+                                            }
+                                        }
+                                    });
+                                    return footerText.join('\n');
+                                }
+                            }
+                        }
+                    }, 
+                    scales: { 
+                        x: { grid: { display: false } }, 
+                        y: { grid: { color: '#1e293b' }, beginAtZero: true } 
+                    } 
+                }
             });
         };
 
@@ -475,6 +554,7 @@
                 // Charts
                 trafficChart.data.labels = data.traffic_chart.labels;
                 trafficChart.data.datasets[0].data = data.traffic_chart.series_attacks;
+                trafficChart.data.datasets[0].attackIps = data.traffic_chart.series_attack_ips || [];
                 trafficChart.data.datasets[1].data = data.traffic_chart.series_legit;
                 trafficChart.update();
 

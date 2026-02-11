@@ -1,5 +1,5 @@
 from middleware import Wafahell
-from flask import Flask, render_template, request
+from flask import Flask, request
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 app = Flask(__name__)
@@ -13,9 +13,6 @@ app.wsgi_app = ProxyFix(
     x_port=1
 )
 
-@app.route('/', methods=['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'])
-def home():
-    return "<h1>Bem-vindo à minha aplicação Flask!</h1><p>Acesse /hello?nome=test</p>"
 
 @app.route('/hello', methods=['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'])
 def hello():
@@ -30,10 +27,6 @@ def env():
             SECRET_KEY=123456
             '''
 
-@app.route('/admin/dashboard')
-def dashboard():
-    return "<h1>Dashboard Personalizado</h1><p>Este é o painel de controle personalizado.</p>"
-
 if __name__ == '__main__':
-    Wafahell(app=app, dashboard_path='/hell/dashboard')
+    Wafahell(app=app, dashboard_path='/hell/dashboard', block_durantion=1)
     app.run(debug=True, host='0.0.0.0', port=5001)

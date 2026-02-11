@@ -6,7 +6,7 @@ from globals import waf_cache
 from utils import Dashboard, admin
 from datetime import datetime, timedelta, timezone
 import re
-from flask import request, jsonify, make_response, flash, session, redirect, render_template
+from flask import Flask, request, jsonify, make_response, flash, session, redirect, render_template
 from sqlalchemy import func
 import csv
 import io
@@ -16,7 +16,7 @@ from utils import b_print
 dashboard = Dashboard()
 
 
-def get_logs_and_stats(ip_filter=None, type_filter=None, limit=100):
+def get_logs_and_stats(ip_filter: str = None, type_filter: str = None, limit: int = 100) -> tuple[list, dict]:
     """
     Consulta o banco de dados para extrair logs de auditoria e gerar métricas 
     agrupadas por tipo de ameaça para o Dashboard.
@@ -83,7 +83,7 @@ def get_logs_and_stats(ip_filter=None, type_filter=None, limit=100):
     finally:
         session.close()
 
-def setup_dashboard(app, custom_path=None):
+def setup_dashboard(app: Flask, custom_path: str = None) -> None:
 
     target_path = custom_path or '/admin/dashboard'
 
@@ -96,7 +96,6 @@ def setup_dashboard(app, custom_path=None):
             try:
                 admin = db_session.query(AdminUser).filter(AdminUser.login == username).first()
 
-                # 3. Valida (Aqui você deveria usar hash, mas vamos focar na lógica)
                 if admin and check_password_hash(admin.password, password):
                     session["logged_in"] = True
                     next_page = request.args.get("next", target_path)
@@ -117,7 +116,6 @@ def setup_dashboard(app, custom_path=None):
         logs, stats = get_logs_and_stats(ip_filter=ip_f, type_filter=type_f)
         return jsonify({"logs": logs, "stats": stats})
 
-    # Rota 2: Retorna o HTML inicial
     @app.route(target_path)
     @admin
     def wafahell_dashboard():
@@ -176,7 +174,7 @@ def setup_dashboard(app, custom_path=None):
     def block_ip() -> bool:
         data = request.get_json()
         ip = data.get('ip')
-        block_time = data.get('block_time_minutes', 5) # Pega do JSON ou assume 5
+        block_time = data.get('block_time_minutes', 5)
 
         if not ip:
             return jsonify({"status": "error", "message": "IP ausente"}), 400
@@ -213,7 +211,6 @@ def setup_dashboard(app, custom_path=None):
     def get_blocked_list():
         session = get_session()
         try:
-            # Pega todos os IPs bloqueados que ainda não expiraram
             now = datetime.now(timezone.utc)
             blocks = session.query(Blocked).filter(Blocked.blocked_until > now).all()
             
@@ -239,7 +236,6 @@ def setup_dashboard(app, custom_path=None):
         ip = data.get('ip')
         session = get_session()
         try:
-            # Remove da tabela
             session.query(Blocked).filter(Blocked.ip == ip).delete()
             session.commit()
             
@@ -267,7 +263,7 @@ def setup_dashboard(app, custom_path=None):
 
         output = {}
         allowed_types = (str, int, float, bool, list, dict)
-        blacklisted_keys = {'app', 'log', 'recent_blocks_cache', '_instance', 'initialized', 'dashboard_path', 'rules_sqli', 'rules_xss'}
+        blacklisted_keys = {'app', 'log', 'recent_blocks_cache', '_instance', 'initialized', 'dashboard_path', 'ai_treshold'}
 
         for key, value in vars(waf).items():
             if key not in blacklisted_keys and isinstance(value, allowed_types):
@@ -302,8 +298,6 @@ def setup_dashboard(app, custom_path=None):
         if not raw_ips:
             return jsonify({"status": "error", "message": "Nenhum IP fornecido."}), 400
 
-        # 1. Validação e Limpeza (Regex IPv4)
-        # Usamos set() para remover duplicatas enviadas no mesmo arquivo
         ip_regex = re.compile(r"^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$")
         valid_ips = set(ip for ip in raw_ips if ip_regex.match(ip))
         
@@ -312,19 +306,14 @@ def setup_dashboard(app, custom_path=None):
 
         session = get_session()
         try:
-            # 2. Filtragem de Duplicatas no Banco
-            # Descobre quais desses IPs já estão bloqueados para não dar erro de Unique Key
             existing_query = session.query(Blocked.ip).filter(Blocked.ip.in_(valid_ips)).all()
             existing_ips = {row.ip for row in existing_query}
             
-            # Apenas os novos IPs
             ips_to_insert = valid_ips - existing_ips
             
             if not ips_to_insert:
                 return jsonify({"status": "success", "message": "Todos os IPs já estavam na blacklist."})
 
-            # 3. Preparação dos Dados (Bulk)
-            # Definimos um tempo padrão de 30 dias para importações manuais de lista
             now = datetime.now(timezone.utc)
             until = now + timedelta(days=3600) 
             
@@ -333,17 +322,12 @@ def setup_dashboard(app, custom_path=None):
                 bulk_data.append({
                     "ip": ip,
                     "user_agent": "MANUAL_IMPORT_LIST",
-                    # Mantendo o formato string que você usa no Model
                     "blocked_at": now.strftime("%H:%M:%S"), 
                     "blocked_until": until
                 })
                 
-                # 4. Atualização IMEDIATA do Cache (Fast Path)
-                # Isso garante que o bloqueio funcione no milissegundo seguinte,
-                # sem precisar esperar a próxima query no banco.
                 waf_cache.set(f"blocked_{ip}", True, expire=60)
 
-            # 5. Inserção em Massa (Muito Rápido)
             session.bulk_insert_mappings(Blocked, bulk_data)
             session.commit()
             
@@ -371,7 +355,6 @@ def setup_dashboard(app, custom_path=None):
         if not raw_ips:
             return jsonify({"status": "error", "message": "Nenhum IP fornecido."}), 400
 
-        # 1. Validação (Regex)
         ip_regex = re.compile(r"^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$")
         valid_ips = set(ip for ip in raw_ips if ip_regex.match(ip))
         
@@ -380,7 +363,6 @@ def setup_dashboard(app, custom_path=None):
 
         session = get_session()
         try:
-            # 2. Verifica Duplicatas no Banco
             existing_query = session.query(Whitelist.ip).filter(Whitelist.ip.in_(valid_ips)).all()
             existing_ips = {row.ip for row in existing_query}
             
@@ -389,7 +371,6 @@ def setup_dashboard(app, custom_path=None):
             if not ips_to_insert:
                 return jsonify({"status": "success", "message": "Todos os IPs já estavam na whitelist."})
 
-            # 3. Prepara Bulk Insert e Cache
             now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             bulk_data = []
             
@@ -398,11 +379,8 @@ def setup_dashboard(app, custom_path=None):
                     "ip": ip,
                     "added_at": now_str
                 })
-                # Cache Warm-up: Marca o IP como "VIP" no cache por 1 hora
-                # Isso evita consulta ao banco quando este IP acessar
                 waf_cache.set(f"whitelist_{ip}", True, expire=3600)
 
-            # 4. Grava no Banco
             session.bulk_insert_mappings(Whitelist, bulk_data)
             session.commit()
             
@@ -449,7 +427,6 @@ def setup_dashboard(app, custom_path=None):
         if not raw_paths:
             return jsonify({"status": "error", "message": "Nenhum path fornecido."}), 400
 
-        # Limpa e valida paths
         valid_paths = set(path.strip() for path in raw_paths if path.strip())
         
         if not valid_paths:
@@ -457,9 +434,7 @@ def setup_dashboard(app, custom_path=None):
 
         session = get_session()
         try:
-            # 1. Salva no Banco de Dados (ignora duplicados se houver UNIQUE no model)
             for p in valid_paths:
-                # Verifica se já existe para não dar erro de Unique
                 exists = session.query(CriticalPaths).filter_by(path=p).first()
                 if not exists:
                     new_path = CriticalPaths(path=p)
@@ -467,7 +442,6 @@ def setup_dashboard(app, custom_path=None):
             
             session.commit()
 
-            # 2. Busca TODOS os paths do banco para atualizar o cache completo
             all_paths = [cp.path for cp in session.query(CriticalPaths).all()]
             waf_cache.set('critical_paths', all_paths, expire=3600)
 

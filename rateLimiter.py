@@ -21,7 +21,7 @@ class RateLimiter:
         self.window = window
         self.requests_log = defaultdict(lambda: deque())
 
-    def is_rate_limited(self, ip, ua):
+    def is_rate_limited(self, ip: str, ua: str) -> bool:
         """
         Verifica se uma requisição excede o limite permitido, limpando registros obsoletos 
         antes da validação.
