@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WafaHell | Attack Simulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Scroll */
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #0f172a; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+
+        /* Cards padrão graphs */
+        .bg-slate-900 {
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(6px);
+        }
+
+        .border-slate-800 {
+            border-color: rgba(51, 65, 85, 0.5);
+        }
+
+        /* Header refinado */
+        h1, h2, h3 {
+            letter-spacing: 0.05em;
+        }
+
+        /* Hover rows */
+        .result-row {
+            transition: all 0.15s ease;
+        }
+
+        .result-row:hover {
+            background: rgba(30, 41, 59, 0.6);
+        }
+
+        /* Progress smooth */
+        .progress-bar-fill {
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Running badge subtle pulse */
+        @keyframes pulse-soft {
+            0%,100% { opacity: 1; }
+            50% { opacity: .6; }
+        }
+
+        .badge-running {
+            animation: pulse-soft 1.2s ease-in-out infinite;
+        }
+
+        /* Toast animation */
+        @keyframes slideInRight {
+            from { transform: translateX(110%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .toast-enter {
+            animation: slideInRight 0.3s ease-out forwards;
+        }
+        </style>
+</head>
+<body class="bg-slate-950 text-slate-300 text-[13px] antialiased min-h-screen overflow-x-hidden font-medium tracking-wide">
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-[100] flex flex-col gap-3 pointer-events-none"></div>
+
+    <!-- Header -->
+    <div class="border-b border-slate-800 bg-slate-950/80 backdrop-blur-md sticky top-0 z-40">
+        <div class="max-w-[1600px] mx-auto px-6 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <button onclick="goBack()" class="group flex items-center justify-center w-9 h-9 rounded-full bg-slate-900 border border-slate-800 hover:border-red-500/50 hover:bg-slate-800 transition-all">
+                    <i class="fas fa-arrow-left text-slate-500 group-hover:text-white text-xs transition"></i>
+                </button>
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-shield-halved text-red-600 text-xl"></i>
+                    <div>
+                        <h1 class="text-base font-black text-white tracking-tight uppercase leading-none">
+                            WAFA<span class="text-red-600">HELL</span>
+                            <span class="text-slate-600 font-normal text-xs not-italic ml-2">| Attack Simulator</span>
+                        </h1>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <!-- Target URL input -->
+                <div class="flex items-center gap-2 bg-slate-900 border border-slate-800 rounded px-3 py-1.5">
+                    <i class="fas fa-crosshairs text-red-500 text-xs"></i>
+                    <input id="target-url" type="text" value="http://127.0.0.1:5001/hello"
+                        class="bg-transparent text-slate-300 text-xs outline-none w-56 font-mono placeholder-slate-600"
+                        placeholder="http://target/endpoint">
+                </div>
+                <!-- Status indicator -->
+                <div id="target-status" class="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 border border-slate-800 rounded text-xs">
+                    <span class="w-2 h-2 rounded-full bg-slate-600" id="status-dot"></span>
+                    <span id="status-text" class="text-slate-500">Verificando...</span>
+                </div>
+                <button onclick="checkStatus()" class="p-2 bg-slate-900 border border-slate-800 hover:border-slate-600 rounded text-slate-500 hover:text-white transition text-xs" title="Verificar conexão">
+                    <i class="fas fa-rotate-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-[1600px] mx-auto px-6 py-6 space-y-6">
+
+        <!-- Controls -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+            <!-- Run Full Mock -->
+            <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-xl p-5 relative overflow-hidden">
+                <div class="scanline"></div>
+                <div class="relative z-10">
+                    <div class="flex items-start justify-between mb-4">
+                        <div>
+                            <h2 class="text-sm font-black text-white uppercase tracking-wide">Simulação Completa</h2>
+                            <p class="text-slate-500 text-[11px] mt-0.5">Dispara todos os vetores SQLi + edge cases contra o alvo</p>
+                        </div>
+                        <span id="run-badge" class="hidden items-center gap-1.5 text-[10px] font-bold text-red-400 bg-red-950/50 border border-red-800/50 px-2 py-1 rounded badge-running">
+                            <i class="fas fa-circle text-[6px]"></i> RUNNING
+                        </span>
+                    </div>
+
+                    <!-- Stats preview -->
+                    <div class="grid grid-cols-4 gap-3 mb-5">
+                        <div class="bg-slate-950 border border-slate-800 rounded-lg p-3 text-center">
+                            <div class="text-xl font-black text-white" id="stat-total">—</div>
+                            <div class="text-[10px] text-slate-500 uppercase mt-0.5">Total</div>
+                        </div>
+                        <div class="bg-slate-950 border border-emerald-900/40 rounded-lg p-3 text-center">
+                            <div class="text-xl font-black text-emerald-400" id="stat-blocked">—</div>
+                            <div class="text-[10px] text-slate-500 uppercase mt-0.5">Bloqueados</div>
+                        </div>
+                        <div class="bg-slate-950 border border-red-900/40 rounded-lg p-3 text-center">
+                            <div class="text-xl font-black text-red-400" id="stat-passed">—</div>
+                            <div class="text-[10px] text-slate-500 uppercase mt-0.5">Passaram</div>
+                        </div>
+                        <div class="bg-slate-950 border border-yellow-900/40 rounded-lg p-3 text-center">
+                            <div class="text-xl font-black text-yellow-400" id="stat-fp">—</div>
+                            <div class="text-[10px] text-slate-500 uppercase mt-0.5">Falsos+</div>
+                        </div>
+                    </div>
+
+                    <!-- Detection rate bar -->
+                    <div class="mb-5">
+                        <div class="flex justify-between items-center mb-1.5">
+                            <span class="text-[10px] text-slate-500 uppercase font-bold">Taxa de Detecção</span>
+                            <span id="det-rate-txt" class="text-[10px] font-black text-white">—</span>
+                        </div>
+                        <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                            <div id="det-rate-bar" class="h-full rounded-full progress-bar-fill bg-gradient-to-r from-red-700 to-emerald-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <button id="btn-run-full" onclick="runFullMock()"
+                            class="flex items-center gap-2 bg-red-600 hover:bg-red-500 text-white px-5 py-2.5 rounded-lg font-bold text-xs uppercase tracking-wide transition shadow-lg shadow-red-950/50">
+                            <i class="fas fa-play"></i> Executar Simulação
+                        </button>
+                        <button onclick="clearResults()"
+                            class="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2.5 rounded-lg font-bold text-xs uppercase tracking-wide transition">
+                            <i class="fas fa-trash-can"></i> Limpar
+                        </button>
+                        <span id="avg-lat" class="ml-auto text-[10px] text-slate-500 font-mono"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Single payload test -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+                <h2 class="text-sm font-black text-white uppercase tracking-wide mb-1">Teste Manual</h2>
+                <p class="text-slate-500 text-[11px] mb-4">Dispara um payload específico</p>
+
+                <div class="space-y-3">
+                    <div>
+                        <label class="text-[10px] text-slate-500 uppercase font-bold block mb-1">Payload</label>
+                        <textarea id="single-payload" rows="3"
+                            class="w-full bg-slate-950 border border-slate-800 focus:border-red-600/50 rounded-lg p-2.5 text-xs font-mono text-slate-200 outline-none resize-none transition placeholder-slate-700"
+                            placeholder="' OR 1=1 --"></textarea>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="text-[10px] text-slate-500 uppercase font-bold block mb-1">Vetor</label>
+                            <select id="single-vector" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-2 text-xs text-slate-300 outline-none">
+                                <option value="GET">GET Query</option>
+                                <option value="POST_FORM">POST Form</option>
+                                <option value="POST_JSON">POST JSON</option>
+                                <option value="COOKIE">Cookie</option>
+                                <option value="USER_AGENT">User-Agent</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-slate-500 uppercase font-bold block mb-1">Parâmetro</label>
+                            <input id="single-param" type="text" value="id" placeholder="id"
+                                class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-2 text-xs text-slate-300 outline-none font-mono placeholder-slate-700">
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="single-expected" checked class="accent-red-600">
+                        <label for="single-expected" class="text-[11px] text-slate-400">Esperado: bloqueado</label>
+                    </div>
+                    <button onclick="runSingle()"
+                        class="w-full flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white px-4 py-2.5 rounded-lg font-bold text-xs uppercase transition">
+                        <i class="fas fa-paper-plane"></i> Disparar
+                    </button>
+                    <!-- Single result -->
+                    <div id="single-result" class="hidden bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs font-mono"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Table -->
+        <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+            <div class="flex items-center justify-between p-4 border-b border-slate-800">
+                <div class="flex items-center gap-3">
+                    <h2 class="text-xs font-black text-white uppercase tracking-wide">Resultados</h2>
+                    <span id="results-count" class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded font-bold">0 registros</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <!-- Filter tabs -->
+                    <div class="flex bg-slate-950 border border-slate-800 rounded-lg p-0.5">
+                        <button onclick="setFilter('all')" id="filter-all" class="filter-btn active px-3 py-1 rounded text-[10px] font-bold uppercase transition bg-slate-700 text-white">Todos</button>
+                        <button onclick="setFilter('passed')" id="filter-passed" class="filter-btn px-3 py-1 rounded text-[10px] font-bold uppercase transition text-slate-500 hover:text-slate-300">Passaram</button>
+                        <button onclick="setFilter('blocked')" id="filter-blocked" class="filter-btn px-3 py-1 rounded text-[10px] font-bold uppercase transition text-slate-500 hover:text-slate-300">Bloqueados</button>
+                        <button onclick="setFilter('edge')" id="filter-edge" class="filter-btn px-3 py-1 rounded text-[10px] font-bold uppercase transition text-slate-500 hover:text-slate-300">Edge Cases</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table header -->
+            <div class="grid grid-cols-12 gap-2 px-4 py-2 border-b border-slate-800 text-[10px] font-bold text-slate-600 uppercase tracking-wider">
+                <div class="col-span-1">Status</div>
+                <div class="col-span-2">Vetor</div>
+                <div class="col-span-3">Técnica</div>
+                <div class="col-span-4">Payload</div>
+                <div class="col-span-1 text-right">HTTP</div>
+                <div class="col-span-1 text-right">Lat.</div>
+            </div>
+
+            <!-- Table body -->
+            <div id="results-body" class="divide-y divide-slate-800/50 max-h-[500px] overflow-y-auto custom-scrollbar">
+                <!-- Empty state -->
+                <div id="empty-state" class="flex flex-col items-center justify-center py-20 text-center">
+                    <div class="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center mb-4">
+                        <i class="fas fa-flask text-2xl text-slate-600"></i>
+                    </div>
+                    <p class="text-slate-600 font-bold uppercase text-xs">Nenhum teste executado</p>
+                    <p class="text-slate-700 text-[11px] mt-1">Execute a simulação ou dispare um payload manual</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Failed payloads highlight -->
+        <div id="failed-section" class="hidden bg-slate-900 border border-red-900/40 rounded-xl overflow-hidden">
+            <div class="p-4 border-b border-red-900/30 flex items-center gap-2">
+                <i class="fas fa-triangle-exclamation text-red-500 text-sm"></i>
+                <h2 class="text-xs font-black text-red-400 uppercase tracking-wide">Payloads Não Detectados</h2>
+                <span id="failed-count" class="text-[10px] bg-red-950 text-red-400 border border-red-900/50 px-2 py-0.5 rounded font-bold ml-auto"></span>
+            </div>
+            <div id="failed-body" class="divide-y divide-red-900/20 max-h-60 overflow-y-auto custom-scrollbar"></div>
+        </div>
+    </div>
+
+    <script>
+        // ─────────────────────────────────────────────
+        //  STATE
+        // ─────────────────────────────────────────────
+        let allResults = [];
+        let currentFilter = 'all';
+        let isRunning = false;
+
+        // ─────────────────────────────────────────────
+        //  UTILS
+        // ─────────────────────────────────────────────
+        function goBack() {
+            const path = window.location.pathname;
+            const clean = path.endsWith('/') ? path.slice(0, -1) : path;
+            const parts = clean.split('/');
+            parts.pop();
+            window.location.href = parts.join('/') || '/';
+        }
+
+        function getTargetUrl() {
+            return document.getElementById('target-url').value.trim();
+        }
+
+        // Base path para as chamadas de API (mesmo prefixo do dashboard)
+        function getBasePath() {
+            const path = window.location.pathname;
+            const clean = path.endsWith('/') ? path.slice(0, -1) : path;
+            // Remove /mock do final se presente
+            return clean.replace(/\/mock$/, '');
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const isError = type === 'error';
+            const toast = document.createElement('div');
+            toast.className = `toast-enter pointer-events-auto bg-slate-900/95 border ${isError ? 'border-red-500/30' : 'border-emerald-500/30'} text-slate-200 px-4 py-3 rounded-lg shadow-2xl flex items-center gap-3 min-w-[280px]`;
+            toast.innerHTML = `
+                <i class="fas ${isError ? 'fa-exclamation-circle text-red-400' : 'fa-check-circle text-emerald-400'} text-sm"></i>
+                <span class="text-xs flex-1">${message}</span>
+                <button onclick="this.parentElement.remove()" class="text-slate-600 hover:text-white transition ml-2"><i class="fas fa-times text-xs"></i></button>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => { if (toast.parentElement) { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.3s'; setTimeout(() => toast.remove(), 300); } }, 4000);
+        }
+
+        // ─────────────────────────────────────────────
+        //  STATUS CHECK
+        // ─────────────────────────────────────────────
+        async function checkStatus() {
+            const dot = document.getElementById('status-dot');
+            const txt = document.getElementById('status-text');
+            dot.className = 'w-2 h-2 rounded-full bg-yellow-500';
+            txt.textContent = 'Verificando...';
+            txt.className = 'text-yellow-400';
+
+            try {
+                const base = getBasePath();
+                const res = await fetch(`${base}/mock/status?target=${encodeURIComponent(getTargetUrl())}`);
+                const data = await res.json();
+                if (data.online) {
+                    dot.className = 'w-2 h-2 rounded-full bg-emerald-500';
+                    txt.textContent = `Online (${data.status_code})`;
+                    txt.className = 'text-emerald-400';
+                } else {
+                    dot.className = 'w-2 h-2 rounded-full bg-red-500';
+                    txt.textContent = 'Offline';
+                    txt.className = 'text-red-400';
+                }
+            } catch {
+                dot.className = 'w-2 h-2 rounded-full bg-red-500';
+                txt.textContent = 'Erro';
+                txt.className = 'text-red-400';
+            }
+        }
+
+        // ─────────────────────────────────────────────
+        //  FULL MOCK RUN
+        // ─────────────────────────────────────────────
+        async function runFullMock() {
+            if (isRunning) return;
+            isRunning = true;
+
+            const btn = document.getElementById('btn-run-full');
+            const badge = document.getElementById('run-badge');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Executando...';
+            badge.classList.remove('hidden');
+            badge.classList.add('flex');
+
+            // Reset stats
+            ['stat-total','stat-blocked','stat-passed','stat-fp'].forEach(id => document.getElementById(id).textContent = '—');
+            document.getElementById('det-rate-bar').style.width = '0%';
+            document.getElementById('det-rate-txt').textContent = '—';
+            document.getElementById('avg-lat').textContent = '';
+
+            try {
+                const base = getBasePath();
+                const res = await fetch(`${base}/mock/run`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ target_url: getTargetUrl() })
+                });
+
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+
+                // Merge all results with type tag
+                const sqliTagged = data.sqli_results.map(r => ({...r, _type: 'sqli'}));
+                const edgeTagged = data.edge_results.map(r => ({...r, _type: 'edge'}));
+                allResults = [...sqliTagged, ...edgeTagged];
+
+                // Update summary stats
+                const s = data.summary;
+                document.getElementById('stat-total').textContent   = s.sqli_total;
+                document.getElementById('stat-blocked').textContent = s.sqli_blocked;
+                document.getElementById('stat-passed').textContent  = s.sqli_passed;
+                document.getElementById('stat-fp').textContent      = s.false_positives;
+
+                const rate = s.detection_rate_pct;
+                document.getElementById('det-rate-bar').style.width = rate + '%';
+                document.getElementById('det-rate-txt').textContent = rate.toFixed(1) + '%';
+                document.getElementById('avg-lat').textContent      = `⌀ latência: ${s.avg_latency_ms}ms`;
+
+                // Color the rate bar
+                const bar = document.getElementById('det-rate-bar');
+                if (rate >= 80) bar.className = 'h-full rounded-full progress-bar-fill bg-emerald-500';
+                else if (rate >= 60) bar.className = 'h-full rounded-full progress-bar-fill bg-yellow-500';
+                else bar.className = 'h-full rounded-full progress-bar-fill bg-red-500';
+
+                renderResults();
+                renderFailedSection(data.sqli_results.filter(r => r.result === 'passed'));
+
+                const msg = rate >= 80
+                    ? `Simulação concluída — ${rate}% de detecção ✓`
+                    : `Atenção: apenas ${rate}% de detecção`;
+                showToast(msg, rate >= 60 ? 'success' : 'error');
+
+            } catch (err) {
+                showToast(`Erro: ${err.message}`, 'error');
+            } finally {
+                isRunning = false;
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-play"></i> Executar Simulação';
+                badge.classList.add('hidden');
+                badge.classList.remove('flex');
+            }
+        }
+
+        // ─────────────────────────────────────────────
+        //  SINGLE PAYLOAD
+        // ─────────────────────────────────────────────
+        async function runSingle() {
+            const payload        = document.getElementById('single-payload').value.trim();
+            const vector         = document.getElementById('single-vector').value;
+            const param          = document.getElementById('single-param').value.trim() || 'id';
+            const expectedBlock  = document.getElementById('single-expected').checked;
+            const resultBox      = document.getElementById('single-result');
+
+            if (!payload) { showToast('Insira um payload antes de disparar.', 'error'); return; }
+
+            resultBox.innerHTML = '<i class="fas fa-spinner fa-spin text-slate-500"></i> Enviando...';
+            resultBox.classList.remove('hidden');
+
+            try {
+                const base = getBasePath();
+                const res = await fetch(`${base}/mock/run/single`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ target_url: getTargetUrl(), payload, vector, param, expected_block: expectedBlock })
+                });
+                const d = await res.json();
+
+                const cfg = resultConfig(d.result);
+                resultBox.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="${cfg.color} font-bold">${cfg.icon} ${cfg.label}</span>
+                        <span class="text-slate-500">HTTP ${d.status} · ${d.latency_ms}ms</span>
+                    </div>
+                    <div class="text-slate-500 text-[10px]">
+                        <span class="text-slate-400">Vetor:</span> ${d.vector}
+                    </div>
+                `;
+                resultBox.className = `bg-slate-950 border ${cfg.border} rounded-lg p-3 text-xs font-mono`;
+
+                // Also add to main table
+                allResults.unshift({...d, _type: 'manual', desc: 'Manual'});
+                renderResults();
+
+            } catch (err) {
+                resultBox.innerHTML = `<span class="text-red-400">Erro: ${err.message}</span>`;
+            }
+        }
+
+        // ─────────────────────────────────────────────
+        //  RENDER
+        // ─────────────────────────────────────────────
+        function resultConfig(result) {
+            const map = {
+                'blocked':        { color: 'text-emerald-400', icon: '✅', label: 'BLOQUEADO',       border: 'border-emerald-900/40' },
+                'passed':         { color: 'text-red-400',     icon: '❌', label: 'PASSOU',           border: 'border-red-900/40'     },
+                'allowed':        { color: 'text-slate-400',   icon: '✓',  label: 'PERMITIDO',        border: 'border-slate-800'      },
+                'false_positive': { color: 'text-yellow-400',  icon: '⚠', label: 'FALSO POSITIVO',   border: 'border-yellow-900/40'  },
+                'error':          { color: 'text-slate-500',   icon: '⚠', label: 'ERRO',             border: 'border-slate-800'      },
+            };
+            return map[result] || map['error'];
+        }
+
+        function setFilter(f) {
+            currentFilter = f;
+            document.querySelectorAll('.filter-btn').forEach(b => {
+                b.classList.remove('bg-slate-700', 'text-white');
+                b.classList.add('text-slate-500');
+            });
+            const active = document.getElementById('filter-' + f);
+            active.classList.add('bg-slate-700', 'text-white');
+            active.classList.remove('text-slate-500');
+            renderResults();
+        }
+
+        function filteredResults() {
+            if (currentFilter === 'all')     return allResults;
+            if (currentFilter === 'passed')  return allResults.filter(r => r.result === 'passed');
+            if (currentFilter === 'blocked') return allResults.filter(r => r.result === 'blocked');
+            if (currentFilter === 'edge')    return allResults.filter(r => r._type === 'edge');
+            return allResults;
+        }
+
+        function renderResults() {
+            const body = document.getElementById('results-body');
+            const empty = document.getElementById('empty-state');
+            const rows = filteredResults();
+
+            document.getElementById('results-count').textContent = `${rows.length} registros`;
+
+            if (rows.length === 0) {
+                body.innerHTML = '';
+                body.appendChild(empty);
+                empty.style.display = 'flex';
+                empty.style.flexDirection = 'column';
+                return;
+            }
+
+            body.innerHTML = rows.map((r, i) => {
+                const cfg     = resultConfig(r.result);
+                const payloadTrunc = (r.payload || '').length > 55 ? r.payload.substring(0, 55) + '…' : r.payload;
+                const latColor = r.latency_ms > 1000 ? 'text-red-400' : r.latency_ms > 300 ? 'text-yellow-400' : 'text-slate-500';
+                const rowDelay = Math.min(i * 20, 300);
+
+                return `
+                    <div class="result-row grid grid-cols-12 gap-2 px-4 py-2.5 row-animate" style="animation-delay: ${rowDelay}ms">
+                        <div class="col-span-1 flex items-center">
+                            <span class="${cfg.color} font-bold text-[11px]">${cfg.icon}</span>
+                        </div>
+                        <div class="col-span-2 flex items-center">
+                            <span class="text-slate-400 text-[10px] font-mono truncate" title="${r.vector}">${r.vector}</span>
+                        </div>
+                        <div class="col-span-3 flex items-center">
+                            <span class="text-slate-300 text-[10px] truncate" title="${r.desc}">${r.desc || 'Manual'}</span>
+                        </div>
+                        <div class="col-span-4 flex items-center">
+                            <span class="text-slate-500 font-mono text-[10px] truncate cursor-pointer hover:text-slate-300 transition"
+                                title="${r.payload}" onclick="document.getElementById('single-payload').value='${(r.payload||'').replace(/'/g, "\\'")}'">${payloadTrunc}</span>
+                        </div>
+                        <div class="col-span-1 flex items-center justify-end">
+                            <span class="${r.status === 403 ? 'text-red-400' : 'text-slate-500'} font-mono text-[10px]">${r.status < 0 ? '—' : r.status}</span>
+                        </div>
+                        <div class="col-span-1 flex items-center justify-end">
+                            <span class="${latColor} font-mono text-[10px]">${r.latency_ms > 0 ? r.latency_ms + 'ms' : '—'}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderFailedSection(failed) {
+            const section = document.getElementById('failed-section');
+            const body    = document.getElementById('failed-body');
+            const count   = document.getElementById('failed-count');
+
+            if (failed.length === 0) { section.classList.add('hidden'); return; }
+
+            section.classList.remove('hidden');
+            count.textContent = `${failed.length} não detectados`;
+            body.innerHTML = failed.map(r => `
+                <div class="px-4 py-2.5 flex items-center gap-4">
+                    <span class="text-[10px] text-slate-500 font-mono shrink-0 w-24 truncate">${r.vector}</span>
+                    <span class="text-[10px] text-slate-400 shrink-0 w-32 truncate">${r.desc}</span>
+                    <span class="text-[10px] text-red-300 font-mono truncate flex-1 cursor-pointer hover:text-red-200"
+                        onclick="document.getElementById('single-payload').value='${(r.payload||'').replace(/'/g, "\\'")}';"
+                        title="${r.payload}">${r.payload}</span>
+                </div>
+            `).join('');
+        }
+
+        function clearResults() {
+            allResults = [];
+            ['stat-total','stat-blocked','stat-passed','stat-fp'].forEach(id => document.getElementById(id).textContent = '—');
+            document.getElementById('det-rate-bar').style.width = '0%';
+            document.getElementById('det-rate-txt').textContent = '—';
+            document.getElementById('avg-lat').textContent = '';
+            document.getElementById('failed-section').classList.add('hidden');
+            document.getElementById('single-result').classList.add('hidden');
+            renderResults();
+        }
+
+        // ─────────────────────────────────────────────
+        //  INIT
+        // ─────────────────────────────────────────────
+        checkStatus();
+        setInterval(checkStatus, 15000);
+        renderResults();
+    </script>
+</body>
+</html>

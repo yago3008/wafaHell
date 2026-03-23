@@ -1,3 +1,5 @@
-wafaHell.db
+wafahell.db
 waf.log
+waf_cache_temp/*
+__pycache__/*
 waf_cache_temp/*

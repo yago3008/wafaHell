@@ -44,7 +44,7 @@ class Wafahell:
             cls._instance = super(Wafahell, cls).__new__(cls)
         return cls._instance
     
-    def __init__(self, app: Flask = None, block_code: int = 403, block_durantion: int = 5, block_ip: bool = False, log_func: callable = None, monitor_mode: bool = False,  rate_limit: bool = False, dashboard_path: str = None, ai_treshold: float = 0.80):
+    def __init__(self, app: Flask = None, block_code: int = 403, block_durantion: int = 5, block_ip: bool = False, log_func: callable = None, monitor_mode: bool = False,  rate_limit: bool = False, dashboard_path: str = None, ai_treshold: float = 0.70):
         """
         Inicializa o WAF com as configurações de bloqueio e monitoramento.
         
@@ -374,30 +374,33 @@ class Wafahell:
         return None
 
     def get_ai_features(self, req):
-        # 1. Coleta das partes
         method = req.method
-        url = req.base_url
+        path = req.path  # ← path apenas, sem host/porta
         query_params = json.dumps(dict(req.args))
         form_data = json.dumps(dict(req.form))
-        headers = json.dumps(dict(req.headers))
+        cookies =  json.dumps(dict(req.cookies))
+
+        # Headers minimalistas — igual ao treino
+        headers_dict = {
+            "User-Agent": req.headers.get("User-Agent", ""),
+            #"Accept": req.headers.get("Accept", "*/*")
+        }
+        headers = json.dumps(headers_dict)
         
-        # Trata Body Raw e Multipart (WebBoundary)
         body_raw = req.data.decode(errors="ignore") if req.data else ""
         
-        # Trata JSON
         json_body = ""
         if req.is_json:
             jd = req.get_json(silent=True)
             json_body = json.dumps(jd) if jd else ""
 
-        # 2. Construção da String Mestra (O que a IA vai analisar)
-        # A ordem ajuda a IA a entender o contexto da requisição
-        full_content = f"METHOD:{method} | URL:{url} | ARGS:{query_params} | " \
-                    f"FORM:{form_data} | HEADERS:{headers} | BODY:{body_raw} | JSON:{json_body}"
+        full_content = (
+            f"METHOD:{method} | URL:{path} | ARGS:{query_params} | "
+            f"FORM:{form_data} | HEADERS:{headers} | BODY:{body_raw} | JSON:{json_body} | COOKIES:{cookies}"
+        )
         
-        # 3. Normalização (Lower case e Unquote para evitar bypass de encoding)
         full_content = urllib.parse.unquote(full_content).lower()
-    
+        print(f"[DEBUG STRING] {full_content}")
         return full_content
     
 

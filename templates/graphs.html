@@ -113,6 +113,11 @@
             </div>
             
             <div class="flex items-center gap-3">
+                <!-- ✦ BOTÃO ADICIONADO: Attack Simulator -->
+                <a href="./mock" class="flex items-center gap-2 px-3 py-1.5 bg-slate-900 hover:bg-red-950/40 border border-slate-800 hover:border-red-800/60 rounded text-xs font-bold text-slate-400 hover:text-red-400 transition-all uppercase tracking-wide">
+                    <i class="fas fa-flask-vial text-xs"></i> Attack Simulator
+                </a>
+
                 <div class="hidden lg:flex items-center gap-2 px-3 py-1 bg-slate-900 rounded border border-slate-800">
                     <span class="w-2 h-2 rounded-full bg-green-500"></span>
                     <span class="text-xs font-mono text-slate-400">Node-BR-01</span>
@@ -340,7 +345,6 @@
         const initTrafficChart = () => {
             const trafficCtx = document.getElementById('trafficChart').getContext('2d');
             
-            // Gradientes (mantidos iguais ao seu original)
             const gradientRed = trafficCtx.createLinearGradient(0, 0, 0, 400);
             gradientRed.addColorStop(0, 'rgba(220, 38, 38, 0.5)'); 
             gradientRed.addColorStop(1, 'rgba(220, 38, 38, 0.0)');
@@ -357,14 +361,12 @@
                         { 
                             label: 'Ataques', 
                             data: [], 
-                            // Propriedade vazia para iniciar, será preenchida no updateDashboard
                             attackIps: [], 
                             borderColor: '#dc2626', 
                             backgroundColor: gradientRed, 
                             fill: true, 
                             tension: 0.4, 
                             pointRadius: 0,
-                            // Aumentar o raio ao passar o mouse para facilitar
                             hoverPointRadius: 4 
                         }, 
                         { 
@@ -395,20 +397,16 @@
                             borderWidth: 1,
                             padding: 10,
                             callbacks: {
-                                // Customização para mostrar os IPs no rodapé do tooltip
                                 footer: (tooltipItems) => {
                                     let footerText = [];
                                     
                                     tooltipItems.forEach(function(tooltipItem) {
-                                        // Verifica se é o dataset de Ataques
                                         if (tooltipItem.dataset.label === 'Ataques') {
-                                            // Pega os IPs baseados no índice atual do gráfico
                                             const ips = tooltipItem.dataset.attackIps ? tooltipItem.dataset.attackIps[tooltipItem.dataIndex] : [];
                                             
                                             if (ips && ips.length > 0) {
-                                                footerText.push(''); // Linha em branco para separar
+                                                footerText.push('');
                                                 footerText.push('Atacantes:');
-                                                // Mostra no máximo 5 IPs para não quebrar a tela
                                                 ips.slice(0, 5).forEach(ip => footerText.push('• ' + ip));
                                                 
                                                 if (ips.length > 5) {
@@ -445,29 +443,25 @@
                 }
             });
         };
-        // Função auxiliar para pintar a tendência
+
         function updateTrendElement(elementId, value) {
             const el = document.getElementById(elementId);
             if (!el) return;
 
-            // Formata para 1 casa decimal (ex: 12.5)
             const formattedValue = Math.abs(value).toFixed(1);
 
             if (value < 0) {
-                // NEGATIVO: Vermelho + Seta Baixo
                 el.className = "text-[10px] text-red-500 font-bold mb-1";
                 el.innerHTML = `▼ ${formattedValue}%`;
             } else if (value > 0) {
-                // POSITIVO: Verde + Seta Cima
                 el.className = "text-[10px] text-emerald-500 font-bold mb-1";
                 el.innerHTML = `▲ ${formattedValue}%`;
             } else {
-                // NEUTRO (0): Cinza + Traço
                 el.className = "text-[10px] text-slate-500 font-bold mb-1";
                 el.innerHTML = `- ${formattedValue}%`;
             }
         }
-        // === MODAL BLACKLIST LOGIC ===
+
         function openBlocklistModal() {
             const modal = document.getElementById('blocklistModal');
             const content = document.getElementById('modalContent');
@@ -506,7 +500,6 @@
             }
         }
 
-        // Função wrapper que abre o modal
         function tryUnblockIP(ip) {
             openConfirmationModal(`Desbloquear o IP ${ip} agora?`, () => executeUnblock(ip));
         }
@@ -522,7 +515,6 @@
             }
         }
 
-        // === UPDATE FUNCTION ===
         async function updateDashboard() {
             try {
                 const response = await fetch('./stats');
@@ -538,10 +530,7 @@
                     reqValue.innerText = data.kpis.total_requests_24h.value.toLocaleString();
                 }
 
-                // 2. A Porcentagem Dinâmica (▲/▼)
-                // Usamos a chave que você indicou: trend_percent
                 updateTrendElement('kpi-req-trend', data.kpis.total_requests_24h.trend_percent);
-                // KPIs
                 document.querySelector('.text-emerald-500').parentElement.querySelector('.text-white').innerText = `${data.meta.average_latency_ms}ms`;
                 const nodeSpan = document.querySelector('.bg-green-500 + span'); if(nodeSpan) nodeSpan.innerText = data.meta.node_id;
 
