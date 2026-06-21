@@ -1,4 +1,7 @@
-from middleware import Wafahell
+try:
+    from middleware import Wafahell
+except ImportError:
+    from .middleware import Wafahell
 from flask import Flask, request
 from werkzeug.middleware.proxy_fix import ProxyFix
 
@@ -14,6 +17,10 @@ app.wsgi_app = ProxyFix(
 )
 
 
+@app.route('/favicon.ico')
+def favicon():
+    return '', 204
+
 @app.route('/hello', methods=['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'])
 def hello():
     nome = request.args.get('nome', 'Visitante')
@@ -28,5 +35,5 @@ def env():
             '''
 
 if __name__ == '__main__':
-    Wafahell(app=app, dashboard_path='/hell/dashboard', block_durantion=1)
-    app.run(debug=True, host='0.0.0.0', port=5001)
+    Wafahell(app=app, dashboard_path='/hell/dashboard', block_duration=1, ai_threshold=0.70)
+    app.run(debug=True, host='0.0.0.0', port=12001)

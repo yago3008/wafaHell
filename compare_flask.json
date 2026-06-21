@@ -1,0 +1,102 @@
+{
+  "framework": "flask",
+  "initial_status": {
+    "benign": 200,
+    "sqli_1": 403,
+    "sqli_2": 403,
+    "xss_1": 403,
+    "xss_2": 403
+  },
+  "rl_markers": {
+    "0": 200,
+    "98": 200,
+    "99": 200,
+    "100": 200,
+    "119": 200
+  },
+  "flush_status": 200,
+  "db_total": 152,
+  "db_counts": {
+    "INFO": 121,
+    "RATE LIMIT": 27,
+    "XSS": 2,
+    "SQLI": 2
+  },
+  "db_recent": [
+    {
+      "attack_type": "RATE LIMIT",
+      "path": "/hello",
+      "payload": "Too Many Requests"
+    },
+    {
+      "attack_type": "INFO",
+      "path": "/hello",
+      "payload": ""
+    },
+    {
+      "attack_type": "RATE LIMIT",
+      "path": "/hello",
+      "payload": "Too Many Requests"
+    },
+    {
+      "attack_type": "INFO",
+      "path": "/hello",
+      "payload": ""
+    },
+    {
+      "attack_type": "RATE LIMIT",
+      "path": "/hello",
+      "payload": "Too Many Requests"
+    },
+    {
+      "attack_type": "INFO",
+      "path": "/hello",
+      "payload": ""
+    },
+    {
+      "attack_type": "RATE LIMIT",
+      "path": "/hello",
+      "payload": "Too Many Requests"
+    },
+    {
+      "attack_type": "INFO",
+      "path": "/hello",
+      "payload": ""
+    },
+    {
+      "attack_type": "RATE LIMIT",
+      "path": "/hello",
+      "payload": "Too Many Requests"
+    },
+    {
+      "attack_type": "INFO",
+      "path": "/hello",
+      "payload": ""
+    },
+    {
+      "attack_type": "RATE LIMIT",
+      "path": "/hello",
+      "payload": "Too Many Requests"
+    },
+    {
+      "attack_type": "INFO",
+      "path": "/hello",
+      "payload": ""
+    },
+    {
+      "attack_type": "RATE LIMIT",
+      "path": "/hello",
+      "payload": "Too Many Requests"
+    },
+    {
+      "attack_type": "INFO",
+      "path": "/hello",
+      "payload": ""
+    },
+    {
+      "attack_type": "RATE LIMIT",
+      "path": "/hello",
+      "payload": "Too Many Requests"
+    }
+  ]
+}

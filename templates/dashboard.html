@@ -648,6 +648,18 @@
         if (type === 'bool') {
             // Toggle direto: inverte o valor atual
             const newValue = !currentValue;
+            // Regra: Rate Limit depende de Auto Blocker
+            if (key === 'rate_limit' && newValue === true && globalConfig.block_ip !== true) {
+                sendVarUpdate('block_ip', true);
+                showToast("Auto Blocker enabled because Rate Limit was enabled", "success");
+            }
+
+            // Regra inversa para manter consistência visual/funcional
+            if (key === 'block_ip' && newValue === false && globalConfig.rate_limit === true) {
+                sendVarUpdate('rate_limit', false);
+                showToast("Rate Limit disabled because Auto Blocker was disabled", "success");
+            }
+
             sendVarUpdate(key, newValue);
 
             if (newValue === true) {
@@ -802,8 +814,8 @@
                             config.block_code.toString(), 
                             "text-blue-400 border-blue-500/50 shadow-blue-900/20");
 
-                createCard('block_durantion', 'int', "Ban Duration", "fas fa-stopwatch", config.block_durantion, 
-                            config.block_durantion + " MIN", 
+                createCard('block_duration', 'int', "Ban Duration", "fas fa-stopwatch", config.block_duration,
+                            config.block_duration + " MIN",
                             "text-cyan-400 border-cyan-500/50 shadow-cyan-900/20");
                             
                  const isBlocking = config.mode === 'blocking';

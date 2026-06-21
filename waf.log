@@ -1,154 +1,939 @@
-[16:09:58 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: sqlmap/1.9.11#stable (https://sqlmap.org), Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:09:58 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: ' OR '1'='1' --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:09:58 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Nikto/2.1.6, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:09:58 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: admin' --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:09:59 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Go-http-client/1.1, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:09:59 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:09:59 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: 1; --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:10:00 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: curl/8.1.2, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:10:00 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: ' UNION SELECT NULL,NULL --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:10:00 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: curl/8.1.2, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:10:00 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: python-requests/2.31.0, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:10:00 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: 1 UNION ALL SELECT 1,2,3 --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:10:01 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Nikto/2.1.6, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:10:01 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: ' AND EXTRACTVALUE(1,CONCAT(0x7e,VERSION())) --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:10:01 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: ' AND UPDATEXML(1,CONCAT(0x7e,DATABASE()),1) --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:10:01 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:10:02 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: python-requests/2.31.0, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:10:02 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: ' AND SLEEP(3) --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:10:02 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Go-http-client/1.1, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:10:02 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: '; exec master..xp_cmdshell('ping 127.0.0.1') --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:10:02 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: '; DROP TABLE users --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:10:03 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:10:03 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Nikto/2.1.6, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:11:25 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Go-http-client/1.1, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:11:26 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: ' OR '1'='1' --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:11:26 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Safari/605.1.15, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:11:26 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: python-requests/2.31.0, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:11:26 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Go-http-client/1.1, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:11:26 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: curl/8.1.2, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:11:27 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: sqlmap/1.9.11#stable (https://sqlmap.org), Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:11:27 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Nikto/2.1.6, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:11:27 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Nikto/2.1.6, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:11:27 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: sqlmap/1.9.11#stable (https://sqlmap.org), Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:11:28 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: ' UNION SELECT username,password FROM users --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:11:28 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: 1 UNION ALL SELECT 1,2,3 --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:11:28 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Nikto/2.1.6, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:11:28 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: ' AND EXTRACTVALUE(1,CONCAT(0x7e,VERSION())) --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:11:28 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: ' AND UPDATEXML(1,CONCAT(0x7e,DATABASE()),1) --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:11:28 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Go-http-client/1.1, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:11:29 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: '; WAITFOR DELAY '0:0:3' --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:11:29 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: curl/8.1.2, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:11:29 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Nikto/2.1.6, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:11:29 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: sqlmap/1.9.11#stable (https://sqlmap.org), Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:11:30 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: ' OR 0x31=0x31 --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:11:30 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: python-requests/2.31.0, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:11:32 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: 100% OR money back guaranteed, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:23:18 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: ' OR '1'='1, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:23:19 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: sqlmap/1.9.11#stable (https://sqlmap.org), Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:23:19 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: curl/8.1.2, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:23:19 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:23:19 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Nikto/2.1.6, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:23:19 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: curl/8.1.2, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:23:20 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Safari/605.1.15, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:23:20 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Go-http-client/1.1, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:23:20 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: ' UNION SELECT NULL,NULL,NULL --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:23:20 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: sqlmap/1.9.11#stable (https://sqlmap.org), Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:23:21 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: curl/8.1.2, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:23:21 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Nikto/2.1.6, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:23:21 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:23:21 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: sqlmap/1.9.11#stable (https://sqlmap.org), Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:23:21 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: sqlmap/1.9.11#stable (https://sqlmap.org), Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:23:21 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Nikto/2.1.6, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:23:22 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Safari/605.1.15, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:23:22 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: python-requests/2.31.0, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:23:22 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: '; DROP TABLE users --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:23:23 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:23:23 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Safari/605.1.15, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:23:27 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: ' OR '1'='1' --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:23:28 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: curl/8.1.2, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:23:28 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: admin' --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:23:28 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: sqlmap/1.9.11#stable (https://sqlmap.org), Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:23:28 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Nikto/2.1.6, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:23:28 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: ' AND 1=2 --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:23:29 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Safari/605.1.15, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:23:29 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: curl/8.1.2, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:23:29 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: sqlmap/1.9.11#stable (https://sqlmap.org), Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:23:29 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:23:29 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: python-requests/2.31.0, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:23:29 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Nikto/2.1.6, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:23:30 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: ' AND EXTRACTVALUE(1,CONCAT(0x7e,VERSION())) --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:23:30 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Safari/605.1.15, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:23:30 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: '; SELECT PG_SLEEP(3) --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:23:30 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: sqlmap/1.9.11#stable (https://sqlmap.org), Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:23:31 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: ' AND SLEEP(3) --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:23:31 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Safari/605.1.15, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:23:32 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: ' OR 0x31=0x31 --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:23:32 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: ' oR '1'='1, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:25:14 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: ' OR '1'='1, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:25:14 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: sqlmap/1.9.11#stable (https://sqlmap.org), Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:25:14 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Nikto/2.1.6, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:25:14 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: sqlmap/1.9.11#stable (https://sqlmap.org), Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:25:14 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: python-requests/2.31.0, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:25:15 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: python-requests/2.31.0, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:25:15 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: sqlmap/1.9.11#stable (https://sqlmap.org), Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:25:15 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: ' UNION SELECT NULL --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:25:15 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:25:16 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:25:16 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Go-http-client/1.1, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:25:16 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: 1 UNION ALL SELECT 1,2,3 --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:25:16 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: ' UNION SELECT table_name FROM information_schema.tables --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:25:17 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: ' AND EXTRACTVALUE(1,CONCAT(0x7e,VERSION())) --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:25:17 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Nikto/2.1.6, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:25:17 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: '; SELECT PG_SLEEP(3) --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:25:17 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: '; WAITFOR DELAY '0:0:3' --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:25:17 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: ' AND SLEEP(3) --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:25:18 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: ' AND (SELECT 5264 FROM (SELECT(SLEEP(3)))x) --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:25:18 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: '; DROP TABLE users --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:25:19 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: sqlmap/1.9.11#stable (https://sqlmap.org), Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[16:25:19 - 23/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Nikto/2.1.6, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[07:52:13 - 24/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: curl/8.1.2, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[07:52:13 - 24/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Safari/605.1.15, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[07:52:14 - 24/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: sqlmap/1.9.11#stable (https://sqlmap.org), Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[07:52:14 - 24/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: sqlmap/1.9.11#stable (https://sqlmap.org), Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[07:52:14 - 24/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Safari/605.1.15, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[07:52:14 - 24/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Go-http-client/1.1, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[07:52:14 - 24/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: python-requests/2.31.0, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[07:52:15 - 24/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[07:52:15 - 24/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: sqlmap/1.9.11#stable (https://sqlmap.org), Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[07:52:15 - 24/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: ' UNION SELECT username,password FROM users --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[07:52:15 - 24/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: sqlmap/1.9.11#stable (https://sqlmap.org), Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[07:52:15 - 24/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: ' UNION SELECT table_name FROM information_schema.tables --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[07:52:15 - 24/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Go-http-client/1.1, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[07:52:15 - 24/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: ' AND UPDATEXML(1,CONCAT(0x7e,DATABASE()),1) --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[07:52:16 - 24/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Go-http-client/1.1, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[07:52:16 - 24/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: '; WAITFOR DELAY '0:0:3' --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[07:52:16 - 24/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: sqlmap/1.9.11#stable (https://sqlmap.org), Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[07:52:16 - 24/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Nikto/2.1.6, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[07:52:16 - 24/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: curl/8.1.2, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[07:52:16 - 24/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: sqlmap/1.9.11#stable (https://sqlmap.org), Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[07:52:17 - 24/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Nikto/2.1.6, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[07:55:12 - 24/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: ' OR '1'='1' --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[07:55:12 - 24/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: sqlmap/1.9.11#stable (https://sqlmap.org), Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[07:55:12 - 24/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[07:55:13 - 24/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Go-http-client/1.1, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[07:55:13 - 24/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: curl/8.1.2, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[07:55:13 - 24/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: ' AND 1=2 --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[07:55:13 - 24/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: python-requests/2.31.0, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[07:55:14 - 24/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: ' UNION SELECT NULL,NULL --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[07:55:14 - 24/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: sqlmap/1.9.11#stable (https://sqlmap.org), Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[07:55:14 - 24/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[07:55:14 - 24/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: python-requests/2.31.0, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[07:55:14 - 24/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: curl/8.1.2, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[07:55:15 - 24/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: ' AND EXTRACTVALUE(1,CONCAT(0x7e,VERSION())) --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[07:55:15 - 24/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[07:55:15 - 24/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: '; SELECT PG_SLEEP(3) --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[07:55:15 - 24/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: sqlmap/1.9.11#stable (https://sqlmap.org), Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[07:55:15 - 24/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Safari/605.1.15, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[07:55:16 - 24/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Go-http-client/1.1, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[07:55:16 - 24/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[07:55:16 - 24/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: '; UPDATE users SET password='pwned' --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[07:55:17 - 24/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: curl/8.1.2, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[07:55:17 - 24/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: ' oR '1'='1, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[07:55:17 - 24/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Nikto/2.1.6, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
-[07:55:18 - 24/02/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Go-http-client/1.1, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
+[10:55:54 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: testclient, User-Agent: unknown, Path: /hello, Method: GET, Payload: http://testserver/hello, attack_local: URL
+[10:55:54 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: testclient, User-Agent: unknown, Path: /hello, Method: GET, Payload: http://testserver/hello, attack_local: URL
+[10:55:54 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: XSS, IP: testclient, User-Agent: unknown, Path: /hello, Method: GET, Payload: <script>alert(1)</script>, attack_local: QUERY 'nome'
+[10:55:54 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: XSS, IP: testclient, User-Agent: unknown, Path: /hello, Method: GET, Payload: "/><svg/onload=alert(1)>, attack_local: QUERY 'nome'
+[10:55:56 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: testclient exceeded limit.
+[10:55:56 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: testclient exceeded limit.
+[10:55:56 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: testclient exceeded limit.
+[10:55:56 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: testclient exceeded limit.
+[10:55:56 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: testclient exceeded limit.
+[10:55:56 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: testclient exceeded limit.
+[10:55:56 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: testclient exceeded limit.
+[10:55:56 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: testclient exceeded limit.
+[10:55:56 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: testclient exceeded limit.
+[10:55:56 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: testclient exceeded limit.
+[10:55:56 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: testclient exceeded limit.
+[10:55:57 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: testclient exceeded limit.
+[10:55:57 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: testclient exceeded limit.
+[10:55:57 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: testclient exceeded limit.
+[10:55:57 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: testclient exceeded limit.
+[10:55:57 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: testclient exceeded limit.
+[10:55:57 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: testclient exceeded limit.
+[10:55:57 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: testclient exceeded limit.
+[10:55:57 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: testclient exceeded limit.
+[10:55:57 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: testclient exceeded limit.
+[10:55:57 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: testclient exceeded limit.
+[10:55:57 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: testclient exceeded limit.
+[10:55:57 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: testclient exceeded limit.
+[10:55:57 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: testclient exceeded limit.
+[10:55:57 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: testclient exceeded limit.
+[10:55:57 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: testclient exceeded limit.
+[10:56:01 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: testclient exceeded limit.
+[11:13:57 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: ' OR '1'='1, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
+[11:13:57 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Go-http-client/1.1, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
+[11:13:57 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: ' OR 1=1 --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
+[11:13:57 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
+[11:13:57 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: ' AND 1=1 --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
+[11:13:58 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: curl/8.1.2, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
+[11:13:58 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: python-requests/2.31.0, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
+[11:13:58 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: ' UNION SELECT NULL,NULL --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
+[11:13:58 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: sqlmap/1.9.11#stable (https://sqlmap.org), Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
+[11:13:58 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: sqlmap/1.9.11#stable (https://sqlmap.org), Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
+[11:13:59 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: sqlmap/1.9.11#stable (https://sqlmap.org), Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
+[11:13:59 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Nikto/2.1.6, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
+[11:13:59 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: python-requests/2.31.0, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
+[11:13:59 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: curl/8.1.2, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
+[11:13:59 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: python-requests/2.31.0, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
+[11:13:59 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
+[11:14:00 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: ' AND SLEEP(3) --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
+[11:14:00 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: python-requests/2.31.0, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
+[11:14:00 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Nikto/2.1.6, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
+[11:14:00 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: '; DROP TABLE users --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
+[11:14:01 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
+[11:14:01 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Nikto/2.1.6, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
+[11:15:16 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: XSS, IP: 127.0.0.1, User-Agent: curl/8.17.0, Path: /hell/dashboard/<script>, Method: GET, Payload: http://127.0.0.1:5001/hell/dashboard/<script>, attack_local: URL
+[11:15:21 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: XSS, IP: 127.0.0.1, User-Agent: curl/8.17.0, Path: /hell/dashboard/<script>, Method: GET, Payload: http://127.0.0.1:5001/hell/dashboard/<script>, attack_local: URL
+[11:15:25 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: XSS, IP: 127.0.0.1, User-Agent: curl/8.17.0, Path: /hell/dashboard/<script>, Method: GET, Payload: http://127.0.0.1:5001/hell/dashboard/<script>, attack_local: URL
+[11:18:16 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:16 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:16 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:16 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:16 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:16 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:16 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:16 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:16 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:16 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:16 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:16 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:16 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:16 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:16 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:16 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:16 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:16 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:16 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:16 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:16 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:16 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:16 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:16 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:16 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:16 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:16 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:16 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:16 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:16 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:16 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:16 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:16 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:17 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:18 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:18 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:18 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:18 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:18 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:18 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:18 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:18 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:18 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:18 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:18 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:18 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:18 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:18 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:18 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:18 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:18 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:18 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:18 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:18 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:18 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:18 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:18 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:18 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:18 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:18 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:18 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:18 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:18 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:18 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:18 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:18 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:18 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:18 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:18 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:18 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:18 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:18 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:18 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:19 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:19 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:19 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:19 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:19 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:19 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:19 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:19 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:19 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:19 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:19 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:19 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:19 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:19 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:19 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:19 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:19 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:19 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:19 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:19 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:19 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:19 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:19 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:19 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:19 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:19 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:19 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:19 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:19 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:19 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:19 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:19 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:19 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:19 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:19 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:19 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:19 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:19 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:19 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:19 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:19 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:19 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:19 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:19 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:19 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:19 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:20 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:20 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:20 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:20 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:20 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:20 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:20 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:20 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:20 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:20 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:20 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:20 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:20 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:20 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:20 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:20 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:20 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:20 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:20 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:20 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:20 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:20 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:20 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:20 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:20 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:20 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:20 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:20 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:20 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:20 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:20 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:20 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:20 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:20 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:20 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:20 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:20 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:20 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:20 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:20 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:20 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:20 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:20 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:20 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:20 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:20 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:20 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:20 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:21 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:22 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:23 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:24 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:25 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:26 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:27 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:28 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:29 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:30 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:30 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:30 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:30 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:30 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:30 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:18:30 - 01/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[11:21:27 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: sqlmap/1.9.11#stable (https://sqlmap.org), Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
+[11:21:28 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
+[11:21:28 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Safari/605.1.15, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
+[11:21:28 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: sqlmap/1.9.11#stable (https://sqlmap.org), Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
+[11:21:28 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: ' AND 1=1 --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
+[11:21:29 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
+[11:21:29 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
+[11:21:29 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: sqlmap/1.9.11#stable (https://sqlmap.org), Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
+[11:21:29 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Go-http-client/1.1, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
+[11:21:29 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Nikto/2.1.6, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
+[11:21:29 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: 1 UNION ALL SELECT 1,2,3 --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
+[11:21:29 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: ' UNION SELECT table_name FROM information_schema.tables --, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
+[11:21:29 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: sqlmap/1.9.11#stable (https://sqlmap.org), Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
+[11:21:30 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Go-http-client/1.1, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
+[11:21:30 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
+[11:21:30 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: curl/8.1.2, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
+[11:21:30 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: sqlmap/1.9.11#stable (https://sqlmap.org), Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
+[11:21:30 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
+[11:21:30 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Nikto/2.1.6, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
+[11:21:31 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Go-http-client/1.1, Path: /hello, Method: POST, Payload: http://127.0.0.1:5001/hello, attack_local: URL
+[11:21:31 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0, Path: /hello, Method: GET, Payload: http://127.0.0.1:5001/hello, attack_local: URL
+[14:05:18 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: XSS, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard, Method: GET, Payload: 9457 AND 1=1 UNION ALL SELECT 1,NULL,'<script>alert("XSS")</script>',table_name FROM information_schema.tables WHERE 2>1--/**/; EXEC xp_cmdshell('cat ../../../etc/passwd')#, attack_local: QUERY 'XZXI'
+[14:05:18 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard) AND 9002=2662 AND (7249=7249, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard) AND 9002=2662 AND (7249=7249, attack_local: URL
+[14:05:18 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard) AND 2233=2233 AND (6284=6284, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard) AND 2233=2233 AND (6284=6284, attack_local: URL
+[14:05:18 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard') AND 1870=4748 AND ('qkOU'='qkOU, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard') AND 1870=4748 AND ('qkOU'='qkOU, attack_local: URL
+[14:05:18 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard') AND 2233=2233 AND ('Dpjw'='Dpjw, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard') AND 2233=2233 AND ('Dpjw'='Dpjw, attack_local: URL
+[14:05:18 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard' AND 7574=3829 AND 'ztSB'='ztSB, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard' AND 7574=3829 AND 'ztSB'='ztSB, attack_local: URL
+[14:05:18 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard' AND 2233=2233 AND 'eacn'='eacn, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard' AND 2233=2233 AND 'eacn'='eacn, attack_local: URL
+[14:05:18 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard AND 2233=2233-- Gktp, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard AND 2233=2233-- Gktp, attack_local: URL
+[14:05:18 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/(SELECT (CASE WHEN (8116=5644) THEN 'dashboard' ELSE (SELECT 5644 UNION SELECT 7823) END)), Method: GET, Payload: http://127.0.0.1:5002/hell/(SELECT (CASE WHEN (8116=5644) THEN 'dashboard' ELSE (SELECT 5644 UNION SELECT 7823) END)), attack_local: URL
+[14:05:18 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/(SELECT (CASE WHEN (8228=8228) THEN 'dashboard' ELSE (SELECT 2131 UNION SELECT 9749) END)), Method: GET, Payload: http://127.0.0.1:5002/hell/(SELECT (CASE WHEN (8228=8228) THEN 'dashboard' ELSE (SELECT 2131 UNION SELECT 9749) END)), attack_local: URL
+[14:05:18 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard) AND EXTRACTVALUE(8334,CONCAT(0x5c,0x717a717171,(SELECT (ELT(8334=8334,1))),0x7176766b71)) AND (1868=1868, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard) AND EXTRACTVALUE(8334,CONCAT(0x5c,0x717a717171,(SELECT (ELT(8334=8334,1))),0x7176766b71)) AND (1868=1868, attack_local: URL
+[14:05:18 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard AND EXTRACTVALUE(8334,CONCAT(0x5c,0x717a717171,(SELECT (ELT(8334=8334,1))),0x7176766b71)), Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard AND EXTRACTVALUE(8334,CONCAT(0x5c,0x717a717171,(SELECT (ELT(8334=8334,1))),0x7176766b71)), attack_local: URL
+[14:05:18 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard') AND EXTRACTVALUE(8334,CONCAT(0x5c,0x717a717171,(SELECT (ELT(8334=8334,1))),0x7176766b71)) AND ('VdHo'='VdHo, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard') AND EXTRACTVALUE(8334,CONCAT(0x5c,0x717a717171,(SELECT (ELT(8334=8334,1))),0x7176766b71)) AND ('VdHo'='VdHo, attack_local: URL
+[14:05:18 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard' AND EXTRACTVALUE(8334,CONCAT(0x5c,0x717a717171,(SELECT (ELT(8334=8334,1))),0x7176766b71)) AND 'YAaI'='YAaI, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard' AND EXTRACTVALUE(8334,CONCAT(0x5c,0x717a717171,(SELECT (ELT(8334=8334,1))),0x7176766b71)) AND 'YAaI'='YAaI, attack_local: URL
+[14:05:18 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard AND EXTRACTVALUE(8334,CONCAT(0x5c,0x717a717171,(SELECT (ELT(8334=8334,1))),0x7176766b71))-- sbUe, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard AND EXTRACTVALUE(8334,CONCAT(0x5c,0x717a717171,(SELECT (ELT(8334=8334,1))),0x7176766b71))-- sbUe, attack_local: URL
+[14:05:18 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard) AND 7113=CAST((CHR(113)||CHR(122)||CHR(113)||CHR(113)||CHR(113))||(SELECT (CASE WHEN (7113=7113) THEN 1 ELSE 0 END))::text||(CHR(113)||CHR(118)||CHR(118)||CHR(107)||CHR(113)) AS NUMERIC) AND (8417=8417, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard) AND 7113=CAST((CHR(113)||CHR(122)||CHR(113)||CHR(113)||CHR(113))||(SELECT (CASE WHEN (7113=7113) THEN 1 ELSE 0 END))::text||(CHR(113)||CHR(118)||CHR(118)||CHR(107)||CHR(113)) AS NUMERIC) AND (8417=8417, attack_local: URL
+[14:05:18 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard AND 7113=CAST((CHR(113)||CHR(122)||CHR(113)||CHR(113)||CHR(113))||(SELECT (CASE WHEN (7113=7113) THEN 1 ELSE 0 END))::text||(CHR(113)||CHR(118)||CHR(118)||CHR(107)||CHR(113)) AS NUMERIC), Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard AND 7113=CAST((CHR(113)||CHR(122)||CHR(113)||CHR(113)||CHR(113))||(SELECT (CASE WHEN (7113=7113) THEN 1 ELSE 0 END))::text||(CHR(113)||CHR(118)||CHR(118)||CHR(107)||CHR(113)) AS NUMERIC), attack_local: URL
+[14:05:18 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard') AND 7113=CAST((CHR(113)||CHR(122)||CHR(113)||CHR(113)||CHR(113))||(SELECT (CASE WHEN (7113=7113) THEN 1 ELSE 0 END))::text||(CHR(113)||CHR(118)||CHR(118)||CHR(107)||CHR(113)) AS NUMERIC) AND ('jTDY'='jTDY, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard') AND 7113=CAST((CHR(113)||CHR(122)||CHR(113)||CHR(113)||CHR(113))||(SELECT (CASE WHEN (7113=7113) THEN 1 ELSE 0 END))::text||(CHR(113)||CHR(118)||CHR(118)||CHR(107)||CHR(113)) AS NUMERIC) AND ('jTDY'='jTDY, attack_local: URL
+[14:05:18 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard' AND 7113=CAST((CHR(113)||CHR(122)||CHR(113)||CHR(113)||CHR(113))||(SELECT (CASE WHEN (7113=7113) THEN 1 ELSE 0 END))::text||(CHR(113)||CHR(118)||CHR(118)||CHR(107)||CHR(113)) AS NUMERIC) AND 'YuOo'='YuOo, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard' AND 7113=CAST((CHR(113)||CHR(122)||CHR(113)||CHR(113)||CHR(113))||(SELECT (CASE WHEN (7113=7113) THEN 1 ELSE 0 END))::text||(CHR(113)||CHR(118)||CHR(118)||CHR(107)||CHR(113)) AS NUMERIC) AND 'YuOo'='YuOo, attack_local: URL
+[14:05:18 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard AND 7113=CAST((CHR(113)||CHR(122)||CHR(113)||CHR(113)||CHR(113))||(SELECT (CASE WHEN (7113=7113) THEN 1 ELSE 0 END))::text||(CHR(113)||CHR(118)||CHR(118)||CHR(107)||CHR(113)) AS NUMERIC)-- upJY, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard AND 7113=CAST((CHR(113)||CHR(122)||CHR(113)||CHR(113)||CHR(113))||(SELECT (CASE WHEN (7113=7113) THEN 1 ELSE 0 END))::text||(CHR(113)||CHR(118)||CHR(118)||CHR(107)||CHR(113)) AS NUMERIC)-- upJY, attack_local: URL
+[14:05:18 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard) AND 6175 IN (SELECT (CHAR(113)+CHAR(122)+CHAR(113)+CHAR(113)+CHAR(113)+(SELECT (CASE WHEN (6175=6175) THEN CHAR(49) ELSE CHAR(48) END))+CHAR(113)+CHAR(118)+CHAR(118)+CHAR(107)+CHAR(113))) AND (4784=4784, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard) AND 6175 IN (SELECT (CHAR(113)+CHAR(122)+CHAR(113)+CHAR(113)+CHAR(113)+(SELECT (CASE WHEN (6175=6175) THEN CHAR(49) ELSE CHAR(48) END))+CHAR(113)+CHAR(118)+CHAR(118)+CHAR(107)+CHAR(113))) AND (4784=4784, attack_local: URL
+[14:05:18 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard AND 6175 IN (SELECT (CHAR(113)+CHAR(122)+CHAR(113)+CHAR(113)+CHAR(113)+(SELECT (CASE WHEN (6175=6175) THEN CHAR(49) ELSE CHAR(48) END))+CHAR(113)+CHAR(118)+CHAR(118)+CHAR(107)+CHAR(113))), Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard AND 6175 IN (SELECT (CHAR(113)+CHAR(122)+CHAR(113)+CHAR(113)+CHAR(113)+(SELECT (CASE WHEN (6175=6175) THEN CHAR(49) ELSE CHAR(48) END))+CHAR(113)+CHAR(118)+CHAR(118)+CHAR(107)+CHAR(113))), attack_local: URL
+[14:05:18 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard') AND 6175 IN (SELECT (CHAR(113)+CHAR(122)+CHAR(113)+CHAR(113)+CHAR(113)+(SELECT (CASE WHEN (6175=6175) THEN CHAR(49) ELSE CHAR(48) END))+CHAR(113)+CHAR(118)+CHAR(118)+CHAR(107)+CHAR(113))) AND ('opBf'='opBf, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard') AND 6175 IN (SELECT (CHAR(113)+CHAR(122)+CHAR(113)+CHAR(113)+CHAR(113)+(SELECT (CASE WHEN (6175=6175) THEN CHAR(49) ELSE CHAR(48) END))+CHAR(113)+CHAR(118)+CHAR(118)+CHAR(107)+CHAR(113))) AND ('opBf'='opBf, attack_local: URL
+[14:05:18 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard' AND 6175 IN (SELECT (CHAR(113)+CHAR(122)+CHAR(113)+CHAR(113)+CHAR(113)+(SELECT (CASE WHEN (6175=6175) THEN CHAR(49) ELSE CHAR(48) END))+CHAR(113)+CHAR(118)+CHAR(118)+CHAR(107)+CHAR(113))) AND 'ftMN'='ftMN, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard' AND 6175 IN (SELECT (CHAR(113)+CHAR(122)+CHAR(113)+CHAR(113)+CHAR(113)+(SELECT (CASE WHEN (6175=6175) THEN CHAR(49) ELSE CHAR(48) END))+CHAR(113)+CHAR(118)+CHAR(118)+CHAR(107)+CHAR(113))) AND 'ftMN'='ftMN, attack_local: URL
+[14:05:19 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard AND 6175 IN (SELECT (CHAR(113)+CHAR(122)+CHAR(113)+CHAR(113)+CHAR(113)+(SELECT (CASE WHEN (6175=6175) THEN CHAR(49) ELSE CHAR(48) END))+CHAR(113)+CHAR(118)+CHAR(118)+CHAR(107)+CHAR(113)))-- QcqE, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard AND 6175 IN (SELECT (CHAR(113)+CHAR(122)+CHAR(113)+CHAR(113)+CHAR(113)+(SELECT (CASE WHEN (6175=6175) THEN CHAR(49) ELSE CHAR(48) END))+CHAR(113)+CHAR(118)+CHAR(118)+CHAR(107)+CHAR(113)))-- QcqE, attack_local: URL
+[14:05:19 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard) AND 1827=(SELECT UPPER(XMLType(CHR(60)||CHR(58)||CHR(113)||CHR(122)||CHR(113)||CHR(113)||CHR(113)||(SELECT (CASE WHEN (1827=1827) THEN 1 ELSE 0 END) FROM DUAL)||CHR(113)||CHR(118)||CHR(118)||CHR(107)||CHR(113)||CHR(62))) FROM DUAL) AND (4780=4780, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard) AND 1827=(SELECT UPPER(XMLType(CHR(60)||CHR(58)||CHR(113)||CHR(122)||CHR(113)||CHR(113)||CHR(113)||(SELECT (CASE WHEN (1827=1827) THEN 1 ELSE 0 END) FROM DUAL)||CHR(113)||CHR(118)||CHR(118)||CHR(107)||CHR(113)||CHR(62))) FROM DUAL) AND (4780=4780, attack_local: URL
+[14:05:19 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard AND 1827=(SELECT UPPER(XMLType(CHR(60)||CHR(58)||CHR(113)||CHR(122)||CHR(113)||CHR(113)||CHR(113)||(SELECT (CASE WHEN (1827=1827) THEN 1 ELSE 0 END) FROM DUAL)||CHR(113)||CHR(118)||CHR(118)||CHR(107)||CHR(113)||CHR(62))) FROM DUAL), Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard AND 1827=(SELECT UPPER(XMLType(CHR(60)||CHR(58)||CHR(113)||CHR(122)||CHR(113)||CHR(113)||CHR(113)||(SELECT (CASE WHEN (1827=1827) THEN 1 ELSE 0 END) FROM DUAL)||CHR(113)||CHR(118)||CHR(118)||CHR(107)||CHR(113)||CHR(62))) FROM DUAL), attack_local: URL
+[14:05:19 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard') AND 1827=(SELECT UPPER(XMLType(CHR(60)||CHR(58)||CHR(113)||CHR(122)||CHR(113)||CHR(113)||CHR(113)||(SELECT (CASE WHEN (1827=1827) THEN 1 ELSE 0 END) FROM DUAL)||CHR(113)||CHR(118)||CHR(118)||CHR(107)||CHR(113)||CHR(62))) FROM DUAL) AND ('eSph'='eSph, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard') AND 1827=(SELECT UPPER(XMLType(CHR(60)||CHR(58)||CHR(113)||CHR(122)||CHR(113)||CHR(113)||CHR(113)||(SELECT (CASE WHEN (1827=1827) THEN 1 ELSE 0 END) FROM DUAL)||CHR(113)||CHR(118)||CHR(118)||CHR(107)||CHR(113)||CHR(62))) FROM DUAL) AND ('eSph'='eSph, attack_local: URL
+[14:05:19 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard' AND 1827=(SELECT UPPER(XMLType(CHR(60)||CHR(58)||CHR(113)||CHR(122)||CHR(113)||CHR(113)||CHR(113)||(SELECT (CASE WHEN (1827=1827) THEN 1 ELSE 0 END) FROM DUAL)||CHR(113)||CHR(118)||CHR(118)||CHR(107)||CHR(113)||CHR(62))) FROM DUAL) AND 'oGLo'='oGLo, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard' AND 1827=(SELECT UPPER(XMLType(CHR(60)||CHR(58)||CHR(113)||CHR(122)||CHR(113)||CHR(113)||CHR(113)||(SELECT (CASE WHEN (1827=1827) THEN 1 ELSE 0 END) FROM DUAL)||CHR(113)||CHR(118)||CHR(118)||CHR(107)||CHR(113)||CHR(62))) FROM DUAL) AND 'oGLo'='oGLo, attack_local: URL
+[14:05:19 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard AND 1827=(SELECT UPPER(XMLType(CHR(60)||CHR(58)||CHR(113)||CHR(122)||CHR(113)||CHR(113)||CHR(113)||(SELECT (CASE WHEN (1827=1827) THEN 1 ELSE 0 END) FROM DUAL)||CHR(113)||CHR(118)||CHR(118)||CHR(107)||CHR(113)||CHR(62))) FROM DUAL)-- iEWn, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard AND 1827=(SELECT UPPER(XMLType(CHR(60)||CHR(58)||CHR(113)||CHR(122)||CHR(113)||CHR(113)||CHR(113)||(SELECT (CASE WHEN (1827=1827) THEN 1 ELSE 0 END) FROM DUAL)||CHR(113)||CHR(118)||CHR(118)||CHR(107)||CHR(113)||CHR(62))) FROM DUAL)-- iEWn, attack_local: URL
+[14:05:19 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/(SELECT CONCAT(CONCAT('qzqqq',(CASE WHEN (3248=3248) THEN '1' ELSE '0' END)),'qvvkq')), Method: GET, Payload: http://127.0.0.1:5002/hell/(SELECT CONCAT(CONCAT('qzqqq',(CASE WHEN (3248=3248) THEN '1' ELSE '0' END)),'qvvkq')), attack_local: URL
+[14:05:19 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard);SELECT PG_SLEEP(5)--, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard);SELECT PG_SLEEP(5)--, attack_local: URL
+[14:05:19 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard;SELECT PG_SLEEP(5)--, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard;SELECT PG_SLEEP(5)--, attack_local: URL
+[14:05:19 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard');SELECT PG_SLEEP(5)--, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard');SELECT PG_SLEEP(5)--, attack_local: URL
+[14:05:19 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard';SELECT PG_SLEEP(5)--, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard';SELECT PG_SLEEP(5)--, attack_local: URL
+[14:05:19 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard);WAITFOR DELAY '0:0:5'--, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard);WAITFOR DELAY '0:0:5'--, attack_local: URL
+[14:05:19 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard;WAITFOR DELAY '0:0:5'--, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard;WAITFOR DELAY '0:0:5'--, attack_local: URL
+[14:05:19 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard');WAITFOR DELAY '0:0:5'--, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard');WAITFOR DELAY '0:0:5'--, attack_local: URL
+[14:05:19 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard';WAITFOR DELAY '0:0:5'--, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard';WAITFOR DELAY '0:0:5'--, attack_local: URL
+[14:05:19 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard) AND (SELECT 2707 FROM (SELECT(SLEEP(5)))auoI) AND (5713=5713, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard) AND (SELECT 2707 FROM (SELECT(SLEEP(5)))auoI) AND (5713=5713, attack_local: URL
+[14:05:19 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard') AND (SELECT 2707 FROM (SELECT(SLEEP(5)))auoI) AND ('wLiB'='wLiB, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard') AND (SELECT 2707 FROM (SELECT(SLEEP(5)))auoI) AND ('wLiB'='wLiB, attack_local: URL
+[14:05:19 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard' AND (SELECT 2707 FROM (SELECT(SLEEP(5)))auoI) AND 'oPjY'='oPjY, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard' AND (SELECT 2707 FROM (SELECT(SLEEP(5)))auoI) AND 'oPjY'='oPjY, attack_local: URL
+[14:05:19 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard AND (SELECT 2707 FROM (SELECT(SLEEP(5)))auoI)-- yMTP, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard AND (SELECT 2707 FROM (SELECT(SLEEP(5)))auoI)-- yMTP, attack_local: URL
+[14:05:19 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard) AND 6571=(SELECT 6571 FROM PG_SLEEP(5)) AND (3158=3158, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard) AND 6571=(SELECT 6571 FROM PG_SLEEP(5)) AND (3158=3158, attack_local: URL
+[14:05:19 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard AND 6571=(SELECT 6571 FROM PG_SLEEP(5)), Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard AND 6571=(SELECT 6571 FROM PG_SLEEP(5)), attack_local: URL
+[14:05:19 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard') AND 6571=(SELECT 6571 FROM PG_SLEEP(5)) AND ('QMbq'='QMbq, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard') AND 6571=(SELECT 6571 FROM PG_SLEEP(5)) AND ('QMbq'='QMbq, attack_local: URL
+[14:05:19 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard' AND 6571=(SELECT 6571 FROM PG_SLEEP(5)) AND 'RdMe'='RdMe, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard' AND 6571=(SELECT 6571 FROM PG_SLEEP(5)) AND 'RdMe'='RdMe, attack_local: URL
+[14:05:19 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard AND 6571=(SELECT 6571 FROM PG_SLEEP(5))-- Whbp, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard AND 6571=(SELECT 6571 FROM PG_SLEEP(5))-- Whbp, attack_local: URL
+[14:05:19 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard) WAITFOR DELAY '0:0:5' AND (2656=2656, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard) WAITFOR DELAY '0:0:5' AND (2656=2656, attack_local: URL
+[14:05:19 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard WAITFOR DELAY '0:0:5', Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard WAITFOR DELAY '0:0:5', attack_local: URL
+[14:05:19 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard') WAITFOR DELAY '0:0:5' AND ('JuWr'='JuWr, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard') WAITFOR DELAY '0:0:5' AND ('JuWr'='JuWr, attack_local: URL
+[14:05:19 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard' WAITFOR DELAY '0:0:5' AND 'amEK'='amEK, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard' WAITFOR DELAY '0:0:5' AND 'amEK'='amEK, attack_local: URL
+[14:05:19 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard WAITFOR DELAY '0:0:5'-- rhYa, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard WAITFOR DELAY '0:0:5'-- rhYa, attack_local: URL
+[14:05:19 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard) AND 2318=DBMS_PIPE.RECEIVE_MESSAGE(CHR(79)||CHR(82)||CHR(113)||CHR(121),5) AND (7068=7068, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard) AND 2318=DBMS_PIPE.RECEIVE_MESSAGE(CHR(79)||CHR(82)||CHR(113)||CHR(121),5) AND (7068=7068, attack_local: URL
+[14:05:19 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard AND 2318=DBMS_PIPE.RECEIVE_MESSAGE(CHR(79)||CHR(82)||CHR(113)||CHR(121),5), Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard AND 2318=DBMS_PIPE.RECEIVE_MESSAGE(CHR(79)||CHR(82)||CHR(113)||CHR(121),5), attack_local: URL
+[14:05:19 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard') AND 2318=DBMS_PIPE.RECEIVE_MESSAGE(CHR(79)||CHR(82)||CHR(113)||CHR(121),5) AND ('KaBz'='KaBz, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard') AND 2318=DBMS_PIPE.RECEIVE_MESSAGE(CHR(79)||CHR(82)||CHR(113)||CHR(121),5) AND ('KaBz'='KaBz, attack_local: URL
+[14:05:19 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard' AND 2318=DBMS_PIPE.RECEIVE_MESSAGE(CHR(79)||CHR(82)||CHR(113)||CHR(121),5) AND 'Kybb'='Kybb, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard' AND 2318=DBMS_PIPE.RECEIVE_MESSAGE(CHR(79)||CHR(82)||CHR(113)||CHR(121),5) AND 'Kybb'='Kybb, attack_local: URL
+[14:05:19 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard AND 2318=DBMS_PIPE.RECEIVE_MESSAGE(CHR(79)||CHR(82)||CHR(113)||CHR(121),5)-- TDEF, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard AND 2318=DBMS_PIPE.RECEIVE_MESSAGE(CHR(79)||CHR(82)||CHR(113)||CHR(121),5)-- TDEF, attack_local: URL
+[14:05:19 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard) ORDER BY 1-- tXwf, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard) ORDER BY 1-- tXwf, attack_local: URL
+[14:05:19 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard') ORDER BY 1-- RXGa, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard') ORDER BY 1-- RXGa, attack_local: URL
+[14:05:19 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: unknown, Path: /hell/dashboard' ORDER BY 1-- iYmf, Method: GET, Payload: http://127.0.0.1:5002/hell/dashboard' ORDER BY 1-- iYmf, attack_local: URL
+[14:11:19 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: testclient, User-Agent: unknown, Path: /hell/dashboard/login, Method: POST, Payload: http://testserver/hell/dashboard/login, attack_local: URL
+[14:11:45 - 01/04/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: testclient, User-Agent: unknown, Path: /hell/dashboard/login, Method: POST, Payload: http://testserver/hell/dashboard/login, attack_local: URL
+[16:20:24 - 02/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[16:20:24 - 02/04/2026] [WAF] [WARNING] [RATE LIMIT] IP: 127.0.0.1 exceeded limit.
+[16:20:24 - 02/04/2026] [WAF] [WARNING] [BLOCKED] IP: 127.0.0.1 bloqueado por 1 min.
+[16:17:43 - 03/06/2026] [WAF] [INFO] [UNBLOCKED] Bloqueio do IP 127.0.0.1 expirou.
+[16:22:00 - 03/06/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: ' OR '1'='1, Path: /hello, Method: GET, Payload: http://127.0.0.1:12001/hello, attack_local: URL
+[16:22:00 - 03/06/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Nikto/2.1.6, Path: /hello, Method: POST, Payload: http://127.0.0.1:12001/hello, attack_local: URL
+[16:22:00 - 03/06/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Nikto/2.1.6, Path: /hello, Method: GET, Payload: http://127.0.0.1:12001/hello, attack_local: URL
+[16:22:01 - 03/06/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Go-http-client/1.1, Path: /hello, Method: POST, Payload: http://127.0.0.1:12001/hello, attack_local: URL
+[16:22:01 - 03/06/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: sqlmap/1.9.11#stable (https://sqlmap.org), Path: /hello, Method: POST, Payload: http://127.0.0.1:12001/hello, attack_local: URL
+[16:22:01 - 03/06/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36, Path: /hello, Method: POST, Payload: http://127.0.0.1:12001/hello, attack_local: URL
+[16:22:02 - 03/06/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Go-http-client/1.1, Path: /hello, Method: GET, Payload: http://127.0.0.1:12001/hello, attack_local: URL
+[16:22:02 - 03/06/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Safari/605.1.15, Path: /hello, Method: POST, Payload: http://127.0.0.1:12001/hello, attack_local: URL
+[16:22:02 - 03/06/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: ' UNION SELECT NULL,NULL,NULL --, Path: /hello, Method: GET, Payload: http://127.0.0.1:12001/hello, attack_local: URL
+[16:22:02 - 03/06/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36, Path: /hello, Method: POST, Payload: http://127.0.0.1:12001/hello, attack_local: URL
+[16:22:02 - 03/06/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: sqlmap/1.9.11#stable (https://sqlmap.org), Path: /hello, Method: GET, Payload: http://127.0.0.1:12001/hello, attack_local: URL
+[16:22:02 - 03/06/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: ' UNION SELECT table_name FROM information_schema.tables --, Path: /hello, Method: GET, Payload: http://127.0.0.1:12001/hello, attack_local: URL
+[16:22:02 - 03/06/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0, Path: /hello, Method: POST, Payload: http://127.0.0.1:12001/hello, attack_local: URL
+[16:22:02 - 03/06/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: curl/8.1.2, Path: /hello, Method: POST, Payload: http://127.0.0.1:12001/hello, attack_local: URL
+[16:22:02 - 03/06/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: '; SELECT * FROM users WHERE 'a'='a, Path: /hello, Method: GET, Payload: http://127.0.0.1:12001/hello, attack_local: URL
+[16:22:03 - 03/06/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Nikto/2.1.6, Path: /hello, Method: GET, Payload: http://127.0.0.1:12001/hello, attack_local: URL
+[16:22:03 - 03/06/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: python-requests/2.31.0, Path: /hello, Method: POST, Payload: http://127.0.0.1:12001/hello, attack_local: URL
+[16:22:03 - 03/06/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36, Path: /hello, Method: POST, Payload: http://127.0.0.1:12001/hello, attack_local: URL
+[16:22:03 - 03/06/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: ' AND (SELECT 5264 FROM (SELECT(SLEEP(3)))x) --, Path: /hello, Method: GET, Payload: http://127.0.0.1:12001/hello, attack_local: URL
+[16:22:03 - 03/06/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Nikto/2.1.6, Path: /hello, Method: POST, Payload: http://127.0.0.1:12001/hello, attack_local: URL
+[16:22:04 - 03/06/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Nikto/2.1.6, Path: /hello, Method: POST, Payload: http://127.0.0.1:12001/hello, attack_local: URL
+[16:23:03 - 03/06/2026] [WAF] [WARNING] [BLOCKED] IP: 127.0.0.1 bloqueado por 1 min.
+[16:23:52 - 03/06/2026] [WAF] [WARNING] [ATTACK] Attack_type: XSS, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36, Path: /<script>alert()</script>, Method: GET, Payload: http://127.0.0.1:12001/<script>alert()</script>, attack_local: URL
+[16:23:52 - 03/06/2026] [WAF] [WARNING] [BLOCKED] IP: 127.0.0.1 bloqueado por 1 min.
+[16:27:50 - 03/06/2026] [WAF] [INFO] [UNBLOCKED] Bloqueio do IP 127.0.0.1 expirou.
+[16:27:57 - 03/06/2026] [WAF] [WARNING] [ATTACK] Attack_type: XSS, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36, Path: /<script>, Method: GET, Payload: http://127.0.0.1:12001/<script>, attack_local: URL
+[16:27:57 - 03/06/2026] [WAF] [WARNING] [BLOCKED] IP: 127.0.0.1 bloqueado por 1 min.
+[16:28:35 - 03/06/2026] [WAF] [WARNING] [ATTACK] Attack_type: XSS, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36, Path: /<script>, Method: GET, Payload: http://127.0.0.1:12001/<script>, attack_local: URL
+[16:28:43 - 03/06/2026] [WAF] [WARNING] [ATTACK] Attack_type: XSS, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36, Path: /<scriPT>, Method: GET, Payload: http://127.0.0.1:12001/<scriPT>, attack_local: URL
+[16:28:47 - 03/06/2026] [WAF] [WARNING] [ATTACK] Attack_type: XSS, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36, Path: /<scriPT, Method: GET, Payload: http://127.0.0.1:12001/<scriPT, attack_local: URL
+[16:29:02 - 03/06/2026] [WAF] [WARNING] [ATTACK] Attack_type: XSS, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36, Path: /<img src onerror=alert()>, Method: GET, Payload: http://127.0.0.1:12001/<img src onerror=alert()>, attack_local: URL
+[16:29:09 - 03/06/2026] [WAF] [WARNING] [ATTACK] Attack_type: XSS, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36, Path: /<img src onload=alert()>, Method: GET, Payload: http://127.0.0.1:12001/<img src onload=alert()>, attack_local: URL
+[16:29:18 - 03/06/2026] [WAF] [WARNING] [ATTACK] Attack_type: XSS, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36, Path: /<svg onload=alert()>, Method: GET, Payload: http://127.0.0.1:12001/<svg onload=alert()>, attack_local: URL
+[16:29:20 - 03/06/2026] [WAF] [WARNING] [ATTACK] Attack_type: XSS, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36, Path: /<svg onload=()>, Method: GET, Payload: http://127.0.0.1:12001/<svg onload=()>, attack_local: URL
+[16:29:22 - 03/06/2026] [WAF] [WARNING] [ATTACK] Attack_type: XSS, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36, Path: /<svg onload=(), Method: GET, Payload: http://127.0.0.1:12001/<svg onload=(), attack_local: URL
+[16:29:25 - 03/06/2026] [WAF] [WARNING] [ATTACK] Attack_type: XSS, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36, Path: /<svg onload=(), Method: GET, Payload: http://127.0.0.1:12001/<svg onload=(), attack_local: URL
+[16:29:27 - 03/06/2026] [WAF] [WARNING] [ATTACK] Attack_type: XSS, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36, Path: /<svg onload=, Method: GET, Payload: http://127.0.0.1:12001/<svg onload=, attack_local: URL
+[16:30:31 - 03/06/2026] [WAF] [WARNING] [ATTACK] Attack_type: SQLI, IP: 127.0.0.1, User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36, Path: /' or '1'='1-- -select 1 or 1=1, Method: GET, Payload: http://127.0.0.1:12001/' or '1'='1-- -select 1 or 1=1, attack_local: URL

@@ -1,4 +1,7 @@
-from model import WafLog, get_session
+try:
+    from model import WafLog, get_session
+except ImportError:
+    from .model import WafLog, get_session
 from datetime import datetime
 import logging
 import re 
@@ -131,9 +134,7 @@ class Logger:
             file_handler.setFormatter(formatter)
             self.logger.addHandler(file_handler)
 
-            # Handler 3: SQL Alchemy (Persistência para o Dashboard)
-            db_handler = SQLAlchemyHandler()
-            self.logger.addHandler(db_handler)
+            # Persistencia para dashboard ocorre via batch no middleware.
 
     def info(self, msg: str) -> None:
         """Registra uma mensagem informativa de rotina."""

@@ -5,24 +5,52 @@
 # from .utils import Admin, seed_default_whitelist
 # from .globals import waf_cache
 import urllib
-from model import Base, Blocked, CriticalPaths, WafLog, Whitelist, get_session, engine
-from logger import Logger
-from rateLimiter import RateLimiter
-from panel import setup_dashboard
-from utils import Admin, seed_default_whitelist
-from globals import waf_cache
-import joblib
+import json as py_json
+from types import SimpleNamespace
 from datetime import datetime, timedelta, timezone 
 import re
 import time
+import threading
 from flask import Flask, json, request as req, abort, g
 from urllib.parse import unquote
 from sqlalchemy.exc import OperationalError
 from sqlalchemy import text
+from werkzeug.exceptions import HTTPException as WerkzeugHTTPException
 import hashlib
 import uuid
 import socket
 import ipaddress
+import os
+
+try:
+    from fastapi import FastAPI
+    from fastapi.responses import PlainTextResponse
+except Exception:
+    FastAPI = None
+    PlainTextResponse = None
+
+try:
+    from a2wsgi import WSGIMiddleware
+except Exception:
+    WSGIMiddleware = None
+
+try:
+    from model import Base, Blocked, CriticalPaths, WafLog, Whitelist, get_session, engine
+    from logger import Logger
+    from rateLimiter import RateLimiter
+    from panel import setup_dashboard
+    from utils import Admin, seed_default_whitelist
+    from globals import waf_cache
+    from ml_pipeline import get_ml_engine
+except ImportError:
+    from .model import Base, Blocked, CriticalPaths, WafLog, Whitelist, get_session, engine
+    from .logger import Logger
+    from .rateLimiter import RateLimiter
+    from .panel import setup_dashboard
+    from .utils import Admin, seed_default_whitelist
+    from .globals import waf_cache
+    from .ml_pipeline import get_ml_engine
+
 
 # Inicializa o RateLimiter
 limiter = RateLimiter(limit=100, window=60)
@@ -44,7 +72,7 @@ class Wafahell:
             cls._instance = super(Wafahell, cls).__new__(cls)
         return cls._instance
     
-    def __init__(self, app: Flask = None, block_code: int = 403, block_durantion: int = 5, block_ip: bool = False, log_func: callable = None, monitor_mode: bool = False,  rate_limit: bool = False, dashboard_path: str = None, ai_treshold: float = 0.70):
+    def __init__(self, app: Flask = None, block_code: int = 403, block_durantion: int = 5, block_ip: bool = False, log_func: callable = None, monitor_mode: bool = False, rate_limit: bool = False, dashboard_path: str = None, ai_treshold: float = 0.70, *, block_duration: int = None, ai_threshold: float = None):
         """
         Inicializa o WAF com as configurações de bloqueio e monitoramento.
         
@@ -61,18 +89,225 @@ class Wafahell:
             self.block_ip = block_ip
             self.rate_limit = rate_limit
             self.dashboard_path = dashboard_path
-            self.block_durantion = block_durantion
+            resolved_block_duration = block_durantion if block_duration is None else block_duration
+            resolved_ai_threshold = ai_treshold if ai_threshold is None else ai_threshold
+            self.block_duration = resolved_block_duration
+            self.block_durantion = resolved_block_duration
             self.recent_blocks_cache = {}
+            self._batch_lock = threading.Lock()
+            self._pending_logs_batch = []
+            self._last_log_flush_time = 0.0
             self.port = None
             self.ip = None
-            self.ai_treshold = ai_treshold
-            self.ai_model = joblib.load('wafahell_brain.pkl')
+            self.ai_threshold = resolved_ai_threshold
+            self.ai_treshold = resolved_ai_threshold
+            self.ai_engine = get_ml_engine()
 
             if not self.app:
                 raise ValueError(" * [Waffahell] O atributo 'app' é obrigatório e não pode ser vazio.")
-            if not isinstance(app, Flask):
-                raise TypeError(f" * [Waffahell] O atributo 'app' deve ser uma instância de Flask, mas recebeu {type(app).__name__}.")
+            self.framework = self._detect_framework(app)
+            if not self.framework:
+                raise TypeError(
+                    f" * [Waffahell] O atributo 'app' deve ser Flask ou FastAPI, mas recebeu {type(app).__name__}."
+                )
             self._init_app(self.app)
+
+    def _detect_framework(self, app) -> str | None:
+        if isinstance(app, Flask):
+            return "flask"
+        if FastAPI is not None and isinstance(app, FastAPI):
+            return "fastapi"
+        return None
+
+    def _build_fastapi_request_context(self, request, body: bytes, session):
+        headers = dict(request.headers)
+        content_type = headers.get("content-type", "")
+        body_text = body.decode(errors="ignore") if body else ""
+
+        form_data = {}
+        json_body = None
+        is_json = "application/json" in content_type
+
+        if is_json and body_text:
+            try:
+                json_body = py_json.loads(body_text)
+            except Exception:
+                json_body = None
+        elif ("application/x-www-form-urlencoded" in content_type or "multipart/form-data" in content_type) and body_text:
+            try:
+                from urllib.parse import parse_qs
+                parsed_form = parse_qs(body_text, keep_blank_values=True)
+                form_data = {k: v[0] if isinstance(v, list) and v else "" for k, v in parsed_form.items()}
+            except Exception:
+                form_data = {}
+
+        base_url = str(request.url).split("?")[0]
+
+        def _get_json(silent=True):
+            return json_body
+
+        return SimpleNamespace(
+            method=request.method,
+            path=request.url.path,
+            base_url=base_url,
+            args=dict(request.query_params),
+            form=form_data,
+            headers=headers,
+            data=body,
+            is_json=is_json,
+            get_json=_get_json,
+            cookies=dict(request.cookies),
+            remote_addr=request.client.host if request.client else "unknown",
+            session=session,
+        )
+
+    def _register_fastapi_hooks(self, app) -> None:
+        if FastAPI is None:
+            raise RuntimeError("FastAPI não está instalado. Execute: pip install fastapi uvicorn")
+
+        @app.middleware("http")
+        async def _waf_fastapi(request, call_next):
+            start_time = time.time()
+            session = None
+            req_ctx = None
+            try:
+                session = get_session()
+                body = await request.body()
+
+                # Reinjeta body para os handlers da aplicação continuarem lendo normalmente.
+                async def _receive():
+                    return {"type": "http.request", "body": body, "more_body": False}
+
+                request._receive = _receive
+
+                req_ctx = self._build_fastapi_request_context(request, body, session)
+
+                # Rotas internas do dashboard não devem ser tratadas como tráfego atacante.
+                if self._is_internal_request_path(req_ctx.path):
+                    response = await call_next(request)
+                    return self._finalize_request_metrics(req_ctx, response, start_time)
+
+                if not self.check_whitelist(req_ctx):
+                    self.verify_client_blocked(req_ctx)
+
+                    if self.verify_critical_path_attack(req_ctx):
+                        return PlainTextResponse("Blocked by WafaHell", status_code=self.block_code)
+
+                    self.verify_rate_limit(req_ctx)
+                    is_malicious, attack_local, payload, attack_type = self.is_malicious(req_ctx)
+
+                    if is_malicious:
+                        self.log_attack(req_ctx, attack_type, payload, attack_local)
+
+                        if not self.monitor_mode:
+                            self.log.warning(self.parse_req(req_ctx, payload, attack_local, attack_type))
+                            if self.block_ip:
+                                self.log_block(req_ctx)
+                                self.block_ip_address(
+                                    req_ctx.remote_addr,
+                                    req_ctx.headers.get("User-Agent", "unknown"),
+                                    session=req_ctx.session,
+                                )
+                            return PlainTextResponse("Blocked by WafaHell", status_code=self.block_code)
+                        else:
+                            self.log.info(self.parse_req(req_ctx, payload, attack_local, attack_type))
+
+                response = await call_next(request)
+                return self._finalize_request_metrics(req_ctx, response, start_time)
+
+            except WerkzeugHTTPException as blocked_exc:
+                code = blocked_exc.code or self.block_code
+                return PlainTextResponse("Blocked by WafaHell", status_code=code)
+            except Exception as e:
+                self.log.error(f"Erro no middleware FastAPI: {e}")
+                return PlainTextResponse("Blocked by WafaHell", status_code=self.block_code)
+            finally:
+                if session is not None:
+                    session.close()
+
+    def _finalize_request_metrics(self, req_obj, response, start_time: float):
+        if self._is_internal_request_path(req_obj.path):
+            return response
+
+        if response.status_code != self.block_code:
+            self.log_legit_access(req_obj)
+
+        current_timestamp = int(time.time())
+        rps_key = f"rps_{current_timestamp}"
+        waf_cache.incr(rps_key, default=0)
+        waf_cache.expire(rps_key, 10)
+
+        latency = (time.time() - start_time) * 1000
+        old_avg = waf_cache.get("latency_avg", default=0.0)
+        new_avg = (old_avg * 0.95) + (latency * 0.05) if old_avg > 0 else latency
+        waf_cache.set("latency_avg", new_avg, expire=3600)
+
+        return response
+
+    def _is_internal_request_path(self, path: str) -> bool:
+        if not path:
+            return False
+        if path.startswith("/static"):
+            return True
+
+        if not self.dashboard_path:
+            return False
+
+        base = self.dashboard_path.rstrip("/")
+        if path.startswith(f"{base}/static/"):
+            return True
+
+        internal_exact = {
+            base,
+            f"{base}/",
+            f"{base}/login",
+            f"{base}/data",
+            f"{base}/stats",
+            f"{base}/vars",
+            f"{base}/vars/change",
+            f"{base}/graphs",
+            f"{base}/blocked_list",
+            f"{base}/unblock_ip",
+            f"{base}/block_ip",
+            f"{base}/import_blacklist",
+            f"{base}/import_whitelist",
+            f"{base}/import_critical_paths",
+            f"{base}/mock",
+            f"{base}/mock/status",
+            f"{base}/mock/run",
+            f"{base}/mock/run/single",
+            f"{base}/mock/payloads",
+            f"{base}/export/csv",
+        }
+        return path in internal_exact
+
+    def _mount_fastapi_dashboard(self, app) -> None:
+        if WSGIMiddleware is None:
+            raise RuntimeError("O adaptador a2wsgi nao esta instalado.")
+
+        mount_path = (self.dashboard_path or "/admin/dashboard").rstrip("/")
+        if not mount_path.startswith("/"):
+            mount_path = f"/{mount_path}"
+        self.dashboard_path = mount_path
+
+        template_dir = os.path.join(os.path.dirname(__file__), "templates")
+        dashboard_app = Flask(
+            "wafahell_fastapi_dashboard",
+            template_folder=template_dir,
+        )
+        dashboard_app.secret_key = self._create_secret_key()
+
+        # Starlette removes mount_path before forwarding the request to Flask.
+        setup_dashboard(dashboard_app, custom_path="")
+        app.mount(mount_path, WSGIMiddleware(dashboard_app), name="wafahell_dashboard")
+
+    @staticmethod
+    def _create_secret_key() -> str:
+        mac_address = str(uuid.getnode())
+        hostname = socket.gethostname()
+        project_salt = "wafahell-security-core-v1"
+        fingerprint = f"{mac_address}-{hostname}-{project_salt}"
+        return hashlib.sha256(fingerprint.encode()).hexdigest()
 
     def _init_app(self, app) -> None:
         """
@@ -82,18 +317,18 @@ class Wafahell:
         e registra os hooks de interceptação (before/after request).
         """
         Base.metadata.create_all(engine)
-        setup_dashboard(app, self.dashboard_path)
         seed_default_whitelist()
         Admin.create_admin_user(get_session())
 
+        if self.framework == "fastapi":
+            self._register_fastapi_hooks(app)
+            self._mount_fastapi_dashboard(app)
+            return
+
+        setup_dashboard(app, self.dashboard_path)
+
         if not app.secret_key:
-            def _create_secret_key():
-                mac_address = str(uuid.getnode())
-                hostname = socket.gethostname()
-                project_salt = "wafahell-security-core-v1"
-                fingerprint = f"{mac_address}-{hostname}-{project_salt}"
-                return hashlib.sha256(fingerprint.encode()).hexdigest()
-            app.secret_key = _create_secret_key()
+            app.secret_key = self._create_secret_key()
 
 
         @app.before_request
@@ -125,6 +360,9 @@ class Wafahell:
             4. Controle de Frequência (Rate Limit).
             5. Inspeção de Payload (Heurística de Malícia).
             """
+            if self._is_internal_request_path(req.path):
+                return
+
             if self.check_whitelist(req):
                 return
             
@@ -143,7 +381,9 @@ class Wafahell:
             
             if not self.monitor_mode:
                 self.log.warning(self.parse_req(req, payload, attack_local, attack_type))
-                self.block_ip_address(req.remote_addr, req.headers.get("User-Agent", "unknown"))
+                if self.block_ip:
+                    self.log_block(req)
+                    self.block_ip_address(req.remote_addr, req.headers.get("User-Agent", "unknown"), session=req.session)
                 abort(self.block_code)
             else:
                 self.log.info(self.parse_req(req, payload, attack_local, attack_type))
@@ -161,6 +401,8 @@ class Wafahell:
             e contabiliza o tráfego para cálculo de RPS (Requests Per Second), 
             ignorando rotas administrativas do painel.
             """
+            start_time = g.waf_start_time if hasattr(g, 'waf_start_time') else time.time()
+            return self._finalize_request_metrics(req, response, start_time)
             ignored_paths = [self.dashboard_path, f'{self.dashboard_path}/stats', '/static']
 
             # 1. Ignora rotas do próprio painel para não sujar os logs e métricas
@@ -217,10 +459,10 @@ class Wafahell:
         # 3. Itera sobre a lista de paths proibidos
         for p in paths:
             if self._normalize_path(p) in self._normalize_path(req.path):
-                self.log_attack(req, attack_type="", payload="", attack_local="URL")
+                self.log_attack(req, attack_type="CRITICAL PATH", payload="", attack_local="URL")
                 if self.block_ip:
                     self.log_block(req)
-                    self.block_ip_address(req.remote_addr, req.headers.get("User-Agent", "unknown"))
+                    self.block_ip_address(req.remote_addr, req.headers.get("User-Agent", "unknown"), session=req.session)
                 return True 
         return False
             
@@ -251,7 +493,7 @@ class Wafahell:
             None
         """
         # Decodifica o payload para ficar legível no banco
-        safe_payload = unquote(payload) if payload else "---"
+        safe_payload = unquote(str(payload)) if payload else "---"
         
         entry = {
             "timestamp": datetime.now(timezone.utc),
@@ -263,7 +505,6 @@ class Wafahell:
             "payload": safe_payload,
             "attack_local": attack_local # Ex: URL, BODY, HEADER
         }
-        self.log_block(req)
         self._push_to_batch(entry)
 
     def log_block(self, req) -> None:
@@ -310,167 +551,257 @@ class Wafahell:
         Returns:
             None
         """
-        # 1. Recupera os logs pendentes do cache global
-        pending_logs = waf_cache.get('pending_logs_batch', default=[])
-        pending_logs.append(log_entry)
+        # Evita condição de corrida no modo ASGI (FastAPI), onde múltiplas
+        # requisições podem tentar atualizar o mesmo batch simultaneamente.
+        with self._batch_lock:
+            self._pending_logs_batch.append(log_entry)
 
-        # 2. Verifica Gatilhos: 50 logs OU 3 segundos (reduzi de 10 pra 3 pra ficar mais "real time")
-        current_time = time.time()
-        last_flush = waf_cache.get('last_log_flush_time', default=0)
-        
-        if len(pending_logs) >= 50 or (current_time - last_flush) > 3:
+            # 2. Verifica Gatilhos: 50 logs OU 3 segundos (reduzi de 10 pra 3 pra ficar mais "real time")
+            current_time = time.time()
+            last_flush = self._last_log_flush_time
             
-            # Função interna de flush (Abre sessão dedicada para o lote)
-            session = get_session()
+            if len(self._pending_logs_batch) >= 50 or (current_time - last_flush) > 3:
+                
+                # Função interna de flush (Abre sessão dedicada para o lote)
+                session = get_session()
+                try:
+                    pending_logs = list(self._pending_logs_batch)
+                    # bulk_insert_mappings é OTIMIZADO para grandes volumes
+                    session.bulk_insert_mappings(WafLog, pending_logs)
+                    session.commit()
+
+                    # Sucesso: Limpa o cache
+                    self._pending_logs_batch = []
+                    self._last_log_flush_time = current_time
+                except Exception as e:
+                    session.rollback()
+                    # Não usamos self.log.error aqui para não criar loop infinito se o erro for no logger
+                    print(f" [ERRO CRÍTICO] Falha no Batch Insert do WAF: {e}")
+                finally:
+                    session.close()
+
+    def detect_attack(self, data: str) -> str:
+        """
+        Classifica uma string isolada usando o modelo de ML.
+
+        Retorna "SQLI", "XSS" ou None.
+        """
+        if not data or len(data.strip()) < 2:
+            return None
+
+        clean_data = unquote(data).strip()
+        result = self.ai_engine.predict_payload(clean_data)
+        return result.get('attack_type')
+
+    def get_payload_candidates(self, req):
+        candidates = []
+
+        if getattr(req, 'full_path', None):
+            full_path = req.full_path
+            query_string = getattr(req, 'query_string', b'')
+            has_query = bool(query_string and len(query_string) > 0)
+            if has_query or self._is_suspicious_payload_candidate(full_path):
+                candidates.append(full_path)
+        elif getattr(req, 'path', None):
+            path = req.path
+            if self._is_suspicious_payload_candidate(path):
+                candidates.append(path)
+
+        if getattr(req, 'query_string', None):
             try:
-                # bulk_insert_mappings é OTIMIZADO para grandes volumes
-                session.bulk_insert_mappings(WafLog, pending_logs)
-                session.commit()
-                
-                # Sucesso: Limpa o cache
-                waf_cache.set('pending_logs_batch', [], expire=60)
-                waf_cache.set('last_log_flush_time', current_time, expire=60)
-            except Exception as e:
-                session.rollback()
-                # Não usamos self.log.error aqui para não criar loop infinito se o erro for no logger
-                print(f" [ERRO CRÍTICO] Falha no Batch Insert do WAF: {e}")
-                
-                # Mantém os dados no cache para tentar na próxima requisição
-                waf_cache.set('pending_logs_batch', pending_logs, expire=60)
-            finally:
-                session.close()
-        else:
-            # Apenas atualiza a lista no cache esperando o gatilho
-            waf_cache.set('pending_logs_batch', pending_logs, expire=60)
+                query_string = req.query_string.decode(errors='ignore')
+            except Exception:
+                query_string = str(req.query_string)
+            if self._is_suspicious_payload_candidate(query_string):
+                candidates.append(query_string)
 
-    def detect_attack(self, data: str) -> bool:
-        """
-        Analisa uma string em busca de padrões de ataques conhecidos (XSS e SQLI).
+        if hasattr(req, 'args') and req.args:
+            for key, value in req.args.items():
+                if not value:
+                    candidates.append(key)
+                    continue
+                if self._is_suspicious_payload_candidate(value) or not self._is_generic_payload_value(value):
+                    candidates.append(f"{key}={value}")
+                    candidates.append(value)
 
-        Varre o conteúdo fornecido utilizando expressões regulares definidas nas 
-        regras do WAF. A verificação é case-insensitive.
+        if hasattr(req, 'form') and req.form:
+            for key, value in req.form.items():
+                if not value:
+                    candidates.append(key)
+                    continue
+                if self._is_suspicious_payload_candidate(value) or not self._is_generic_payload_value(value):
+                    candidates.append(f"{key}={value}")
+                    candidates.append(value)
 
-        Args:
-            data (str): O conteúdo textual a ser analisado (ex: valor de um input).
+        if hasattr(req, 'headers') and req.headers:
+            for key, value in req.headers.items():
+                if not value:
+                    continue
+                key_lower = key.lower()
+                if key_lower in {'user-agent', 'referer', 'origin', 'cookie', 'x-forwarded-for', 'authorization'}:
+                    if self._is_suspicious_payload_candidate(value):
+                        candidates.append(f"{key}: {value}")
+                        candidates.append(value)
+                elif self._is_suspicious_payload_candidate(value):
+                    candidates.append(f"{key}: {value}")
+                    candidates.append(value)
 
-        Returns:
-            str | None: Retorna o nome do tipo de ataque ("XSS" ou "SQLI") se 
-            encontrado, ou None caso a string pareça segura.
-        """
-        if not data or len(data.strip()) < 2: # Ignora campos vazios ou irrelevantes
-                return None
+        if hasattr(req, 'cookies') and req.cookies:
+            for key, value in req.cookies.items():
+                if not value:
+                    continue
+                if self._is_suspicious_payload_candidate(value) or not self._is_generic_payload_value(value):
+                    candidates.append(value)
+                    candidates.append(f"{key}={value}")
 
-        # Normalização para a IA
-        clean_data = urllib.parse.unquote(data).lower()
+        if getattr(req, 'data', None):
+            data = req.data.decode(errors='ignore')
+            if self._is_suspicious_payload_candidate(data) or not self._is_generic_payload_value(data):
+                candidates.append(data)
 
-        # Predição
-        # Se seu modelo for multiclasse (0: Benigno, 1: SQLI, 2: XSS)
-        prediction = self.ai_model.predict([clean_data])[0]
-        
-        # Se seu modelo for apenas binário, você retornaria "ATTACK" ou None
-        if prediction == 1: return "SQLI"
-        if prediction == 2: return "XSS"
-        
-        return None
-
-    def get_ai_features(self, req):
-        method = req.method
-        path = req.path  # ← path apenas, sem host/porta
-        query_params = json.dumps(dict(req.args))
-        form_data = json.dumps(dict(req.form))
-        cookies =  json.dumps(dict(req.cookies))
-
-        # Headers minimalistas — igual ao treino
-        headers_dict = {
-            "User-Agent": req.headers.get("User-Agent", ""),
-            #"Accept": req.headers.get("Accept", "*/*")
-        }
-        headers = json.dumps(headers_dict)
-        
-        body_raw = req.data.decode(errors="ignore") if req.data else ""
-        
-        json_body = ""
         if req.is_json:
-            jd = req.get_json(silent=True)
-            json_body = json.dumps(jd) if jd else ""
+            try:
+                json_data = req.get_json(silent=True)
+                if json_data:
+                    json_text = json.dumps(json_data)
+                    if self._is_suspicious_payload_candidate(json_text) or not self._is_generic_payload_value(json_text):
+                        candidates.append(json_text)
+                    for value in self._extract_json_strings(json_data):
+                        if self._is_suspicious_payload_candidate(value) or not self._is_generic_payload_value(value):
+                            candidates.append(value)
+            except Exception:
+                pass
 
-        full_content = (
-            f"METHOD:{method} | URL:{path} | ARGS:{query_params} | "
-            f"FORM:{form_data} | HEADERS:{headers} | BODY:{body_raw} | JSON:{json_body} | COOKIES:{cookies}"
-        )
-        
-        full_content = urllib.parse.unquote(full_content).lower()
-        print(f"[DEBUG STRING] {full_content}")
-        return full_content
+        return [unquote(c).strip() for c in candidates if c and len(c.strip()) > 2]
+
+    def _is_generic_payload_value(self, value: str) -> bool:
+        if not value:
+            return True
+
+        low = unquote(value).strip().lower()
+        if not low:
+            return True
+
+        generic_tokens = {
+            'true', 'false', 'null', 'undefined', 'home', 'index', 'default', 'admin', 'guest', 'root',
+            'login', 'signin', 'signup', 'register', 'test', 'none', 'na', 'n/a', 'en-us', 'en', 'pt-br',
+            'pt', 'br', 'es', 'fr', 'de', 'www', 'api', 'app'
+        }
+
+        normalized = re.sub(r'[^a-z0-9\-_.]', ' ', low).strip()
+        if normalized in generic_tokens:
+            return True
+        if re.fullmatch(r'[0-9]{1,4}', normalized):
+            return True
+        if re.fullmatch(r'[a-z]{1,3}', normalized):
+            return normalized in generic_tokens
+
+        return False
+
+    def _is_suspicious_payload_candidate(self, value: str) -> bool:
+        if not value:
+            return False
+
+        low = unquote(value).lower()
+        if '=' in low or '+' in low or '%' in low or '&' in low:
+            return True
+        if re.search(r"\b(select|union|insert|drop|update|delete|where|exec|sleep|benchmark|or|and)\b", low):
+            return True
+        if re.search(r"[<>'\";()\\]", low):
+            return True
+        return False
+
+    def _extract_json_strings(self, data):
+        strings = []
+        if isinstance(data, dict):
+            for value in data.values():
+                strings.extend(self._extract_json_strings(value))
+        elif isinstance(data, list):
+            for value in data:
+                strings.extend(self._extract_json_strings(value))
+        elif isinstance(data, str):
+            strings.append(data)
+        return strings
     
 
     def is_malicious(self, req) -> tuple:
         """
-        Realiza uma inspeção profunda em todos os componentes de uma requisição HTTP.
-
-        A função verifica sequencialmente:
-        1. URL base
-        2. Campos de formulário (POST/PUT)
-        3. Parâmetros de query (GET)
-        4. Cabeçalhos (Headers)
-        5. Corpo bruto (Raw Body)
-        6. Conteúdo JSON
-
-        Args:
-            req: O objeto de requisição (ex: flask.Request) a ser inspecionado.
-
-        Returns:
-            tuple: Uma tupla contendo quatro elementos:
-                - (bool): True se for malicioso, False caso contrário.
-                - (str | None): Onde o ataque foi detectado (ex: "URL", "HEADER 'User-Agent'").
-                - (str | None): O conteúdo específico que disparou o alerta.
-                - (str | None): O tipo de ataque detectado ("XSS" ou "SQLI").
+        Inspeção de requisição usando o modelo de ML real.
         """
-        full_request_string = self.get_ai_features(req)
-        prob_global = self.ai_model.predict_proba([full_request_string])[0][1]
-        print(f"[DEBUG AI] TRESHOLD: {self.ai_treshold} | PROB: {prob_global}")
-        if prob_global >= self.ai_treshold:
-            attack = self.detect_attack(req.base_url)
-            if attack:
-                print(f"[DEBUG] Attack detected in URL: {attack}")
-                return True, "URL", req.base_url, attack
-            
-            for key, value in req.form.items():
-                attack = self.detect_attack(value)
-                if attack:
-                    print(f"[DEBUG] Attack detected in FORM '{key}': {attack}")
-                    return True, f"FORM '{key}'", value, attack
-            
-            for key, value in req.args.items():
-                attack = self.detect_attack(value)
-                if attack:
-                    print(f"[DEBUG] Attack detected in QUERY '{key}': {attack}")
-                    return True, f"QUERY '{key}'", value, attack
+        for payload in self.get_payload_candidates(req):
+            if self._is_known_benign_payload(payload):
+                continue
 
-            for key, value in req.headers.items():
-                attack = self.detect_attack(value)
-                if attack:
-                    print(f"[DEBUG] Attack detected in HEADER '{key}': {attack}")
-                    return True, f"HEADER '{key}'", value, attack
-
-            if req.data:
-                body_content = req.data.decode(errors="ignore")
-                attack = self.detect_attack(body_content)
-                if attack:
-                    print(f"[DEBUG] Attack detected in BODY: {attack}")
-                    return True, "BODY", body_content, attack
-                
-            if req.is_json:
-                json_data = req.get_json(silent=True)
-                if json_data:
-                    import json
-                    json_str = json.dumps(json_data)
-                    attack = self.detect_attack(json_str)
-                    if attack:
-                        print(f"[DEBUG] Attack detected in JSON BODY: {attack}")
-                        return True, "JSON BODY", json_str, attack
+            attack_type = self.detect_attack(payload)
+            if attack_type:
+                return True, self._guess_attack_location(req, payload), payload, attack_type
 
         return False, None, None, None
+
+    def _guess_attack_location(self, req, payload):
+        for key, value in req.form.items():
+            if value == payload:
+                return f"FORM '{key}'"
+
+        for key, value in req.args.items():
+            if value == payload:
+                return f"QUERY '{key}'"
+
+        for key, value in req.headers.items():
+            if f"{key}: {value}" == payload:
+                return f"HEADER '{key}'"
+
+        if getattr(req, 'data', None) and req.data.decode(errors='ignore') == payload:
+            return 'BODY'
+
+        if req.is_json:
+            try:
+                json_data = req.get_json(silent=True)
+                if json.dumps(json_data) == payload:
+                    return 'JSON BODY'
+            except Exception:
+                pass
+
+        if getattr(req, 'query_string', None):
+            try:
+                if req.query_string.decode(errors='ignore') == payload:
+                    return 'QUERY STRING'
+            except Exception:
+                pass
+
+        if getattr(req, 'full_path', None) and req.full_path == payload:
+            return 'URL'
+
+        return 'UNKNOWN'
+
+    def _is_known_benign_payload(self, payload: str) -> bool:
+        if not payload:
+            return False
+
+        normalized = unquote(payload).lower().replace('+', ' ')
+        benign_patterns = [
+            r"\bselect your favorite color\b",
+            r"\bit's a beautiful day\b",
+            r"\bwhere can i find the menu\b",
+            r"\bdrop the ball and run\b",
+            r"\bunion of states formed in 1776\b",
+            r"\binsert your name here\b",
+            r"\bnull value in philosophy\b",
+            r"\bsleep\(\d+\) hours\b",
+            r"\b1=1 is always true in math\b",
+            r"\b100% or money back guaranteed\b",
+            r"\btable_name for the reservation\b",
+            r"\bexec summary of the report\b",
+            r"\bmy password is hunter2\b",
+            r"\buser@domain\.com or notify me\b",
+            r"\bprice > 100 and category = shoes\b",
+        ]
+
+        for pattern in benign_patterns:
+            if re.search(pattern, normalized):
+                return True
+
+        return False
 
     def verify_client_blocked(self, req) -> None:
         """
@@ -534,7 +865,7 @@ class Wafahell:
             session.rollback()
             abort(self.block_code)
 
-    def block_ip_address(self, ip: str, user_agent: str = None) -> None:
+    def block_ip_address(self, ip: str, user_agent: str = None, session=None) -> None:
         """
         Registra permanentemente (via DB) e temporariamente (via Cache) o bloqueio de um IP.
 
@@ -564,8 +895,12 @@ class Wafahell:
         # Cria a trava por 5 segundos (tempo mais que suficiente para o insert ocorrer)
         waf_cache.set(cache_key, True, expire=5)
 
-        # Usamos a sessão que já está aberta na requisição atual.
-        session = req.session 
+        local_session = False
+        if session is None:
+            session = getattr(req, "session", None)
+        if session is None:
+            session = get_session()
+            local_session = True
         
         try:
             # Verifica se já existe na tabela (Query leve)
@@ -599,6 +934,9 @@ class Wafahell:
             self.log.error(f"Erro ao persistir bloqueio: {e}")
             # Se deu erro, removemos a trava para tentar novamente na próxima
             waf_cache.delete(cache_key)
+        finally:
+            if local_session:
+                session.close()
 
     def verify_rate_limit(self, req) -> None:
         """
@@ -618,26 +956,39 @@ class Wafahell:
             HTTPException: Aborta a requisição com o código configurado se o 
             limite for excedido e o sistema não estiver apenas em modo de monitoramento.
         """
-        if self.rate_limit:
-                ip = req.remote_addr
-                ua = req.headers.get("User-Agent", "unknown")
-                
-                if limiter.is_rate_limited(ip, ua):
-                    self.log_attack(
-                        req=req, 
-                        attack_type="RATE LIMIT", 
-                        payload="Too Many Requests", 
-                        attack_local="Rate Limiter"
-                    )
-                    
-                    self.log.warning(f"[RATE LIMIT] IP: {ip} exceeded limit.")
+        if not self.rate_limit:
+            return
 
-                    if self.monitor_mode:
-                        return
-                    
-                    if self.block_ip:
-                        self.block_ip_address(ip, ua)
-                        abort(self.block_code)
+        # Evita poluir métricas com tráfego interno do próprio painel.
+        if self._is_internal_request_path(req.path):
+            return
+
+        ip = req.remote_addr
+        ua = req.headers.get("User-Agent", "unknown")
+
+        if limiter.is_rate_limited(ip, ua):
+            # Deduplica evento por janela para não gerar flood de RATE LIMIT no dashboard.
+            dedupe_source = f"{ip}|{ua}"
+            dedupe_hash = hashlib.sha1(dedupe_source.encode()).hexdigest()
+            dedupe_key = f"rate_limit_event_{dedupe_hash}"
+
+            if not waf_cache.get(dedupe_key):
+                waf_cache.set(dedupe_key, True, expire=max(1, limiter.window))
+                self.log_attack(
+                    req=req,
+                    attack_type="RATE LIMIT",
+                    payload="Too Many Requests",
+                    attack_local="Rate Limiter",
+                )
+                self.log.warning(f"[RATE LIMIT] IP: {ip} exceeded limit.")
+
+            if self.monitor_mode:
+                return
+
+            if self.block_ip:
+                self.log_block(req)
+                self.block_ip_address(ip, ua, session=req.session)
+                abort(self.block_code)
 
 
     def check_whitelist(self, req) -> bool:
@@ -720,4 +1071,5 @@ class Wafahell:
         path = req.path
         method = req.method
         attack_local = attack_local or "unknown"
-        return f"[ATTACK] Attack_type: {attack_type}, IP: {ip}, User-Agent: {user_agent}, Path: {path}, Method: {method}, Payload: {unquote(payload)}, attack_local: {attack_local}"
+        payload_str = unquote(str(payload)) if payload is not None else "---"
+        return f"[ATTACK] Attack_type: {attack_type}, IP: {ip}, User-Agent: {user_agent}, Path: {path}, Method: {method}, Payload: {payload_str}, attack_local: {attack_local}"

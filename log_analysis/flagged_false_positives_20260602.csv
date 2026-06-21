@@ -1,0 +1,26 @@
+Data/Hora,Tipo,IP,Endpoint,Metodo,Payload
+2026-06-02 09:03:21.973211,SQLI,127.0.0.1,/hello,GET,/hello?q=true&lang=index&id='+AND+(SELECT+5264+FROM+(SELECT(SLEEP(3)))x)+--
+2026-06-02 09:03:21.115459,SQLI,127.0.0.1,/hello,GET,/hello?q='+AND+SLEEP(3)+--
+2026-06-02 09:03:18.326632,SQLI,127.0.0.1,/hello,GET,/hello?ref=';+SELECT+PG_SLEEP(3)+--
+2026-06-02 08:57:24.811078,SQLI,127.0.0.1,/hello,GET,/hello?nome=1&category=home&lang='+AND+(SELECT+5264+FROM+(SELECT(SLEEP(3)))x)+--
+2026-06-02 08:57:23.507868,SQLI,127.0.0.1,/hello,GET,/hello?nome=null&search=home&user='+AND+SLEEP(3)+--
+2026-06-02 08:57:21.764792,SQLI,127.0.0.1,/hello,GET,/hello?page=';+SELECT+PG_SLEEP(3)+--
+2026-06-01 19:33:50.854844,SQLI,127.0.0.1,/hello,GET,/hello?nome=admin&search=true&page='+AND+(SELECT+5264+FROM+(SELECT(SLEEP(3)))x)+--
+2026-06-01 19:33:49.521900,SQLI,127.0.0.1,/hello,GET,/hello?id=42&category='+AND+SLEEP(3)+--
+2026-06-01 19:33:47.075057,SQLI,127.0.0.1,/hello,GET,/hello?id=default&lang=';+SELECT+PG_SLEEP(3)+--
+2026-06-01 19:28:19.127628,SQLI,127.0.0.1,/hello,GET,/hello?lang='+AND+(SELECT+5264+FROM+(SELECT(SLEEP(3)))x)+--
+2026-06-01 19:28:18.314976,SQLI,127.0.0.1,/hello,GET,/hello?id='+AND+SLEEP(3)+--
+2026-06-01 19:28:16.204783,SQLI,127.0.0.1,/hello,GET,/hello?search=';+SELECT+PG_SLEEP(3)+--
+2026-06-01 19:26:53.594429,SQLI,127.0.0.1,/hello,GET,user=100% OR money back guaranteed
+2026-06-01 19:26:26.630927,SQLI,127.0.0.1,/hello,GET,/hello?user=index&category='+AND+(SELECT+5264+FROM+(SELECT(SLEEP(3)))x)+--
+2026-06-01 19:26:25.187326,SQLI,127.0.0.1,/hello,GET,lang=' AND SLEEP(3) --
+2026-06-01 19:26:22.630314,SQLI,127.0.0.1,/hello,GET,/hello?search=null&id=';+SELECT+PG_SLEEP(3)+--
+2026-06-01 19:19:30.947932,SQLI,127.0.0.1,/hello,GET,user=100% OR money back guaranteed
+2026-06-01 19:19:20.552298,SQLI,127.0.0.1,/hello,GET,id=WHERE can I find the menu?
+2026-06-01 19:19:17.607900,SQLI,127.0.0.1,/hello,GET,nome=user@domain.com OR notify me
+2026-06-01 19:19:02.419016,SQLI,127.0.0.1,/hello,GET,/hello?search=true&nome='+AND+(SELECT+5264+FROM+(SELECT(SLEEP(3)))x)+--
+2026-06-01 19:19:01.080409,SQLI,127.0.0.1,/hello,GET,id=' AND SLEEP(3) --
+2026-06-01 19:18:58.792787,SQLI,127.0.0.1,/hello,GET,/hello?token=';+SELECT+PG_SLEEP(3)+--
+2026-06-01 19:11:00.040309,SQLI,127.0.0.1,/hello,GET,token=sleep(8) hours for recovery
+2026-06-01 19:09:24.814880,SQLI,127.0.0.1,/hello,GET,token=WHERE can I find the menu?
+2026-06-01 19:09:20.348973,SQLI,127.0.0.1,/hello,GET,/hello?category=1&token='+AND+SLEEP(3)+--

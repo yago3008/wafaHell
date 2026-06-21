@@ -1,0 +1,27 @@
+{
+  "timestamp": "2026-06-20T20:55:17.459706",
+  "stress_test": {
+    "total_payloads": 47,
+    "average_latency_ms": 140.66247229880474,
+    "p95_latency_ms": 247.55167961120603,
+    "p99_latency_ms": 266.41504287719727,
+    "classifications": {
+      "SQLI": 19,
+      "XSS": 14,
+      "BENIGN": 14
+    },
+    "errors": 0
+  },
+  "variation_detection": {
+    "SQLI Variations": {
+      "detected": 15,
+      "total": 15,
+      "rate": 100.0
+    },
+    "XSS Variations": {
+      "detected": 14,
+      "total": 14,
+      "rate": 100.0
+    }
+  }
+}

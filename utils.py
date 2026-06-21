@@ -1,9 +1,8 @@
 # from .model import WafLog, Blocked, Whitelist, AdminUser, get_session
 # from .globals import waf_cache
+import os
 import hashlib
 import uuid
-from model import WafLog, Blocked, Whitelist, AdminUser, get_session
-from globals import waf_cache
 
 from datetime import datetime, timedelta, timezone
 import secrets
@@ -17,7 +16,13 @@ from sqlalchemy import literal, text, func, case
 from functools import wraps
 from flask import session, redirect, url_for, request
 import geoip2.database
-import os
+
+try:
+    from model import WafLog, Blocked, Whitelist, AdminUser, get_session
+    from globals import waf_cache
+except ImportError:
+    from .model import WafLog, Blocked, Whitelist, AdminUser, get_session
+    from .globals import waf_cache
 
 
 def b_print(msg: str) -> None:
@@ -116,13 +121,15 @@ def admin(fn: callable) -> callable:
     @wraps(fn)
     def wrapper(*args, **kwargs):
         if not session.get("logged_in"):
-            return redirect(url_for("login", next=request.path))
+            mounted_path = f"{request.script_root.rstrip('/')}{request.path}"
+            return redirect(url_for("login", next=mounted_path))
         return fn(*args, **kwargs)
     return wrapper
 
 class Dashboard:
     def __init__(self):
         self.geo_db_path = os.path.join(os.path.dirname(__file__), 'GeoLite2-Country.mmdb')
+        self.attack_types = ("SQLI", "XSS", "RATE LIMIT", "CRITICAL PATH")
         
     def dashboard_setup(self: object) -> dict:
         """
@@ -211,8 +218,8 @@ class Dashboard:
                 # --- TOTAIS DE HOJE ---
                 total_today = session.query(func.count(WafLog.id)).filter(WafLog.timestamp >= last_24h).scalar() or 0
                 blocked_today = session.query(func.count(WafLog.id)).filter(
-                    WafLog.timestamp >= last_24h, 
-                    WafLog.attack_type != 'INFO'
+                    WafLog.timestamp >= last_24h,
+                    WafLog.attack_type.in_(self.attack_types)
                 ).scalar() or 0
 
                 # --- TOTAIS DE ONTEM (Para Tendência) ---
@@ -224,7 +231,7 @@ class Dashboard:
                 blocked_yesterday = session.query(func.count(WafLog.id)).filter(
                     WafLog.timestamp >= prev_24h, 
                     WafLog.timestamp < last_24h,
-                    WafLog.attack_type != 'INFO'
+                    WafLog.attack_type.in_(self.attack_types)
                 ).scalar() or 0
 
                 # --- CÁLCULO DE TENDÊNCIA (%) ---
@@ -313,11 +320,12 @@ class Dashboard:
                 # 2. Query otimizada com group_concat para pegar IPs
                 query = session.query(
                     func.strftime('%H:%M', WafLog.timestamp).label('minute'),
-                    func.sum(case({WafLog.attack_type == 'INFO': 1}, else_=0)).label('legit'),
-                    func.sum(case({WafLog.attack_type != 'INFO': 1}, else_=0)).label('attacks'),
+                    func.count(WafLog.id).label('total'),
+                    func.sum(case((WafLog.attack_type == 'INFO', 1), else_=0)).label('legit'),
+                    func.sum(case((WafLog.attack_type.in_(self.attack_types), 1), else_=0)).label('attacks'),
                     # Agrega IPs maliciosos numa string separada por vírgula
                     func.group_concat(
-                        case({WafLog.attack_type != 'INFO': WafLog.ip}, else_=literal(None)), 
+                        case((WafLog.attack_type.in_(self.attack_types), WafLog.ip), else_=literal(None)),
                         ','
                     ).label('attack_ips_str')
                 ).filter(
@@ -331,7 +339,9 @@ class Dashboard:
                 # Ex: {'10:05': {'legit': 10, ...}, '10:06': ...}
                 data_map = {
                     row.minute: {
-                        'legit': row.legit or 0,
+                        # Fallback para cenários com logs sem attack_type='INFO':
+                        # considera legítimo todo evento que não foi classificado como ataque.
+                        'legit': max(0, int((row.total or 0) - (row.attacks or 0))),
                         'attacks': row.attacks or 0,
                         'ips': list(set(row.attack_ips_str.split(','))) if row.attack_ips_str else []
                     }
@@ -399,7 +409,7 @@ class Dashboard:
                     func.count(WafLog.id).label('count')
                 ).filter(
                     WafLog.timestamp >= last_24h,
-                    WafLog.attack_type != 'INFO'
+                    WafLog.attack_type.in_(self.attack_types)
                 ).group_by(WafLog.attack_type).all()
 
                 # 2. Calculamos o total de ataques para obter a porcentagem
@@ -453,7 +463,7 @@ class Dashboard:
                     WafLog.ip,
                     func.count(WafLog.id).label('count')
                 ).filter(
-                    WafLog.attack_type != 'INFO'
+                    WafLog.attack_type.in_(self.attack_types)
                 ).group_by(WafLog.ip).all()
 
                 geo_stats = {}
@@ -513,7 +523,7 @@ class Dashboard:
                     func.count(WafLog.id).label('hits_count'),
                     func.count(func.distinct(WafLog.attack_type)).label('unique_vectors')
                 ).filter(
-                    WafLog.attack_type != 'INFO'
+                    WafLog.attack_type.in_(self.attack_types)
                 ).group_by(WafLog.ip).order_by(text('hits_count DESC')).limit(5).all()
 
                 offenders = []

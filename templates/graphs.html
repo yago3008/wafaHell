@@ -197,20 +197,20 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
-            <div class="bg-slate-900 border border-slate-800 p-6 rounded-xl shadow-lg flex flex-col h-[350px]">
+            <div class="bg-slate-900 border border-slate-800 p-6 rounded-xl shadow-lg flex flex-col h-[370px]">
                 <h3 class="text-xs font-bold uppercase text-slate-400 mb-6 border-b border-slate-800 pb-2">Distribuição de Vetores</h3>
                 <div class="flex-1 flex items-center justify-center relative">
-                    <div class="h-56 w-56 relative z-10">
+                    <div class="h-48 w-48 relative z-10">
                         <canvas id="vectorChart"></canvas>
                         <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
                             <div class="text-center">
-                                <span class="block text-2xl font-black text-white">4</span>
+                                <span id="vector-types-count" class="block text-2xl font-black text-white">0</span>
                                 <span class="text-[10px] text-slate-500 uppercase">Tipos</span>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="grid grid-cols-2 gap-2 mt-4 text-[10px] font-mono">
+                <div id="vector-legend" class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 mt-4 text-[10px] font-mono leading-4">
                     <div class="flex items-center gap-2"><span class="w-2 h-2 bg-red-600 rounded"></span> SQLI (45%)</div>
                     <div class="flex items-center gap-2"><span class="w-2 h-2 bg-yellow-500 rounded"></span> XSS (30%)</div>
                     <div class="flex items-center gap-2"><span class="w-2 h-2 bg-purple-600 rounded"></span> BOTS (20%)</div>
@@ -339,7 +339,20 @@
         Chart.defaults.borderColor = '#1e293b'; 
 
         let trafficChart, vectorChart;
-        const vectorColors = ['#dc2626', '#eab308', '#9333ea', '#f97316', '#3b82f6', '#10b981', '#ec4899', '#6366f1'];
+        const VECTOR_COLOR_MAP = {
+            'SQLI': '#ef4444',
+            'SQL INJECTION': '#ef4444',
+            'XSS': '#eab308',
+            'RATE LIMIT': '#9333ea',
+            'CRITICAL PATH': '#f97316',
+            'IP BLOCK': '#f97316'
+        };
+        const VECTOR_FALLBACK_COLORS = ['#38bdf8', '#10b981', '#ec4899', '#6366f1'];
+
+        function getVectorColor(label, index = 0) {
+            const normalized = String(label || '').trim().toUpperCase();
+            return VECTOR_COLOR_MAP[normalized] || VECTOR_FALLBACK_COLORS[index % VECTOR_FALLBACK_COLORS.length];
+        }
 
         // 1. Traffic Chart
         const initTrafficChart = () => {
@@ -433,12 +446,12 @@
             const vectorCtx = document.getElementById('vectorChart').getContext('2d');
             vectorChart = new Chart(vectorCtx, {
                 type: 'doughnut',
-                data: { labels: [], datasets: [{ data: [], backgroundColor: vectorColors, borderWidth: 0, hoverOffset: 15 }] },
+                data: { labels: [], datasets: [{ data: [], backgroundColor: [], borderWidth: 0, hoverOffset: 12 }] },
                 options: { 
                     responsive: true, 
                     maintainAspectRatio: false, 
-                    cutout: '80%',
-                    layout: { padding: 24 }, 
+                    cutout: '74%',
+                    layout: { padding: 8 },
                     plugins: { legend: { display: false } } 
                 }
             });
@@ -549,16 +562,18 @@
 
                 const vectorLabels = data.distribution_vectors.map(v => v.label);
                 const vectorCounts = data.distribution_vectors.map(v => v.count);
+                const vectorBackgroundColors = vectorLabels.map((label, i) => getVectorColor(label, i));
                 vectorChart.data.labels = vectorLabels;
                 vectorChart.data.datasets[0].data = vectorCounts;
-                document.querySelector('.text-2xl.font-black.text-white').innerText = vectorLabels.length;
+                vectorChart.data.datasets[0].backgroundColor = vectorBackgroundColors;
+                document.getElementById('vector-types-count').innerText = vectorLabels.length;
                 vectorChart.update();
                 
-                const legendContainer = document.querySelector('.grid.grid-cols-2.gap-2.mt-4');
+                const legendContainer = document.getElementById('vector-legend');
                 if(legendContainer) {
                     legendContainer.innerHTML = data.distribution_vectors.map((v, i) => `
-                        <div class="flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full" style="background-color: ${vectorChart.data.datasets[0].backgroundColor[i] || '#ccc'}"></span>
+                        <div class="flex items-center gap-2 min-w-0">
+                            <span class="w-2 h-2 rounded-full shrink-0" style="background-color: ${vectorBackgroundColors[i] || '#94a3b8'}"></span>
                             <span class="truncate">${v.label} (${v.percentage}%)</span>
                         </div>
                     `).join('');

@@ -1,5 +1,55 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+ENV/
+
+# Dataset pipeline outputs
+dataset_pipeline/data/raw/
+dataset_pipeline/data/interim/
+dataset_pipeline/data/processed/
+dataset_pipeline/models/
+dataset_pipeline/reports/
+
+# Generated model artifacts
+datasetcomtreinamento/ml_cache/
+datasetcomtreinamento/*.joblib
+datasetcomtreinamento/*.csv
+
+# Database & Cache
+*.db
+*.sqlite
+*.sqlite3
 wafahell.db
+waf_cache_temp/
+
+# Logs
+*.log
 waf.log
-waf_cache_temp/*
-__pycache__/*
-waf_cache_temp/*
+logs/
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Environment
+.env
+
+# Temporary
+*.tmp
+*.bak
+*~
+
+# Dependencies
+*.egg-info/
+dist/
+build/

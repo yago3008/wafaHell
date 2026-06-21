@@ -73,6 +73,7 @@
             {% endwith %}
 
             <form method="POST" class="space-y-5">
+                <input type="hidden" name="next" value="{{ request.args.get('next', '') }}">
 
                 <div class="group">
                     <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1.5 ml-1">

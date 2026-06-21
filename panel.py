@@ -4,19 +4,42 @@
 import random
 import time
 import requests
-from model import AdminUser, CriticalPaths, WafLog, Whitelist, get_session, Blocked
-from globals import waf_cache
-from utils import Dashboard, admin, b_print
+import os
 from datetime import datetime, timedelta, timezone
 import re
 from flask import Flask, request, jsonify, make_response, flash, session, redirect, render_template
+from jinja2 import ChoiceLoader, FileSystemLoader
 from sqlalchemy import func
 import csv
 import io
 from werkzeug.security import check_password_hash
 
+try:
+    from model import AdminUser, CriticalPaths, WafLog, Whitelist, get_session, Blocked
+    from globals import waf_cache
+    from utils import Dashboard, admin, b_print
+except ImportError:
+    from .model import AdminUser, CriticalPaths, WafLog, Whitelist, get_session, Blocked
+    from .globals import waf_cache
+    from .utils import Dashboard, admin, b_print
+
 dashboard = Dashboard()
-DEFAULT_TARGET = "http://127.0.0.1:5001/hello" ## MUDAR
+
+
+def _default_target_url() -> str:
+    host_url = (request.host_url or "").rstrip("/")
+    if not host_url:
+        return "http://127.0.0.1:5001/hello"
+    return f"{host_url}/hello"
+
+
+def _get_wafahell_class():
+    try:
+        from middleware import Wafahell
+        return Wafahell
+    except ImportError:
+        from .middleware import Wafahell
+        return Wafahell
 
 def get_logs_and_stats(ip_filter: str = None, type_filter: str = None, limit: int = 100) -> tuple[list, dict]:
     """
@@ -87,7 +110,19 @@ def get_logs_and_stats(ip_filter: str = None, type_filter: str = None, limit: in
 
 def setup_dashboard(app: Flask, custom_path: str = None) -> None:
 
-    target_path = custom_path or '/admin/dashboard'
+    # An empty prefix is used when Flask is mounted below a FastAPI path.
+    target_path = '/admin/dashboard' if custom_path is None else custom_path.rstrip('/')
+    dashboard_route = target_path or '/'
+
+    # Applications installed through pip do not have the library templates in
+    # their own template directory, so expose the packaged templates to Jinja.
+    if not app.extensions.get("wafahell_template_loader"):
+        package_templates = os.path.join(os.path.dirname(__file__), "templates")
+        app.jinja_loader = ChoiceLoader([
+            app.jinja_loader,
+            FileSystemLoader(package_templates),
+        ])
+        app.extensions["wafahell_template_loader"] = True
 
     @app.route(target_path + "/login", methods=["GET", "POST"])
     def login():
@@ -100,7 +135,7 @@ def setup_dashboard(app: Flask, custom_path: str = None) -> None:
 
                 if admin and check_password_hash(admin.password, password):
                     session["logged_in"] = True
-                    next_page = request.args.get("next", target_path)
+                    next_page = request.values.get("next", dashboard_route)
                     return redirect(next_page)
                 else:
                     flash("Acesso Negado: Credenciais Inválidas", "error")
@@ -118,7 +153,7 @@ def setup_dashboard(app: Flask, custom_path: str = None) -> None:
         logs, stats = get_logs_and_stats(ip_filter=ip_f, type_filter=type_f)
         return jsonify({"logs": logs, "stats": stats})
 
-    @app.route(target_path)
+    @app.route(dashboard_route)
     @admin
     def wafahell_dashboard():
         ip_f = request.args.get('ip')
@@ -260,16 +295,34 @@ def setup_dashboard(app: Flask, custom_path: str = None) -> None:
     @app.route(target_path + '/vars', methods=['GET'])
     @admin
     def get_vars():
-        from middleware import Wafahell
+        Wafahell = _get_wafahell_class()
         waf = Wafahell()
 
+        def _json_safe(value):
+            # Primitives are already JSON-safe
+            if value is None or isinstance(value, (str, int, float, bool)):
+                return value
+            # Convert regex patterns into readable dicts for the dashboard
+            if isinstance(value, re.Pattern):
+                return {"pattern": value.pattern, "flags": value.flags}
+            if isinstance(value, dict):
+                return {str(k): _json_safe(v) for k, v in value.items()}
+            if isinstance(value, (list, tuple, set)):
+                return [_json_safe(v) for v in value]
+            # Fallback: string representation to avoid 500 on unknown objects
+            return str(value)
+
         output = {}
-        allowed_types = (str, int, float, bool, list, dict)
         blacklisted_keys = {'app', 'log', 'recent_blocks_cache', '_instance', 'initialized', 'dashboard_path', 'ai_treshold'}
 
         for key, value in vars(waf).items():
-            if key not in blacklisted_keys and isinstance(value, allowed_types):
-                output[key] = value
+            if key in blacklisted_keys:
+                continue
+            safe_value = _json_safe(value)
+            # Do not expose giant unreadable objects represented only by generic class repr
+            if isinstance(safe_value, str) and safe_value.startswith("<") and safe_value.endswith(">"):
+                continue
+            output[key] = safe_value
                 
         return output
 
@@ -280,13 +333,37 @@ def setup_dashboard(app: Flask, custom_path: str = None) -> None:
         key = data.get('key')
         value = data.get('value')
 
-        from middleware import Wafahell
+        Wafahell = _get_wafahell_class()
         waf = Wafahell()
 
         if hasattr(waf, key):
-            
+            # Regra de consistência: Rate Limit só funciona junto com Auto Blocker.
+            if key == "rate_limit":
+                rate_limit_value = bool(value)
+                setattr(waf, "rate_limit", rate_limit_value)
+                if rate_limit_value and not bool(getattr(waf, "block_ip", False)):
+                    setattr(waf, "block_ip", True)
+                return {
+                    "status": "success",
+                    "message": "rate_limit updated with dependency sync",
+                    "newValue": getattr(waf, "rate_limit"),
+                    "block_ip": getattr(waf, "block_ip"),
+                }
+
+            if key == "block_ip":
+                block_ip_value = bool(value)
+                setattr(waf, "block_ip", block_ip_value)
+                # Se Auto Blocker for desligado, desliga Rate Limit para manter consistência.
+                if not block_ip_value and bool(getattr(waf, "rate_limit", False)):
+                    setattr(waf, "rate_limit", False)
+                return {
+                    "status": "success",
+                    "message": "block_ip updated with dependency sync",
+                    "newValue": getattr(waf, "block_ip"),
+                    "rate_limit": getattr(waf, "rate_limit"),
+                }
+
             setattr(waf, key, value)
-            
             return {"status": "success", "message": f"{key} updated", "newValue": value}
         
         return {"status": "error", "message": "Invalid variable"}, 400
@@ -458,7 +535,7 @@ def setup_dashboard(app: Flask, custom_path: str = None) -> None:
         finally:
             session.close()
 
-    b_print(f"Dashboard e API de dados prontos em: {target_path}")
+    b_print(f"Dashboard e API de dados prontos em: {dashboard_route}")
 
     USER_AGENTS = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36",
@@ -589,17 +666,17 @@ def setup_dashboard(app: Flask, custom_path: str = None) -> None:
     def run_tests(payload_list, expected_block, target_url):
         results = []
         for payload, desc in payload_list:
-            config = random.choice(build_request_configs(payload, target_url))
-            status, latency = send_request(config)
-            results.append({
-                "payload":    payload,
-                "desc":       desc,
-                "vector":     config["vector"],
-                "status":     status,
-                "latency_ms": round(latency, 1),
-                "result":     classify_result(status, expected_block),
-            })
-            time.sleep(random.uniform(0.03, 0.15))
+            for config in build_request_configs(payload, target_url):
+                status, latency = send_request(config)
+                results.append({
+                    "payload":    payload,
+                    "desc":       desc,
+                    "vector":     config["vector"],
+                    "status":     status,
+                    "latency_ms": round(latency, 1),
+                    "result":     classify_result(status, expected_block),
+                })
+                time.sleep(random.uniform(0.03, 0.15))
         return results
 
     # ─────────────────────────────────────────────
@@ -614,7 +691,7 @@ def setup_dashboard(app: Flask, custom_path: str = None) -> None:
         Body JSON opcional: { "target_url": "http://..." }
         """
         body       = request.get_json(silent=True) or {}
-        target_url = body.get("target_url", DEFAULT_TARGET)
+        target_url = (body.get("target_url") or _default_target_url()).strip()
 
         sqli_results = run_tests(SQLI_PAYLOADS,       expected_block=True,  target_url=target_url)
         edge_results = run_tests(BENIGN_EDGE_CASES,    expected_block=False, target_url=target_url)
@@ -643,6 +720,10 @@ def setup_dashboard(app: Flask, custom_path: str = None) -> None:
                 "edge_allowed":        edge_allowed,
                 "false_positives":     edge_fp,
                 "fp_rate_pct":         fp_rate,
+                # Combined totals for dashboard convenience
+                "total":               len(sqli_results) + len(edge_results),
+                "blocked_total":       sqli_blocked + edge_fp,
+                "passed_total":        sqli_passed + edge_allowed,
                 "avg_latency_ms":      avg_lat,
             },
             "sqli_results": sqli_results,
@@ -674,7 +755,7 @@ def setup_dashboard(app: Flask, custom_path: str = None) -> None:
         }
         """
         body           = request.get_json(silent=True) or {}
-        target_url     = body.get("target_url",    DEFAULT_TARGET)
+        target_url     = (body.get("target_url") or _default_target_url()).strip()
         payload        = body.get("payload",       "' OR 1=1 --")
         vector_key     = body.get("vector",        "GET").upper()
         param          = body.get("param",         random.choice(PARAM_NAMES))
@@ -704,7 +785,7 @@ def setup_dashboard(app: Flask, custom_path: str = None) -> None:
     @app.route(target_path + "/mock/status", methods=["GET"])
     @admin
     def status():
-        target_url = request.args.get("target", DEFAULT_TARGET)
+        target_url = (request.args.get("target") or _default_target_url()).strip()
         try:
             r = requests.get(target_url, timeout=3)
             return jsonify({"online": True, "status_code": r.status_code, "target": target_url})
@@ -714,4 +795,4 @@ def setup_dashboard(app: Flask, custom_path: str = None) -> None:
     @app.route(target_path + '/mock', methods=['GET'])
     @admin
     def mock_simulator():
-        return render_template('mock.html')
+        return render_template('mock.html', default_target=_default_target_url())
